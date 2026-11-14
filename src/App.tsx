@@ -12,7 +12,7 @@ const hourFromDate = (value: string) => (Date.parse(`${value}Z`) - Date.parse(CO
 function Moon({ planning, selected, onSelect }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void }) {
   const host = useRef<HTMLDivElement>(null);
   const focusLabel = useRef<HTMLDivElement>(null);
-  const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; markers: Map<SiteId, THREE.Mesh>; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion } | null>(null);
+  const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; markers: Map<SiteId, THREE.Sprite>; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion } | null>(null);
   const onSelectRef = useRef(onSelect);
   const planningRef = useRef(planning);
   const selectedRef = useRef(selected);
@@ -51,13 +51,14 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
       scene.add(new THREE.HemisphereLight(0x7790ad, 0x010205, .22));
       const key = new THREE.DirectionalLight(0xfff7e8, 3.8); key.position.set(-4, 2.6, 5); scene.add(key);
       const rim = new THREE.DirectionalLight(0x608cc0, .72); rim.position.set(4,-2,-4); scene.add(rim);
-      const markers = new Map<SiteId, THREE.Mesh>();
+      const markerTexture=(active=false)=>{const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;const context=canvas.getContext("2d")!;context.clearRect(0,0,128,128);context.strokeStyle=active?"#fff5df":"#f4b94f";context.fillStyle="#f4b94f";context.lineWidth=active?8:7;context.lineCap="round";const corner=(x:number,y:number,sx:number,sy:number)=>{context.beginPath();context.moveTo(x+sx*25,y);context.lineTo(x,y);context.lineTo(x,y+sy*25);context.stroke()};corner(38,38,1,1);corner(90,38,-1,1);corner(38,90,1,-1);corner(90,90,-1,-1);context.save();context.translate(64,64);context.rotate(Math.PI/4);context.fillRect(active?-8:-5,active?-8:-5,active?16:10,active?16:10);context.restore();const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.minFilter=THREE.LinearFilter;return map};
+      const markers = new Map<SiteId, THREE.Sprite>();
       for (const site of SITES) {
         const phi = THREE.MathUtils.degToRad(90 - site.latitude), theta = THREE.MathUtils.degToRad(site.longitude);
-        const marker = new THREE.Mesh(new THREE.SphereGeometry(.035,12,12), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(.006,16,16), new THREE.MeshBasicMaterial({ color: 0xf3b44b }));
-        marker.add(dot);
-        marker.userData.dot = dot;
+        const normalTexture=markerTexture(),activeTexture=markerTexture(true);
+        const marker = new THREE.Sprite(new THREE.SpriteMaterial({ map:normalTexture,transparent:true,depthWrite:false,depthTest:true }));
+        marker.scale.setScalar(.13);
+        marker.userData.normalTexture=normalTexture;marker.userData.activeTexture=activeTexture;
         marker.position.set(1.59*Math.sin(phi)*Math.cos(theta),1.59*Math.cos(phi),-1.59*Math.sin(phi)*Math.sin(theta));
         marker.userData.id = site.id; moon.add(marker); markers.set(site.id, marker);
       }
@@ -65,16 +66,17 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
       const rotationTarget = moon.quaternion.clone();
       state.current = { renderer, scene, camera, moon, markers, frame: 0, cameraTarget, rotationTarget };
       const resize = () => { const {clientWidth:w,clientHeight:h}=container; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
-      const ray = new THREE.Raycaster(), pointer = new THREE.Vector2(); let dragging=false, px=0, py=0;
-      const down=(e:PointerEvent)=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
-      const move=(e:PointerEvent)=>{if(!dragging)return;const delta=new THREE.Quaternion().setFromEuler(new THREE.Euler((e.clientY-py)*.006,(e.clientX-px)*.006,0,"XYZ"));moon.quaternion.premultiply(delta).normalize();rotationTarget.copy(moon.quaternion);px=e.clientX;py=e.clientY};
-      const up=(e:PointerEvent)=>{dragging=false;renderer.domElement.releasePointerCapture(e.pointerId)};
-      const click=(e:MouseEvent)=>{const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects([...markers.values()],true)[0];if(hit){const target=hit.object.userData.id?hit.object:hit.object.parent;if(target?.userData.id)onSelectRef.current(target.userData.id)}};
+      const observer=new ResizeObserver(resize);observer.observe(container);
+      const ray = new THREE.Raycaster(), pointer = new THREE.Vector2(); let dragging=false, moved=false, px=0, py=0;
+      const down=(e:PointerEvent)=>{if(e.target!==renderer.domElement)return;dragging=true;moved=false;px=e.clientX;py=e.clientY;e.preventDefault()};
+      const move=(e:PointerEvent)=>{if(!dragging)return;const dx=e.clientX-px,dy=e.clientY-py;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;const delta=new THREE.Quaternion().setFromEuler(new THREE.Euler(dy*.006,dx*.006,0,"XYZ"));moon.quaternion.premultiply(delta).normalize();rotationTarget.copy(moon.quaternion);px=e.clientX;py=e.clientY};
+      const up=()=>{dragging=false};
+      const click=(e:MouseEvent)=>{if(moved)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects([...markers.values()],false)[0];if(hit?.object.userData.id)onSelectRef.current(hit.object.userData.id)};
       const wheel=(e:WheelEvent)=>{e.preventDefault();cameraTarget.z=THREE.MathUtils.clamp(cameraTarget.z+e.deltaY*.002,2.25,6)};
-      addEventListener("resize",resize); renderer.domElement.addEventListener("pointerdown",down);renderer.domElement.addEventListener("pointermove",move);renderer.domElement.addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
+      addEventListener("resize",resize);renderer.domElement.style.touchAction="none";renderer.domElement.addEventListener("pointerdown",down);addEventListener("pointermove",move);addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
       const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
-      const animate=()=>{if(!state.current)return;camera.position.lerp(cameraTarget,.06);moon.quaternion.slerp(rotationTarget,.075);if(!dragging&&!planningRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);const visible=world.clone().normalize().dot(centerToCamera)>.05;const dot=marker.userData.dot as THREE.Mesh;dot.visible=visible});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);const visible=(marker.userData.dot as THREE.Mesh).visible;focusLabel.current.style.opacity=visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
-      return()=>{removeEventListener("resize",resize);cancelAnimationFrame(state.current?.frame||0);renderer.dispose();renderer.domElement.remove();state.current=null};
+      const animate=()=>{if(!state.current)return;camera.position.lerp(cameraTarget,.06);moon.quaternion.slerp(rotationTarget,.075);if(!dragging&&!planningRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
+      return()=>{removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
       fallback.className = "fallback";
@@ -83,10 +85,10 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
     }
   }, []);
   const polarQuaternion=()=>new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,-1,0),new THREE.Vector3(0,-.35,1).normalize());
-  useEffect(()=>{if(!state.current)return;state.current.cameraTarget.set(0,planning?-.18:.5,planning?3.85:5.2);if(planning)state.current.rotationTarget.copy(polarQuaternion());},[planning]);
-  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((m,id)=>{const dot=m.userData.dot as THREE.Mesh;(dot.material as THREE.MeshBasicMaterial).color.set(id===selected?0xffffff:0xf3b44b);dot.scale.setScalar(id===selected?2.35:1)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.18,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.08,3.05)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.18,3.85)}},[selected,planning]);
+  useEffect(()=>{if(!state.current)return;state.current.cameraTarget.set(0,planning?-.06:.5,planning?5.7:5.2);if(planning)state.current.rotationTarget.copy(polarQuaternion());},[planning]);
+  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((marker,id)=>{const active=id===selected;marker.material.map=active?marker.userData.activeTexture:marker.userData.normalTexture;marker.material.needsUpdate=true;marker.scale.setScalar(active ? .19 : .13)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.14,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.04,3.8)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.7)}},[selected,planning]);
   const selectedName=SITES.find(site=>site.id===selected)?.name;
-  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.18,3.85)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
+  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.7)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
 }
 
 function Timeline({ id, cursor, setCursor, start, duration }:{id:SiteId;cursor:number;setCursor:(n:number)=>void;start:number;duration:number}) {
