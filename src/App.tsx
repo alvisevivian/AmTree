@@ -145,8 +145,8 @@ function ComparisonRow({site,result,duration,limit,onSelect}:{site:(typeof SITES
 }
 
 export default function App(){
-  const [planning,setPlanning]=useState(false),[selected,setSelected]=useState<SiteId|null>(null),[scenario,setScenario]=useState<ScenarioId>("baseline"),[limit,setLimit]=useState(12),[cursor,setCursor]=useState(Date.parse(MALAPERT_SAMPLES[0].time_utc)),[method,setMethod]=useState(false),[introStage,setIntroStage]=useState<"running"|"reveal"|"leaving"|"done">("running");
-  useEffect(()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches){setIntroStage("done");return}const reveal=window.setTimeout(()=>setIntroStage("reveal"),5100),leave=window.setTimeout(()=>setIntroStage("leaving"),6400),done=window.setTimeout(()=>setIntroStage("done"),7350);return()=>{clearTimeout(reveal);clearTimeout(leave);clearTimeout(done)}},[]);
+  const [planning,setPlanning]=useState(false),[selected,setSelected]=useState<SiteId|null>(null),[scenario,setScenario]=useState<ScenarioId>("baseline"),[limit,setLimit]=useState(12),[cursor,setCursor]=useState(Date.parse(MALAPERT_SAMPLES[0].time_utc)),[method,setMethod]=useState(false),[introStage,setIntroStage]=useState<"running"|"reveal"|"done">("running");
+  useEffect(()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches){setIntroStage("done");return}const reveal=window.setTimeout(()=>setIntroStage("reveal"),5100),done=window.setTimeout(()=>setIntroStage("done"),7100);return()=>{clearTimeout(reveal);clearTimeout(done)}},[]);
   const info=scenarioInfo(scenario),duration=info.duration,missionStart=info.start,missionEnd=info.end;
   const results=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,scenario,limit)])) as Record<SiteId,SiteMetrics>,[scenario,limit]);
   const baseline=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,"baseline",limit)])) as Record<SiteId,SiteMetrics>,[limit]);
@@ -158,7 +158,7 @@ export default function App(){
   const shortlist=SITES.filter(s=>results[s.id].meets).length;
   const utc=(date:Date)=>date.toISOString().replace("T"," · ").slice(0,18)+" UTC";
   return <main className={`${planning?"planning":"opening"} ${!planning?`intro-${introStage}`:""}`}>
-    {!planning&&introStage!=="done"&&<div className="intro-flight" aria-hidden="true"><iframe src="/intro/terra-luna/index.html" title="Earth to Moon opening animation" tabIndex={-1}/></div>}
+    {!planning&&<div className="intro-flight" aria-hidden="true"><iframe src="/intro/terra-luna/index.html" title="Earth to Moon opening animation" tabIndex={-1}/></div>}
     <Moon planning={planning} selected={selected} onSelect={choose} autoRotate={!planning&&introStage!=="done"}/>
     <header><div className="brand"><span className="brand-mark">A</span><span>AmTree</span></div>{planning&&<div className="header-actions"><span className="demo-badge real-data">LOLA terrain · SPICE ephemeris</span><button className="text-button" onClick={()=>setMethod(true)}>Data &amp; Method</button><button className="text-button" onClick={reset}>Reset</button></div>}</header>
     {!planning?<section className="hero"><p className="eyebrow">AMTREE LUNAR NAVIGATOR</p><h1>Lunar Navigator</h1><p>Compare computed lighting and Earth visibility conditions at the lunar south pole.</p><button className="primary" onClick={()=>setPlanning(true)}>Plan a landing <span>→</span></button></section>:<section className="planner">

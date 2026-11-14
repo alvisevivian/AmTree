@@ -12,9 +12,9 @@ const timeline = [
   [2.91, [ 0.10, 0.32, 10.37], [0.03, 0.00, 0.40]],
   [3.47, [ 0.40, 0.39, 12.65], [0.24, -0.04, 2.60]],
   [4.15, [ 0.23, 0.58, 13.97], [0.86, -0.17, 7.48]],
-  [4.81, [-0.18, 0.48, 13.81], moon],
-  [5.85, [-0.44, 0.38, 12.22], moon],
-  [7.00, [-0.52, 0.28, 11.57], moon]
+  [4.81, [-0.18, 0.48, 14.28], moon],
+  [5.85, [-0.38, 0.38, 13.72], moon],
+  [7.00, [-0.42, 0.30, 13.28], moon]
 ];
 const sub = (a,b) => a.map((v,i) => v-b[i]);
 const add = (a,b) => a.map((v,i) => v+b[i]);
@@ -341,7 +341,7 @@ function image(name){
     const img=new Image();
     img.onload=()=>resolve(img);
     img.onerror=reject;
-    img.src='assets/'+name+'-nasa.jpg';
+    img.src=name==='moon'?'/assets/lroc_color_poles_8k.jpg':'assets/'+name+'-nasa.jpg';
   });
 }
 let canvas=document.querySelector('#view');
