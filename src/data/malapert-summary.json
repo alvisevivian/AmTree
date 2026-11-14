@@ -1,0 +1,211 @@
+{
+ "schema_version": "1.0.0",
+ "analysis_id": "an_65588a6849fac351",
+ "created_utc": "2026-11-14T11:57:51Z",
+ "data_status": "computed",
+ "analysis_point": {
+  "analysis_point_id": "pgda-site23-malapert-massif",
+  "name": "Malapert Massif",
+  "region_id": "malapert-massif",
+  "lat_deg": -85.994785,
+  "lon_deg": -0.235784,
+  "role": "frontend_study_location",
+  "verification_status": "coordinates_verified_against_source_raster_header"
+ },
+ "coordinates": {
+  "lat_deg": -85.994785,
+  "lon_deg": -0.235784,
+  "frame": "MOON_ME (DE421 mean Earth/polar axis)",
+  "latitude_type": "planetocentric (sphere)",
+  "longitude_convention": "east positive, [-180, 180)",
+  "reference_radius_m": 1737400.0,
+  "terrain_height_m": 4784.79
+ },
+ "period": {
+  "start_utc": "2027-01-10T12:00:00Z",
+  "end_utc": "2027-01-13T12:00:00Z",
+  "duration_hours": 72.0,
+  "step_s": 240,
+  "n_samples": 1081,
+  "start_et_s": 852854469.1841874,
+  "time_scale": "UTC (ISO 8601, 'Z'); internally TDB seconds past J2000 via naif0012.tls"
+ },
+ "metrics": {
+  "duration_hours": 72.0,
+  "sun_visible_hours": 47.6327,
+  "sun_not_visible_hours": 24.3673,
+  "sun_unknown_hours": 0.0,
+  "earth_visible_hours": 62.8301,
+  "earth_not_visible_hours": 9.1699,
+  "earth_unknown_hours": 0.0,
+  "sun_and_earth_visible_hours": 38.4628,
+  "sun_and_earth_unknown_hours": 0.0,
+  "darkness_hours": 24.3673,
+  "longest_darkness_hours": 24.3673,
+  "longest_darkness_upper_bound_hours": 24.3673,
+  "longest_sunlight_hours": 47.6327,
+  "longest_sunlight_upper_bound_hours": 47.6327,
+  "longest_earth_visible_hours": 62.8301,
+  "longest_earth_visible_upper_bound_hours": 62.8301,
+  "longest_earth_outage_hours": 9.1699,
+  "longest_earth_outage_upper_bound_hours": 9.1699,
+  "unknown_hours": 0.0,
+  "sun_fraction": 0.6616,
+  "earth_fraction": 0.8726,
+  "sun_and_earth_fraction": 0.5342,
+  "sun_fraction_of_known": 0.6616,
+  "earth_fraction_of_known": 0.8726,
+  "data_coverage_fraction": 1.0,
+  "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+  "sun_mean_disk_fraction_lower": 0.6608,
+  "sun_eclipsed_by_earth_hours_sampled": 0.0
+ },
+ "method": {
+  "name": "terrain-horizon visibility of Sun/Earth discs",
+  "versions": {
+   "horizon": "horizon-1",
+   "visibility": "vis-2",
+   "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+   "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+  },
+  "observer_height_above_terrain_m": 2.0,
+  "observer_terrain_height_m": 4784.79,
+  "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+  "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+  "darkness_definition": "< 50% of the solar disc above the terrain horizon (certain)",
+  "disc_sampling_points": 96,
+  "transition_refinement": {
+   "method": "bisection on the visibility state",
+   "tolerance_s": 1.0,
+   "note": "numerical precision only; physical timing accuracy is limited by DEM resolution and may be minutes where the body grazes the horizon. Events shorter than the 240 s sampling step can be missed."
+  },
+  "eclipse_handling": "Sun eclipsed by Earth flagged per sample (geometric); not subtracted from sunlight",
+  "horizon": {
+   "horizon_id": "hz_0bf75cf47c51d127",
+   "model": {
+    "algorithm": "horizon-1",
+    "curvature": "exact spherical geometry on the 1737.4 km sphere",
+    "azimuth_step_deg": 0.25,
+    "search_radius_m": 600000.0,
+    "radial_sampling": "40 m steps growing 0.3 %/step (1605 samples per ray)",
+    "near_field_dem": {
+     "file": "LDEM_80S_80MPP_ADJ.TIF",
+     "level": 0,
+     "pixel_m": 80.0,
+     "shape": [
+      7600,
+      7600
+     ],
+     "nodata": "nan",
+     "projection": "south polar stereographic, lat_0=-90, k=1, R=1737400 m, x_0=y_0=0",
+     "citation_geokey": "Moon (2015) - Sphere / Ocentric / South Polar",
+     "file_size_bytes": 189158392,
+     "role": "near field, full resolution",
+     "nan_fraction": 0.0
+    },
+    "far_field_dem": {
+     "file": "LDEM_60S_240MPP_ADJ.TIF.partial",
+     "level": 1,
+     "pixel_m": 480.0,
+     "shape": [
+      3880,
+      3880
+     ],
+     "nodata": "nan",
+     "projection": "south polar stereographic, lat_0=-90, k=1, R=1737400 m, x_0=y_0=0",
+     "citation_geokey": "Moon (2015) - Sphere / Ocentric / South Polar",
+     "file_size_bytes": 102084608,
+     "role": "far field, COG overview level 1 (2x reduction of the 240 m/px raster, resampling method chosen by the data producer; summits can be smoothed)",
+     "nan_fraction": 0.0
+    },
+    "unknown_terrain_assumed_max_height_m": 10786.0
+   },
+   "coverage": {
+    "min_covered_distance_m": 601578.5285552902,
+    "azimuth_fraction_fully_determined": 1.0,
+    "max_upper_bound_gap_deg": 0.0,
+    "far_field_dem_available": true
+   }
+  }
+ },
+ "sources": {
+  "dem": {
+   "product": "A New View of the Lunar South Pole from LOLA (PGDA product 90)",
+   "url": "https://pgda.gsfc.nasa.gov/products/90",
+   "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/",
+   "doi": "10.60903/gsfcpgda-lola-spole",
+   "reference": "Barker, M. K., et al. (2023), Planetary Science Journal 4, 183, doi:10.3847/PSJ/acf3e1",
+   "frame": "MOON_ME of JPL DE421 (per product page)",
+   "height_definition": "surface height in metres above the 1 737 400 m reference sphere",
+   "files": [
+    {
+     "name": "LDEM_60S_240MPP_ADJ.TIF.partial",
+     "size_bytes": 102084608,
+     "sha256": "8885efc39fb05dfc3ddb24c9fb30f07cc65aae42eb6cf5672bcf00e65ca7c7f4",
+     "complete": false
+    },
+    {
+     "name": "LDEM_80S_80MPP_ADJ.TIF",
+     "size_bytes": 189158392,
+     "sha256": "82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a",
+     "complete": true
+    }
+   ]
+  },
+  "ephemeris": {
+   "provider": "spice",
+   "version": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+   "toolkit": "CSPICE_N0067",
+   "aberration_correction": "LT+S (light time and stellar aberration); observer at the site",
+   "body_frame": "MOON_ME",
+   "body_frame_description": "Lunar mean-Earth/polar-axis (ME) frame. Datasets are referenced to the ME frame of DE421; SPICE computations use MOON_ME as defined by moon_de440_250416.tf (alias of MOON_ME_DE440_ME421, the DE440 principal-axis orientation rotated to align with DE421 ME).",
+   "kernels": [
+    {
+     "name": "naif0012.tls",
+     "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+     "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/"
+    },
+    {
+     "name": "pck00011.tpc",
+     "sha256": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1",
+     "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/"
+    },
+    {
+     "name": "moon_pa_de440_200625.bpc",
+     "sha256": "60cd55aa401ea2ea97360636f567554bfe4e37bb829f901b4460a455dfaf783f",
+     "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/"
+    },
+    {
+     "name": "moon_de440_250416.tf",
+     "sha256": "a47c71e9c9f33796bdafb2c9d69a7ee447b6016ecad80f71cd6f3e479f9cf768",
+     "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/"
+    },
+    {
+     "name": "de440s.bsp",
+     "sha256": "c1c7feeab882263fc493a9d5a5b2ddd71b54826cdf65d8d17a76126b260a49f2",
+     "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/"
+    }
+   ]
+  }
+ },
+ "limitations": [
+  "Prototype for site screening; not validated for flight operations and not NASA-approved.",
+  "Horizon from LOLA gridded DEMs (80 m/px within ~300 km of the pole, 480 m/px overview beyond): terrain smaller than the pixel scale (boulders, small crater rims, the lander itself) is not modelled.",
+  "The observer is a point at the stated height above the DEM surface at the stated coordinates.",
+  "Sun visibility is a geometric power *opportunity*; no power-system, thermal or array-pointing model.",
+  "Earth visibility is geometric line of sight to the Earth disc; no antenna, ground-station, link-budget or multipath analysis, so it does not prove a usable radio link.",
+  "Sun and Earth are uniform discs; solar limb darkening is ignored. Eclipses of the Sun by the Earth are flagged geometrically and not subtracted from sunlight.",
+  "Reachability, descent trajectory, navigation, slopes/hazards at lander scale and vehicle constraints are not evaluated."
+ ],
+ "timing": {
+  "horizon_s": 0.001,
+  "horizon_cache": "hit",
+  "ephemeris_s": 0.043,
+  "visibility_s": 0.013,
+  "total_s": 0.094
+ },
+ "links": {
+  "timeseries": "/api/v1/analyses/an_65588a6849fac351/timeseries",
+  "intervals": "/api/v1/analyses/an_65588a6849fac351/intervals"
+ }
+}
