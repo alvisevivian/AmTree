@@ -30,7 +30,7 @@ except ImportError:
 
 # ==============================================================================
 # ARTEMIS III - SUN VISIBILITY SIMULATOR (ILLUMINATION)
-# Architecture: Static (Instant Snapshot PNG) & Dynamic (Time-Series & GIF)
+# Architecture: Static (Instant Snapshot PNG, CSV) & Dynamic (Time-Series CSV, GIF)
 # Note: Bulletproof dynamic paths. Runs perfectly regardless of terminal location.
 # ==============================================================================
 
@@ -46,7 +46,10 @@ DEM_DIR = os.path.join(BASE_DIR, "LandingSides", "DEMs")
 STATIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Static")
 DYNAMIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Dynamic")
 
-CSV_OUTPUT = os.path.join(DYNAMIC_OUT, "Artemis3_Illumination_Results.csv")
+# CSV FILES
+STATIC_CSV = os.path.join(STATIC_OUT, "Artemis3_Illumination_Static_Results.csv")
+DYNAMIC_CSV = os.path.join(DYNAMIC_OUT, "Artemis3_Illumination_Results.csv")
+
 DYNAMIC_IMAGE = os.path.join(DYNAMIC_OUT, "Illumination_Time_Series.png")
 
 KERNELS_TO_DOWNLOAD = {
@@ -76,8 +79,8 @@ def get_user_inputs(geojson_data):
     
     # 1. SIMULATION MODE
     print("\n[ SIMULATION MODE ]")
-    print("  S - Static Mode  (Instant Snapshot Heatmap PNG -> Outputs/Static)")
-    print("  D - Dynamic Mode (Time-Series & Animated GIF -> Outputs/Dynamic)")
+    print("  S - Static Mode  (Instant Snapshot PNG & CSV -> Outputs/Static)")
+    print("  D - Dynamic Mode (Time-Series CSV & GIF -> Outputs/Dynamic)")
     mode = input("Your Choice [S/D] (Default: D): ").strip().upper()
     prefs['mode'] = 'S' if mode == 'S' else 'D'
     
@@ -257,8 +260,11 @@ def run_static_snapshot(prefs, geojson_data):
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
     re, flat = radii[0], (radii[0] - radii[2]) / radii[0]
 
-    print(f"\n[*] Generating 2D static snapshot for {prefs['target']} -> Outputs/Static...")
+    print(f"\n[*] Generating 2D static snapshot & CSV for {prefs['target']} -> Outputs/Static...")
     region_cache = build_region_cache(prefs, geojson_data, re, flat)
+    
+    current_utc = spice.et2utc(et, 'ISOC', 0)
+    csv_data = [["Region", "Time_UTC", "Sun_Elevation_Deg", "Sunlit_Area_Pct", "Status"]]
     
     for r_name, cache in region_cache.items():
         safe_name = r_name.replace(" ", "_")
@@ -269,8 +275,17 @@ def run_static_snapshot(prefs, geojson_data):
             elevations.append(90.0 - np.degrees(angle))
             
         elevs = np.array(elevations)
-        elevs = np.clip(elevs, -1e-5, None)
-        max_el = max(1.0, elevs.max())
+        
+        # Calculate Stats for CSV
+        c_angle = spice.vsep(cache['c_zenith'], sun_pos - cache['c_pos'])
+        c_elev_deg = 90.0 - np.degrees(c_angle)
+        vis_count = sum(1 for el in elevs if el > 0)
+        pct = (vis_count / cache['total_points']) * 100
+        status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
+        csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
+        
+        elevs_clipped = np.clip(elevs, -1e-5, None)
+        max_el = max(1.0, elevs_clipped.max())
             
         levels = np.zeros(31)
         levels[0] = -1e-5
@@ -279,13 +294,13 @@ def run_static_snapshot(prefs, geojson_data):
 
         fig = plt.figure(figsize=(10, 8))
         mode_title = "DEM Calculated" if prefs['use_dem'] else "Ellipsoid Calculated"
-        plt.title(f"Sun Visibility Gradient: {r_name} ({mode_title})\nSnapshot UTC: {prefs['target']}", fontsize=14, fontweight='bold')
+        plt.title(f"Sun Visibility Gradient: {r_name} ({mode_title})\nSnapshot UTC: {current_utc}", fontsize=14, fontweight='bold')
         
         plt.xlabel("Longitude (deg)", fontsize=12, fontweight='bold')
         plt.ylabel("Latitude (deg)", fontsize=12, fontweight='bold')
         
         inside_pts = cache['inside_pts']
-        contour = plt.tricontourf(inside_pts[:, 0], inside_pts[:, 1], elevs, levels=levels, colors=c_list)
+        contour = plt.tricontourf(inside_pts[:, 0], inside_pts[:, 1], elevs_clipped, levels=levels, colors=c_list)
         
         cbar = plt.colorbar(contour)
         cbar.set_label('Solar Elevation Angle (deg)', fontsize=12, fontweight='bold')
@@ -303,6 +318,11 @@ def run_static_snapshot(prefs, geojson_data):
         if prefs.get('export_stl'):
             export_3d_stl(r_name, cache['dem_path'], safe_name, STATIC_OUT)
 
+    # WRITE STATIC CSV
+    with open(STATIC_CSV, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerows(csv_data)
+    print(f"\n[*] Static CSV Report saved to: {STATIC_CSV}")
     print(f"[*] Static analysis complete. Files saved in '{STATIC_OUT}'.")
 
 def run_dynamic_timeseries(prefs, geojson_data):
@@ -387,16 +407,16 @@ def run_dynamic_timeseries(prefs, geojson_data):
             plt.close(fig)
             print(f"    [+] Saved Dynamic GIF: {gif_path}")
 
-    with open(CSV_OUTPUT, 'w', newline='', encoding='utf-8') as f:
+    with open(DYNAMIC_CSV, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerows(csv_data)
         
-    print(f"[*] Time-series processed and saved to: {CSV_OUTPUT}")
+    print(f"[*] Time-series processed and saved to: {DYNAMIC_CSV}")
 
 def process_and_visualize_data(prefs):
-    print(f"[*] Reading {CSV_OUTPUT} to generate dynamic summary chart...\n")
+    print(f"[*] Reading {DYNAMIC_CSV} to generate dynamic summary chart...\n")
     try:
-        df = pd.read_csv(CSV_OUTPUT)
+        df = pd.read_csv(DYNAMIC_CSV)
         df['Time_UTC'] = pd.to_datetime(df['Time_UTC'])
         
         regions = df['Region'].unique()
