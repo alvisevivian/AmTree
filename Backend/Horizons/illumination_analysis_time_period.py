@@ -4,18 +4,21 @@ import csv
 import urllib.request
 import numpy as np
 import spiceypy as spice
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 # ==============================================================================
-# LUNAR ILLUMINATION TIME-SERIES GENERATOR (SPICE)
-# Objective: Propagate time and calculate solar elevation over a specific period.
+# LUNAR ILLUMINATION TIME-SERIES GENERATOR, RANKING & VISUALIZER
+# Objective: Propagate time, calculate solar elevation, rank regions, and plot.
 # ==============================================================================
 
 KERNEL_DIR = "kernels"
 GEOJSON_FILE = "LandingSides/A3-9regions-lonlat-simplified.geojson"
 CSV_OUTPUT = "Artemis3_Illumination_Windows.csv"
+OUTPUT_IMAGE = "Illumination_Windows_Chart.png"
 
 # 1. USER DEFINED TIME INTERVAL & STEP
-# Format: YYYY-MM-DDThh:mm:ss
 START_UTC = "2026-11-14T00:00:00"
 END_UTC = "2026-11-28T00:00:00"   # 14 days later (roughly half a Lunar day)
 STEP_MINUTES = 60                 # Calculate elevation every 60 minutes
@@ -41,20 +44,16 @@ def setup_environment():
 def generate_time_series_csv():
     setup_environment()
     
-    # Load the GeoJSON polygons to calculate centroids
     try:
         with open(GEOJSON_FILE, 'r', encoding='utf-8') as f:
             geojson_data = json.load(f)
     except FileNotFoundError:
         print(f"ERROR: {GEOJSON_FILE} not found.")
-        return
+        return False
 
-    # Convert UTC strings to Ephemeris Time (ET)
     et_start = spice.str2et(START_UTC)
     et_end = spice.str2et(END_UTC)
     step_seconds = STEP_MINUTES * 60.0
-    
-    # Create an array of times to evaluate
     et_times = np.arange(et_start, et_end + step_seconds, step_seconds)
     
     print(f"\nStarting Time-Series Analysis...")
@@ -62,31 +61,23 @@ def generate_time_series_csv():
     print(f"Total time steps to compute: {len(et_times)}")
     print("-" * 70)
 
-    # Get Moon shape parameters
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
-    re = radii[0] # 1737.4 km
+    re = radii[0] 
     flat = (re - radii[2]) / re
 
-    # Prepare CSV Data
     csv_data = [["Region", "Time_UTC", "Center_Lat", "Center_Lon", "Elevation_Deg", "Status"]]
 
-    # Process each time step
     for et in et_times:
-        # Convert current ET back to UTC string for the CSV (Format: ISOC)
         current_utc = spice.et2utc(et, 'ISOC', 0)
-        
-        # Get Sun position for the current time
         sun_pos_moon_center, _ = spice.spkpos("SUN", et, "IAU_MOON", "LT+S", "MOON")
         
         for feature in geojson_data['features']:
             region_name = feature['properties']['Region']
             
-            # Calculate centroid from GeoJSON
             polygon_points = np.array(feature['geometry']['coordinates'][0])
             center_lon = np.mean(polygon_points[:, 0])
             center_lat = np.mean(polygon_points[:, 1])
             
-            # Geometry calculations
             lon_rad = np.radians(center_lon)
             lat_rad = np.radians(center_lat)
             
@@ -107,74 +98,75 @@ def generate_time_series_csv():
                 status
             ])
 
-    # Write to CSV
     with open(CSV_OUTPUT, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerows(csv_data)
         
     spice.kclear()
-    print(f"Success! Time-series data saved to: {CSV_OUTPUT}")
+    print(f"Success! Time-series data saved to: {CSV_OUTPUT}\n")
+    return True
+
+def process_and_visualize_data():
+    print(f"Reading dataset: {CSV_OUTPUT}...")
+    try:
+        df = pd.read_csv(CSV_OUTPUT)
+        df['Time_UTC'] = pd.to_datetime(df['Time_UTC'])
+        
+        # --- RANKING LOGIC START ---
+        regions = df['Region'].unique()
+        illumination_stats = []
+        
+        for region in regions:
+            region_data = df[df['Region'] == region]
+            total_steps = len(region_data)
+            sunlit_steps = len(region_data[region_data['Elevation_Deg'] > 0])
+            sunlit_pct = (sunlit_steps / total_steps) * 100 if total_steps > 0 else 0
+            
+            illumination_stats.append({
+                'Region': region,
+                'Sunlit_Pct': sunlit_pct
+            })
+            
+        illumination_stats.sort(key=lambda x: x['Sunlit_Pct'], reverse=True)
+        
+        print("=============================================")
+        print(f"{'RANK | REGION':<28} | {'SUNLIT TIME (%)'}")
+        print("=============================================")
+        for rank, stat in enumerate(illumination_stats, 1):
+            print(f"{rank:<2}.  | {stat['Region']:<22} | {stat['Sunlit_Pct']:>8.2f}%")
+        print("=============================================\n")
+        # --- RANKING LOGIC END ---
+
+        print("Generating time-series chart...")
+        plt.figure(figsize=(14, 7))
+        
+        for region in regions:
+            region_data = df[df['Region'] == region]
+            plt.plot(region_data['Time_UTC'], region_data['Elevation_Deg'], label=region, linewidth=2)
+            
+        plt.axhline(0, color='red', linestyle='--', linewidth=2, label='Horizon (0°)')
+        
+        plt.title("Artemis III Candidate Regions: Illumination Windows", fontsize=16, fontweight='bold', pad=15)
+        plt.xlabel("Time (UTC)", fontsize=12, fontweight='bold')
+        plt.ylabel("Solar Elevation Angle (Degrees)", fontsize=12, fontweight='bold')
+        
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        plt.gcf().autofmt_xdate()
+        plt.grid(True, linestyle=':', alpha=0.7)
+        
+        plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), title="Regions")
+        plt.tight_layout()
+        
+        plt.savefig(OUTPUT_IMAGE, dpi=300, bbox_inches='tight')
+        print(f"Success! Time-series chart saved as: {OUTPUT_IMAGE}")
+        
+    except FileNotFoundError:
+        print(f"\nERROR: Could not find {CSV_OUTPUT}.")
+    except Exception as e:
+        print(f"\nCritical Error: {e}")
 
 if __name__ == "__main__":
-    generate_time_series_csv()
-
-    import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-
-# ==============================================================================
-# LUNAR ILLUMINATION TIME-SERIES VISUALIZER
-# Objective: Plot solar elevation over time from CSV dataset.
-# ==============================================================================
-
-CSV_FILE = "Artemis3_Illumination_Windows.csv"
-OUTPUT_IMAGE = "Illumination_Windows_Chart.png"
-
-print(f"Reading dataset: {CSV_FILE}...")
-
-try:
-    # 1. READ DATASET
-    df = pd.read_csv(CSV_FILE)
-    
-    # 2. CONVERT TIME TO DATETIME OBJECTS
-    # This ensures the X-axis scales correctly as a continuous time domain
-    df['Time_UTC'] = pd.to_datetime(df['Time_UTC'])
-    
-    # 3. INITIALIZE PLOT
-    # Wide format is best for time-series (14x7 inches)
-    plt.figure(figsize=(14, 7))
-    
-    # 4. PLOT EACH REGION
-    regions = df['Region'].unique()
-    for region in regions:
-        region_data = df[df['Region'] == region]
-        plt.plot(region_data['Time_UTC'], region_data['Elevation_Deg'], label=region, linewidth=2)
-        
-    # 5. DRAW THE HORIZON LINE (0 Degrees)
-    # Crucial for showing when a region falls into shadow
-    plt.axhline(0, color='red', linestyle='--', linewidth=2, label='Horizon (0°)')
-    
-    # 6. FORMATTING & AESTHETICS
-    plt.title("Artemis III Candidate Regions: Illumination Windows", fontsize=16, fontweight='bold', pad=15)
-    plt.xlabel("Time (UTC)", fontsize=12, fontweight='bold')
-    plt.ylabel("Solar Elevation Angle (Degrees)", fontsize=12, fontweight='bold')
-    
-    # Format the X-axis to show dates cleanly (e.g., 2026-11-14)
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.gcf().autofmt_xdate() # Rotates the dates so they don't overlap
-    
-    plt.grid(True, linestyle=':', alpha=0.7)
-    
-    # Place legend outside the plot so it doesn't cover the data waves
-    plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), title="Regions")
-    plt.tight_layout()
-    
-    # 7. EXPORT TO PNG
-    plt.savefig(OUTPUT_IMAGE, dpi=300, bbox_inches='tight')
-    print("-" * 50)
-    print(f"Success! Time-series chart saved as: {OUTPUT_IMAGE}")
-    
-except FileNotFoundError:
-    print(f"\nERROR: Could not find {CSV_FILE}. Make sure the file is in the same directory.")
-except Exception as e:
-    print(f"\nCritical Error: {e}")
+    # Run the full pipeline
+    success = generate_time_series_csv()
+    if success:
+        process_and_visualize_data()
