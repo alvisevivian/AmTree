@@ -57,22 +57,17 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
       const earthHome = ORIGINAL_MOON.clone().multiplyScalar(-FLIGHT_SCALE);
       const earth = new THREE.Group(); earth.position.copy(earthHome); scene.add(earth);
       const loader = new THREE.TextureLoader();
-      let assetsReady=false,textureBlend=0,surfaceShader:THREE.WebGLProgramParametersWithUniforms|undefined,polarMaterial:THREE.MeshBasicMaterial|undefined;
-      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/moon-nasa.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/assets/nasa_blue_marble_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(async([texture, introTexture, displacement, polarRelief, earthTexture, nightTexture]) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
+      let assetsReady=false,disposed=false,textureBlend=0,surfaceShader:THREE.WebGLProgramParametersWithUniforms|undefined,polarMaterial:THREE.MeshBasicMaterial|undefined;
+      Promise.all([loader.loadAsync("/intro/terra-luna/assets/moon-nasa.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/assets/nasa_blue_marble_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(async([introTexture, displacement, polarRelief, earthTexture, nightTexture]) => {
         introTexture.colorSpace = THREE.SRGBColorSpace;
         const anisotropy = renderer.capabilities.getMaxAnisotropy();
-        texture.anisotropy = anisotropy;
         introTexture.anisotropy = anisotropy;
-        texture.minFilter = THREE.LinearMipmapLinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.generateMipmaps = true;
         displacement.anisotropy = anisotropy;
         displacement.minFilter = THREE.LinearMipmapLinearFilter;
         displacement.magFilter = THREE.LinearFilter;
         const geometry = new THREE.SphereGeometry(1.55, 384, 256);
         const material = new THREE.MeshStandardMaterial({ map: introTexture, displacementMap: displacement, displacementScale: .018, displacementBias: -.009, roughness: .88, metalness: 0 });
-        material.onBeforeCompile=shader=>{shader.uniforms.detailMap={value:texture};shader.uniforms.detailMix={value:textureBlend};shader.fragmentShader=shader.fragmentShader.replace("#include <map_pars_fragment>","#include <map_pars_fragment>\nuniform sampler2D detailMap;\nuniform float detailMix;").replace("#include <map_fragment>","#ifdef USE_MAP\nvec4 sampledDiffuseColor = mix(texture2D(map,vMapUv),texture2D(detailMap,vMapUv),detailMix);\ndiffuseColor *= sampledDiffuseColor;\n#endif");surfaceShader=shader};
+        material.onBeforeCompile=shader=>{shader.uniforms.detailMap={value:introTexture};shader.uniforms.detailMix={value:textureBlend};shader.fragmentShader=shader.fragmentShader.replace("#include <map_pars_fragment>","#include <map_pars_fragment>\nuniform sampler2D detailMap;\nuniform float detailMix;").replace("#include <map_fragment>","#ifdef USE_MAP\nvec4 sampledDiffuseColor = mix(texture2D(map,vMapUv),texture2D(detailMap,vMapUv),detailMix);\ndiffuseColor *= sampledDiffuseColor;\n#endif");surfaceShader=shader};
         const sphere = new THREE.Mesh(geometry, material);
         moon.add(sphere);
 
@@ -122,9 +117,19 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
         const polarMask = new THREE.CanvasTexture(maskCanvas);
         polarMaterial = new THREE.MeshBasicMaterial({ map: polarRelief, alphaMap: polarMask, color: 0xc7bca9, transparent: true, opacity: 0, alphaTest: .012, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
         const polarCap = new THREE.Mesh(polarGeometry, polarMaterial); polarCap.renderOrder = 2; moon.add(polarCap);
-        [texture,introTexture,displacement,polarRelief,earthTexture,nightTexture].forEach(map=>renderer.initTexture(map));
+        [introTexture,displacement,polarRelief,earthTexture,nightTexture].forEach(map=>renderer.initTexture(map));
         await renderer.compileAsync(scene,camera);
         assetsReady=true;if(state.current)state.current.introStart=performance.now();onReadyRef.current();
+        requestAnimationFrame(()=>loader.loadAsync("/assets/lroc_color_poles_8k.jpg").then(texture=>{
+          if(disposed){texture.dispose();return}
+          texture.colorSpace=THREE.SRGBColorSpace;
+          texture.anisotropy=anisotropy;
+          texture.minFilter=THREE.LinearMipmapLinearFilter;
+          texture.magFilter=THREE.LinearFilter;
+          texture.generateMipmaps=true;
+          renderer.initTexture(texture);
+          if(surfaceShader)surfaceShader.uniforms.detailMap.value=texture;
+        }));
       });
       scene.add(new THREE.HemisphereLight(0x7790ad, 0x010205, .22));
       const key = new THREE.DirectionalLight(0xfff7e8, 3.8); key.position.set(-4, 2.6, 5); scene.add(key);
@@ -155,7 +160,7 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
       addEventListener("resize",resize);renderer.domElement.style.touchAction="none";renderer.domElement.addEventListener("pointerdown",down);addEventListener("pointermove",move);addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
       const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
       const animate=()=>{if(!state.current)return;const elapsed=assetsReady?(performance.now()-state.current.introStart)/1000:0;textureBlend+=((planningRef.current?1:0)-textureBlend)*.045;if(surfaceShader)surfaceShader.uniforms.detailMix.value=textureBlend;if(polarMaterial)polarMaterial.opacity=.76*textureBlend;if(assetsReady&&!planningRef.current&&elapsed<FLIGHT_DURATION){const t=Math.min(elapsed,FLIGHT_DURATION),bank=THREE.MathUtils.clamp((t-2.88)/2.82,0,1),roll=-.022*Math.sin(t*.66)-.115*Math.sin(Math.PI*bank)**2,turn=THREE.MathUtils.clamp((t-2.85)/(FLIGHT_DURATION-2.85),0,1),moonSpin=.43+1.98*turn*turn*(2.5-1.5*turn),earthDeparture=THREE.MathUtils.smoothstep(t,4.65,6.85);camera.position.copy(flightVector(t,1));camera.up.set(0,1,0);camera.lookAt(flightVector(t,2));camera.rotateZ(roll);earth.position.copy(earthHome).addScaledVector(new THREE.Vector3(-22,12,-18),earthDeparture);earth.rotation.y=1.10+t*.125;const moonPose=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,moonSpin,.10,"ZYX"));moon.quaternion.copy(moonPose);rotationTarget.copy(moonPose);earth.visible=true}else if(assetsReady){earth.visible=false;camera.up.set(0,1,0);camera.position.lerp(cameraTarget,planningRef.current?.12:.045);camera.lookAt(0,0,0);if(!dragging&&!planningRef.current&&autoRotateRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}moon.quaternion.slerp(rotationTarget,planningRef.current?.075:.055)}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=planningRef.current&&world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
-      return()=>{removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
+      return()=>{disposed=true;removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
       fallback.className = "fallback";
