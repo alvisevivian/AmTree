@@ -31,7 +31,7 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
       camera.position.set(0, .5, 5.2);
       const moon = new THREE.Group(); scene.add(moon);
       const loader = new THREE.TextureLoader();
-      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/assets/ldem_4.png")]).then(([texture, displacement]) => {
+      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp")]).then(([texture, displacement, polarRelief]) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         const anisotropy = renderer.capabilities.getMaxAnisotropy();
         texture.anisotropy = anisotropy;
@@ -45,6 +45,43 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
         const material = new THREE.MeshStandardMaterial({ map: texture, displacementMap: displacement, displacementScale: .018, displacementBias: -.009, roughness: .88, metalness: 0 });
         const sphere = new THREE.Mesh(geometry, material);
         moon.add(sphere);
+
+        // The global 8K map is intentionally replaced by an 80 m/px NASA LOLA
+        // relief layer inside 80°S. A separate polar mesh preserves far more
+        // source detail than squeezing the polar product into an equirectangular map.
+        polarRelief.colorSpace = THREE.SRGBColorSpace;
+        polarRelief.anisotropy = anisotropy;
+        polarRelief.minFilter = THREE.LinearMipmapLinearFilter;
+        polarRelief.magFilter = THREE.LinearFilter;
+        const polarSegments = 128, mapExtentM = 304000, lunarRadiusM = 1737400, polarRadius = 1.561;
+        const positions: number[] = [], uvs: number[] = [], indices: number[] = [];
+        for (let row = 0; row <= polarSegments; row++) {
+          const mapY = mapExtentM * (1 - row / polarSegments * 2);
+          for (let column = 0; column <= polarSegments; column++) {
+            const mapX = mapExtentM * (column / polarSegments * 2 - 1);
+            const rho = Math.hypot(mapX, mapY);
+            const colatitude = 2 * Math.atan(rho / (2 * lunarRadiusM));
+            const horizontal = Math.sin(colatitude), scale = rho ? horizontal / rho : 0;
+            positions.push(polarRadius * mapY * scale, -polarRadius * Math.cos(colatitude), -polarRadius * mapX * scale);
+            uvs.push(column / polarSegments, 1 - row / polarSegments);
+          }
+        }
+        for (let row = 0; row < polarSegments; row++) for (let column = 0; column < polarSegments; column++) {
+          const a = row * (polarSegments + 1) + column, b = a + 1, c = a + polarSegments + 1, d = c + 1;
+          indices.push(a, c, b, b, c, d);
+        }
+        const polarGeometry = new THREE.BufferGeometry();
+        polarGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+        polarGeometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+        polarGeometry.setIndex(indices); polarGeometry.computeVertexNormals();
+        const maskCanvas = document.createElement("canvas"); maskCanvas.width = maskCanvas.height = 512;
+        const maskContext = maskCanvas.getContext("2d")!;
+        const maskGradient = maskContext.createRadialGradient(256, 256, 0, 256, 256, 256);
+        maskGradient.addColorStop(0, "white"); maskGradient.addColorStop(.68, "white"); maskGradient.addColorStop(1, "black");
+        maskContext.fillStyle = maskGradient; maskContext.fillRect(0, 0, 512, 512);
+        const polarMask = new THREE.CanvasTexture(maskCanvas);
+        const polarMaterial = new THREE.MeshBasicMaterial({ map: polarRelief, alphaMap: polarMask, color: 0xc7bca9, transparent: true, opacity: .76, alphaTest: .012, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
+        const polarCap = new THREE.Mesh(polarGeometry, polarMaterial); polarCap.renderOrder = 2; moon.add(polarCap);
       });
       scene.add(new THREE.HemisphereLight(0x7790ad, 0x010205, .22));
       const key = new THREE.DirectionalLight(0xfff7e8, 3.8); key.position.set(-4, 2.6, 5); scene.add(key);
@@ -86,7 +123,7 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
   useEffect(()=>{if(!state.current)return;state.current.cameraTarget.set(0,planning?-.06:.5,planning?5.7:5.2);if(planning)state.current.rotationTarget.copy(polarQuaternion());},[planning]);
   useEffect(()=>{if(!state.current)return;state.current.markers.forEach((marker,id)=>{const active=id===selected;marker.material.map=active?marker.userData.activeTexture:marker.userData.normalTexture;marker.material.needsUpdate=true;marker.scale.setScalar(active ? .19 : .13)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.14,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.04,2.75)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.7)}},[selected,planning]);
   const selectedName=SITES.find(site=>site.id===selected)?.name;
-  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.7)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
+  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon with high-resolution NASA LOLA south-pole relief. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.7)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
 }
 
 function MalapertDetail({cursor,setCursor}:{cursor:number;setCursor:(value:number)=>void}){
@@ -121,7 +158,7 @@ export default function App(){
     <Moon planning={planning} selected={selected} onSelect={choose}/>
     <header><div className="brand"><span className="brand-mark">A</span><span>AmTree</span></div>{planning&&<div className="header-actions"><span className="demo-badge real-data">LOLA terrain · SPICE ephemeris</span><button className="text-button" onClick={()=>setMethod(true)}>Data &amp; Method</button><button className="text-button" onClick={reset}>Reset</button></div>}</header>
     {!planning?<section className="hero"><p className="eyebrow">AMTREE LUNAR NAVIGATOR</p><h1>Lunar Navigator</h1><p>Compare computed lighting and Earth visibility conditions at the lunar south pole.</p><button className="primary" onClick={()=>setPlanning(true)}>Plan a landing <span>→</span></button></section>:<section className="planner">
-      <div className="map-caption"><span>NASA LRO / LOLA terrain · Six study locations</span><strong>{selectedSite?.name||"South polar overview"}</strong></div>
+      <div className="map-caption"><span>NASA LRO imagery · LOLA 80 m polar relief · Six study locations</span><strong>{selectedSite?.name||"South polar overview"}</strong></div>
       <aside className={`panel ${selectedSite?"site-detail-panel":"screening-dashboard"}`}>
         {!selectedSite?<>
           <div className="ops-head"><div><p className="ops-path">MISSION 01 <span>/</span> SOUTH POLAR SCREENING</p><h2>Landing site<br/>navigator</h2></div><span className="coverage-state valid"><i/>Computed dataset online</span></div>
