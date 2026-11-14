@@ -32,11 +32,11 @@ except ImportError:
 
 # ==============================================================================
 # ARTEMIS III - DIRECT-TO-EARTH (DTE) LoS SIMULATOR
-# Architecture: Static (Instant Snapshot + HTML) & Dynamic (Time-Series + GIF + HTML)
+# Architecture: Static (Instant Snapshot, HTML & CSV) & Dynamic (Time-Series, GIF, HTML & CSV)
 # Outputs are strictly separated into Static/ and Dynamic/ folders.
 # ==============================================================================
 
-# DYNAMIC ABSOLUTE PATHS (Anchored to this script's exact location)
+# DYNAMIC ABSOLUTE PATHS
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
@@ -48,7 +48,10 @@ DEM_DIR = os.path.join(BASE_DIR, "LandingSides", "DEMs")
 STATIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Static")
 DYNAMIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Dynamic")
 
-CSV_OUTPUT = os.path.join(DYNAMIC_OUT, "Earth_LoS_Results.csv")
+# CSV FILES
+STATIC_CSV = os.path.join(STATIC_OUT, "Earth_LoS_Static_Results.csv")
+DYNAMIC_CSV = os.path.join(DYNAMIC_OUT, "Earth_LoS_Results.csv")
+
 DYNAMIC_IMAGE = os.path.join(DYNAMIC_OUT, "Earth_LoS_TimeSeries.png")
 DYNAMIC_HTML = os.path.join(DYNAMIC_OUT, "Earth_LoS_TimeSeries.html")
 
@@ -77,14 +80,12 @@ def get_user_inputs(geojson_data):
     
     prefs = {}
     
-    # 1. SIMULATION MODE
     print("\n[ SIMULATION MODE ]")
-    print("  S - Static Mode  (Instant Snapshot PNG & Interactive HTML -> Outputs/Static)")
-    print("  D - Dynamic Mode (Time-Series, Interactive HTML & GIF -> Outputs/Dynamic)")
+    print("  S - Static Mode  (Instant Snapshot PNG, HTML & CSV -> Outputs/Static)")
+    print("  D - Dynamic Mode (Time-Series CSV, HTML & GIF -> Outputs/Dynamic)")
     mode = input("Your Choice [S/D] (Default: D): ").strip().upper()
     prefs['mode'] = 'S' if mode == 'S' else 'D'
     
-    # 2. TERRAIN MASKING (DEM)
     print("\n[ TERRAIN MASKING / TOPOGRAPHY ]")
     if DEM_LIBRARIES_AVAILABLE:
         print("  Y - Yes (Use extracted DEM .tif files for True Surface LoS)")
@@ -95,14 +96,12 @@ def get_user_inputs(geojson_data):
         print("  [!] rasterio / pyproj not installed. Falling back to Ellipsoid.")
         prefs['use_dem'] = False
         
-    # 3. EXPORT OPTIONS
     prefs['export_stl'] = False
     if prefs['use_dem'] and STL_AVAILABLE:
         print("\n[ 3D PRINT EXPORT ]")
         exp = input("Generate 3D Print (.STL) file for regions? [Y/N] (Default: N): ").strip().upper()
         prefs['export_stl'] = True if exp == 'Y' else False
 
-    # 4. TIME INTERVAL
     print("\n[ TIME INTERVAL ]")
     if prefs['mode'] == 'S':
         target = input("Target UTC (Format: YYYY-MM-DDThh:mm:ss) [Default: 2026-11-14T12:00:00]: ").strip()
@@ -121,7 +120,6 @@ def get_user_inputs(geojson_data):
         gif_exp = input("Generate Animated Heatmap (.GIF) for regions? [Y/N] (Default: N): ").strip().upper()
         prefs['generate_gif'] = True if gif_exp == 'Y' else False
 
-    # 5. REGION SELECTION
     print("\n[ REGION SELECTION ]")
     regions_list = [f['properties']['Region'] for f in geojson_data['features']]
     for i, r in enumerate(regions_list):
@@ -256,13 +254,15 @@ def export_3d_stl(r_name, dem_path, safe_name, target_dir):
 
 def run_static_snapshot(prefs, geojson_data):
     et = spice.str2et(prefs['target'])
-    # TARGET IS EARTH
     earth_pos, _ = spice.spkpos("EARTH", et, "IAU_MOON", "LT+S", "MOON")
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
     re, flat = radii[0], (radii[0] - radii[2]) / radii[0]
 
-    print(f"\n[*] Generating 2D static snapshot for {prefs['target']} -> Outputs/Static...")
+    print(f"\n[*] Generating Static Snapshot & CSV for {prefs['target']} -> Outputs/Static...")
     region_cache = build_region_cache(prefs, geojson_data, re, flat)
+    
+    current_utc = spice.et2utc(et, 'ISOC', 0)
+    csv_data = [["Region", "Time_UTC", "Earth_Elevation_Deg", "Earth_Visible_Pct", "Status"]]
     
     for r_name, cache in region_cache.items():
         safe_name = r_name.replace(" ", "_")
@@ -273,38 +273,43 @@ def run_static_snapshot(prefs, geojson_data):
             elevations.append(90.0 - np.degrees(angle))
             
         elevs = np.array(elevations)
+        
+        # Calculate Stats for CSV
+        c_angle = spice.vsep(cache['c_zenith'], earth_pos - cache['c_pos'])
+        c_elev_deg = 90.0 - np.degrees(c_angle)
+        vis_count = sum(1 for el in elevs if el > 0)
+        pct = (vis_count / cache['total_points']) * 100
+        status = "DTE LINK ACTIVE" if pct > 0 else "NO SIGNAL"
+        csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
+        
         elevs_clipped = np.clip(elevs, -1e-5, None)
         max_el = max(1.0, elevs_clipped.max())
             
-        # 1. MATPLOTLIB PNG EXPORT (Blues for Earth LoS)
+        # 1. MATPLOTLIB PNG EXPORT
         levels = np.zeros(31)
         levels[0] = -1e-5
         levels[1:] = np.linspace(0.0, max_el, 30)
         c_list = ['black'] + [plt.cm.Blues(x) for x in np.linspace(0.2, 1.0, 29)]
 
         fig = plt.figure(figsize=(10, 8))
-        mode_title = "DEM Calculated" if prefs['use_dem'] else "Ellipsoid Calculated"
-        plt.title(f"Earth Line-of-Sight Gradient: {r_name} ({mode_title})\nSnapshot UTC: {prefs['target']}", fontsize=14, fontweight='bold')
-        
+        mode_title = "DEM Masked" if prefs['use_dem'] else "Ellipsoid"
+        plt.title(f"Earth Line-of-Sight Gradient: {r_name} ({mode_title})\nSnapshot UTC: {current_utc}", fontsize=14, fontweight='bold')
         plt.xlabel("Longitude (deg)", fontsize=12, fontweight='bold')
         plt.ylabel("Latitude (deg)", fontsize=12, fontweight='bold')
         
-        inside_pts = cache['inside_pts']
-        contour = plt.tricontourf(inside_pts[:, 0], inside_pts[:, 1], elevs_clipped, levels=levels, colors=c_list)
-        
+        contour = plt.tricontourf(cache['inside_pts'][:, 0], cache['inside_pts'][:, 1], elevs_clipped, levels=levels, colors=c_list)
         cbar = plt.colorbar(contour)
         cbar.set_label('Earth Elevation Angle (deg)', fontsize=12, fontweight='bold')
         cbar.set_ticks(np.linspace(0.0, max_el, 6))
         
-        boundary = cache['boundary']
-        plt.plot(boundary[:, 0], boundary[:, 1], color='cyan', linewidth=2, label='Region Boundary')
+        plt.plot(cache['boundary'][:, 0], cache['boundary'][:, 1], color='cyan', linewidth=2, label='Region Boundary')
         plt.legend(loc='upper right')
         
-        out_png = os.path.join(STATIC_OUT, f"{safe_name}_EarthLoS_Snapshot.png")
+        out_png = os.path.join(STATIC_OUT, f"{safe_name}_EarthLoS.png")
         plt.savefig(out_png, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f" -> Saved Static Heatmap PNG: {out_png}")
-        
+        print(f" -> Saved Static PNG: {out_png}")
+
         # 2. PLOTLY INTERACTIVE HTML EXPORT
         fig_plotly = go.Figure(data=go.Contour(
             x=cache['inside_pts'][:, 0],
@@ -321,7 +326,7 @@ def run_static_snapshot(prefs, geojson_data):
         ))
         
         fig_plotly.update_layout(
-            title=f"Earth LoS Map: {r_name} ({prefs['target']})",
+            title=f"Earth LoS Map: {r_name} ({current_utc})",
             xaxis_title="Longitude (deg)",
             yaxis_title="Latitude (deg)",
             template="plotly_dark"
@@ -334,6 +339,11 @@ def run_static_snapshot(prefs, geojson_data):
         if prefs.get('export_stl'):
             export_3d_stl(r_name, cache['dem_path'], safe_name, STATIC_OUT)
 
+    # WRITE STATIC CSV
+    with open(STATIC_CSV, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerows(csv_data)
+    print(f"\n[*] Static CSV Report saved to: {STATIC_CSV}")
     print(f"[*] Static analysis complete. Files saved in '{STATIC_OUT}'.")
 
 def run_dynamic_timeseries(prefs, geojson_data):
@@ -381,7 +391,6 @@ def run_dynamic_timeseries(prefs, geojson_data):
             status = "DTE LINK ACTIVE" if pct > 0 else "NO SIGNAL"
             csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
 
-        # --- 2D ANIMATED GIF GENERATION (DYNAMIC) ---
         if prefs.get('generate_gif') and all_frames:
             print(f"    [*] Rendering 2D Earth LoS Timelapse GIF for {r_name}...")
             
@@ -418,16 +427,16 @@ def run_dynamic_timeseries(prefs, geojson_data):
             plt.close(fig)
             print(f"    [+] Saved Dynamic GIF: {gif_path}")
 
-    with open(CSV_OUTPUT, 'w', newline='', encoding='utf-8') as f:
+    with open(DYNAMIC_CSV, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerows(csv_data)
         
-    print(f"[*] Time-series processed and saved to: {CSV_OUTPUT}")
+    print(f"[*] Time-series processed and saved to: {DYNAMIC_CSV}")
 
 def process_and_visualize_data(prefs):
     print(f"[*] Generating PNG and Interactive HTML charts...\n")
     try:
-        df = pd.read_csv(CSV_OUTPUT)
+        df = pd.read_csv(DYNAMIC_CSV)
         df['Time_UTC'] = pd.to_datetime(df['Time_UTC'])
         
         regions = df['Region'].unique()
