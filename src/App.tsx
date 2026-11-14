@@ -58,7 +58,7 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
       const earth = new THREE.Group(); earth.position.copy(earthHome); scene.add(earth);
       const loader = new THREE.TextureLoader();
       let assetsReady=false,textureBlend=0,surfaceShader:THREE.WebGLProgramParametersWithUniforms|undefined,polarMaterial:THREE.MeshBasicMaterial|undefined;
-      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/moon-nasa.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/intro/terra-luna/assets/earth-nasa.jpg"), loader.loadAsync("/intro/terra-luna/assets/cloud-nasa.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(async([texture, introTexture, displacement, polarRelief, earthTexture, cloudTexture, nightTexture]) => {
+      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/moon-nasa.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/assets/nasa_blue_marble_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(async([texture, introTexture, displacement, polarRelief, earthTexture, nightTexture]) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         introTexture.colorSpace = THREE.SRGBColorSpace;
         const anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -79,12 +79,10 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
         earthTexture.colorSpace = THREE.SRGBColorSpace;
         earthTexture.anisotropy = anisotropy;
         nightTexture.colorSpace = THREE.SRGBColorSpace;
-        const earthSphere = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE, 192, 128), new THREE.MeshStandardMaterial({ map: earthTexture, emissive: 0xd7e5f2, emissiveMap: earthTexture, emissiveIntensity: .48, roughness: .76, metalness: 0 }));
+        const earthSphere = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE, 256, 160), new THREE.MeshStandardMaterial({ map: earthTexture, emissive: 0xffffff, emissiveMap: earthTexture, emissiveIntensity: .22, roughness: .88, metalness: 0 }));
         earthSphere.rotation.y = -1.35;
         earthSphere.layers.enable(1);
         earth.add(earthSphere);
-        const clouds = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE*1.008,192,128),new THREE.MeshBasicMaterial({map:cloudTexture,alphaMap:cloudTexture,color:0xffffff,transparent:true,opacity:.34,depthWrite:false}));
-        clouds.rotation.y=-1.30;clouds.layers.enable(1);earth.add(clouds);
         const nightLights = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE*1.004,192,128),new THREE.MeshBasicMaterial({map:nightTexture,transparent:true,opacity:.32,blending:THREE.AdditiveBlending,depthWrite:false}));
         nightLights.rotation.y=-1.35;nightLights.layers.enable(1);earth.add(nightLights);
 
@@ -124,7 +122,7 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady }: { planning:
         const polarMask = new THREE.CanvasTexture(maskCanvas);
         polarMaterial = new THREE.MeshBasicMaterial({ map: polarRelief, alphaMap: polarMask, color: 0xc7bca9, transparent: true, opacity: 0, alphaTest: .012, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
         const polarCap = new THREE.Mesh(polarGeometry, polarMaterial); polarCap.renderOrder = 2; moon.add(polarCap);
-        [texture,introTexture,displacement,polarRelief,earthTexture,cloudTexture,nightTexture].forEach(map=>renderer.initTexture(map));
+        [texture,introTexture,displacement,polarRelief,earthTexture,nightTexture].forEach(map=>renderer.initTexture(map));
         await renderer.compileAsync(scene,camera);
         assetsReady=true;if(state.current)state.current.introStart=performance.now();onReadyRef.current();
       });
