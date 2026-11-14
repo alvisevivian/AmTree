@@ -7,6 +7,25 @@ import { MALAPERT_HORIZON, MALAPERT_SAMPLES, SOURCE_SUMMARY, hasDetailedSeries, 
 
 const fmt = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} h`;
 
+const FLIGHT_DURATION = 7;
+const FLIGHT_SCALE = 1.55 / .65;
+const ORIGINAL_MOON = new THREE.Vector3(1.32, -.18, 9.35);
+const FLIGHT_TIMELINE: [number, number[], number[]][] = [
+  [0.00,[ .11,.24,3.52],[ .00,.00,.00]], [0.91,[-.63,.37,3.76],[-.06,.01,.00]],
+  [1.68,[-1.06,.43,5.04],[-.09,.01,.00]], [2.32,[-.63,.42,7.35],[-.09,.00,.00]],
+  [2.91,[ .10,.32,10.37],[.03,.00,.40]], [3.47,[.40,.39,12.65],[.24,-.04,2.60]],
+  [4.15,[.23,.58,13.97],[.86,-.17,7.48]], [4.81,[-.18,.48,14.28],[1.32,-.18,9.35]],
+  [5.85,[-.38,.38,13.72],[1.32,-.18,9.35]], [7.00,[-.42,.30,13.28],[1.32,-.18,9.35]]
+];
+const flightVector=(seconds:number,slot:1|2)=>{
+  const t=Math.min(seconds,FLIGHT_DURATION),found=FLIGHT_TIMELINE.findIndex((_,index)=>index<FLIGHT_TIMELINE.length-1&&t<=FLIGHT_TIMELINE[index+1][0]);
+  const index=Math.max(0,found),a=FLIGHT_TIMELINE[index],b=FLIGHT_TIMELINE[index+1],lo=FLIGHT_TIMELINE[Math.max(0,index-1)],hi=FLIGHT_TIMELINE[Math.min(FLIGHT_TIMELINE.length-1,index+2)];
+  const span=b[0]-a[0],s=THREE.MathUtils.clamp((t-a[0])/span,0,1),s2=s*s,s3=s2*s;
+  const values=a[slot].map((value,axis)=>{const p=index===0?.54*(b[slot][axis]-value):span*(b[slot][axis]-lo[slot][axis])/(b[0]-lo[0]);const q=index===FLIGHT_TIMELINE.length-2?0:span*(hi[slot][axis]-value)/(hi[0]-a[0]);return(2*s3-3*s2+1)*value+(s3-2*s2+s)*p+(-2*s3+3*s2)*b[slot][axis]+(s3-s2)*q});
+  return new THREE.Vector3(values[0],values[1],values[2]).sub(ORIGINAL_MOON).multiplyScalar(FLIGHT_SCALE);
+};
+const flightEnd=()=>flightVector(FLIGHT_DURATION,1);
+
 function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void; autoRotate: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const focusLabel = useRef<HTMLDivElement>(null);
@@ -29,12 +48,12 @@ function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.12;
       container.appendChild(renderer.domElement);
-      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(34, 1, .1, 100);
-      camera.position.set(-10.5, 2.2, 72);
+      const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(43.1, 1, .1, 100);
+      camera.position.copy(flightVector(0,1));
       const moon = new THREE.Group(); scene.add(moon);
-      const earth = new THREE.Group(); earth.position.set(-5.8, .1, 38); scene.add(earth);
+      const earth = new THREE.Group(); earth.position.copy(ORIGINAL_MOON).multiplyScalar(-FLIGHT_SCALE); scene.add(earth);
       const loader = new THREE.TextureLoader();
-      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/intro/terra-luna/assets/earth-nasa.jpg")]).then(([texture, displacement, polarRelief, earthTexture]) => {
+      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/intro/terra-luna/assets/earth-nasa.jpg"), loader.loadAsync("/intro/terra-luna/assets/cloud-nasa.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(([texture, displacement, polarRelief, earthTexture, cloudTexture, nightTexture]) => {
         texture.colorSpace = THREE.SRGBColorSpace;
         const anisotropy = renderer.capabilities.getMaxAnisotropy();
         texture.anisotropy = anisotropy;
@@ -51,9 +70,12 @@ function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean;
 
         earthTexture.colorSpace = THREE.SRGBColorSpace;
         earthTexture.anisotropy = anisotropy;
-        const earthSphere = new THREE.Mesh(new THREE.SphereGeometry(4.25, 192, 128), new THREE.MeshStandardMaterial({ map: earthTexture, roughness: .82, metalness: 0 }));
+        nightTexture.colorSpace = THREE.SRGBColorSpace;
+        const earthSphere = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE, 192, 128), new THREE.MeshStandardMaterial({ map: earthTexture, emissive: 0xff9855, emissiveMap: nightTexture, emissiveIntensity: .18, roughness: .82, metalness: 0 }));
         earthSphere.rotation.y = -1.35;
         earth.add(earthSphere);
+        const clouds = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE*1.008,192,128),new THREE.MeshStandardMaterial({map:cloudTexture,alphaMap:cloudTexture,transparent:true,opacity:.42,depthWrite:false,roughness:1}));
+        clouds.rotation.y=-1.30;earth.add(clouds);
 
         // The global 8K map is intentionally replaced by an 80 m/px NASA LOLA
         // relief layer inside 80°S. A separate polar mesh preserves far more
@@ -106,7 +128,7 @@ function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean;
         marker.position.set(1.59*Math.sin(phi)*Math.cos(theta),1.59*Math.cos(phi),-1.59*Math.sin(phi)*Math.sin(theta));
         marker.userData.id = site.id; moon.add(marker); markers.set(site.id, marker);
       }
-      const cameraTarget = new THREE.Vector3(-10.5, 2.2, 72);
+      const cameraTarget = flightEnd();
       const rotationTarget = moon.quaternion.clone();
       state.current = { renderer, scene, camera, moon, earth, markers, frame: 0, cameraTarget, rotationTarget, introStart: performance.now() };
       const resize = () => { const {clientWidth:w,clientHeight:h}=container; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
@@ -119,8 +141,7 @@ function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean;
       const wheel=(e:WheelEvent)=>{e.preventDefault();cameraTarget.z=THREE.MathUtils.clamp(cameraTarget.z+e.deltaY*.002,2.05,6)};
       addEventListener("resize",resize);renderer.domElement.style.touchAction="none";renderer.domElement.addEventListener("pointerdown",down);addEventListener("pointermove",move);addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
       const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
-      const smooth=(value:number)=>value*value*(3-2*value);
-      const animate=()=>{if(!state.current)return;const elapsed=(performance.now()-state.current.introStart)/1000;if(!planningRef.current&&elapsed<7.1){const t=smooth(Math.min(1,elapsed/6.8));camera.position.set(THREE.MathUtils.lerp(-10.5,0,t),THREE.MathUtils.lerp(2.2,.5,t),THREE.MathUtils.lerp(72,6.8,t));camera.lookAt(0,0,0);earth.rotation.y+=.0007;earth.visible=elapsed<4.7;rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0011)).normalize()}else{earth.visible=false;camera.position.lerp(cameraTarget,.06);camera.lookAt(0,0,0);if(!dragging&&!planningRef.current&&autoRotateRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}}moon.quaternion.slerp(rotationTarget,.075);centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=planningRef.current&&world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
+      const animate=()=>{if(!state.current)return;const elapsed=(performance.now()-state.current.introStart)/1000;if(!planningRef.current&&elapsed<FLIGHT_DURATION){const t=Math.min(elapsed,FLIGHT_DURATION),bank=THREE.MathUtils.clamp((t-2.88)/2.82,0,1),roll=-.022*Math.sin(t*.66)-.115*Math.sin(Math.PI*bank)**2,turn=THREE.MathUtils.clamp((t-2.85)/(FLIGHT_DURATION-2.85),0,1),moonSpin=.43+1.98*turn*turn*(2.5-1.5*turn);camera.position.copy(flightVector(t,1));camera.up.set(0,1,0);camera.lookAt(flightVector(t,2));camera.rotateZ(roll);earth.rotation.y=1.10+t*.125;const moonPose=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,moonSpin,.10,"ZYX"));moon.quaternion.copy(moonPose);rotationTarget.copy(moonPose);earth.visible=true}else{earth.visible=false;camera.up.set(0,1,0);camera.position.lerp(cameraTarget,.06);camera.lookAt(0,0,0);if(!dragging&&!planningRef.current&&autoRotateRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}moon.quaternion.slerp(rotationTarget,.075)}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=planningRef.current&&world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
       return()=>{removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
@@ -130,10 +151,10 @@ function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean;
     }
   }, []);
   const polarQuaternion=()=>new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,-1,0),new THREE.Vector3(0,-.35,1).normalize());
-  useEffect(()=>{if(!state.current)return;state.current.cameraTarget.set(0,planning?-.06:.5,6.8);if(planning)state.current.rotationTarget.copy(polarQuaternion());},[planning]);
-  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((marker,id)=>{const active=id===selected;marker.material.map=active?marker.userData.activeTexture:marker.userData.normalTexture;marker.material.needsUpdate=true;marker.scale.setScalar(active ? .19 : .13)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.14,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.04,2.75)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,6.8)}},[selected,planning]);
+  useEffect(()=>{if(!state.current)return;if(planning){state.current.cameraTarget.set(0,-.06,5.5);state.current.rotationTarget.copy(polarQuaternion())}else state.current.cameraTarget.copy(flightEnd())},[planning]);
+  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((marker,id)=>{const active=id===selected;marker.material.map=active?marker.userData.activeTexture:marker.userData.normalTexture;marker.material.needsUpdate=true;marker.scale.setScalar(active ? .19 : .13)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.14,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.04,2.3)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.5)}},[selected,planning]);
   const selectedName=SITES.find(site=>site.id===selected)?.name;
-  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon with high-resolution NASA LOLA south-pole relief. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,6.8)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
+  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon with high-resolution NASA LOLA south-pole relief. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.5)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
 }
 
 function MalapertDetail({cursor,setCursor}:{cursor:number;setCursor:(value:number)=>void}){
