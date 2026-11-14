@@ -1,0 +1,49 @@
+{
+ "schema_version": "1.0.0",
+ "asset_id": "malapert-massif-80m",
+ "url": "/assets/terrain/malapert-massif-80m.glb",
+ "format": "glb (glTF 2.0)",
+ "sha256": "9d90c9363942acc74f8370dfdc9ba794240a96dfb88e358def493e56df1be83f",
+ "size_bytes": 1237504,
+ "purpose": "rendering only; calculations use the full-resolution DEM",
+ "units": "metres",
+ "vertical_exaggeration": 1.0,
+ "mesh_frame": "+X local east, +Y local up (radial at centre), +Z local south; origin on the 1737.4 km sphere at the patch centre; curvature included",
+ "center": {
+  "lat_deg": -85.98719611238445,
+  "lon_deg": -0.2367580719071043,
+  "frame": "MOON_ME"
+ },
+ "local_to_moon_me": {
+  "matrix": [
+   0.004132196125789758,
+   0.999991462441144,
+   0.0,
+   0.0,
+   0.06997880018153325,
+   -0.00028916859579145325,
+   -0.997548436872454,
+   0.0,
+   -0.9975399202439624,
+   0.004122065786131984,
+   -0.06997939763475927,
+   0.0,
+   121581.16743539588,
+   -502.4015183280709,
+   -1733140.6542222016,
+   1.0
+  ],
+  "order": "column-major (glTF/three.js Matrix4.fromArray)",
+  "convention": "p_me[m] = M * [x, y, z, 1]^T (column vectors)"
+ },
+ "ground_size_m": 30132.796780684104,
+ "vertices_per_side": 161,
+ "vertex_spacing_m": 188.33,
+ "height_range_m": [
+  -140.93686751807,
+  5171.054089590754
+ ],
+ "source_dem": "LDEM_80S_80MPP_ADJ.TIF",
+ "source_pixel_m": 80.0,
+ "note": "Spacing is in stereographic map metres (scale 1.0 at the pole; <0.2 % larger than ground metres poleward of 85S)."
+}

@@ -1,0 +1,3795 @@
+{
+ "schema_version": "1.0.0",
+ "catalog_version": "artemis3-candidate-regions-2024-10-28",
+ "coordinate_reference": {
+  "body": "Moon",
+  "frame": "MOON_ME (mean Earth / polar axis), DE421 realisation",
+  "reference_surface": "sphere, radius 1 737 400 m (IAU 2015 'Moon (2015) - Sphere')",
+  "latitude_type": "planetocentric (identical to planetographic on a sphere)",
+  "longitude_convention": "east positive, exported in [-180, 180)",
+  "units": {
+   "angles": "degrees",
+   "lengths": "metres"
+  },
+  "height_definition": "radial height above the 1 737 400 m sphere (LOLA LDEM)",
+  "projections": {
+   "LPS_south": {
+    "description": "USGS Lunar Polar Stereographic, south zone (LGRS grids)",
+    "proj4": "+proj=stere +lat_0=-90 +lon_0=0 +k=0.994 +x_0=500000 +y_0=500000 +R=1737400 +units=m +no_defs",
+    "scale_factor_at_pole": 0.994,
+    "false_easting_m": 500000,
+    "false_northing_m": 500000
+   },
+   "PGDA_south_stereo": {
+    "description": "PGDA LOLA polar DEMs",
+    "proj4": "+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +R=1737400 +units=m +no_defs",
+    "scale_factor_at_pole": 1.0
+   }
+  },
+  "not_geojson": "Structures here are NOT RFC 7946 GeoJSON: coordinates are lunar (MOON_ME), not WGS 84."
+ },
+ "analysis_points": [
+  {
+   "analysis_point_id": "pgda-site01-connecting-ridge",
+   "name": "Connecting Ridge",
+   "region_id": null,
+   "region_assignment": {
+    "status": "unassigned",
+    "note": "Not assigned to any of the nine 2024 regions: no verified region geometry contains this point."
+   },
+   "lat_deg": -89.463163,
+   "lon_deg": -137.489553,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site01' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site01_final_adj_5mpp_surf.tif: x=-11000 m, y=-12000 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site01",
+    "x_m": -11000.0,
+    "y_m": -12000.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "cc5950c4860a9e5dc66a1a9c6e8d08a30ba3354dc96065f5107fa7f1b7ef2b69"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1943.3,
+   "terrain_slope": {
+    "value_deg": 4.495,
+    "status": "computed",
+    "baseline_m": 160.0,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     -0.006906719,
+     -0.006331159,
+     -0.999956106
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -11000.0,
+     -12000.0
+    ],
+    "lps_south_m": [
+     489066.0,
+     488072.0
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site01-connecting-ridge"
+  },
+  {
+   "analysis_point_id": "pgda-site04-shackleton-rim",
+   "name": "Shackleton Rim",
+   "region_id": null,
+   "region_assignment": {
+    "status": "unassigned",
+    "note": "Not assigned to any of the nine 2024 regions: no verified region geometry contains this point."
+   },
+   "lat_deg": -89.766811,
+   "lon_deg": -171.869898,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site04' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site04_final_adj_5mpp_surf.tif: x=-1000 m, y=-7000 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site04",
+    "x_m": -1000.0,
+    "y_m": -7000.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "bc8d3d7b03f1650284d2a34611e5192b11f04c277617dd3cc0e9886b3566ac39"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 770.5,
+   "terrain_slope": {
+    "value_deg": 32.013,
+    "status": "computed",
+    "baseline_m": 160.0,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     -0.004029,
+     -0.000575571,
+     -0.999991718
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -1000.0,
+     -7000.01
+    ],
+    "lps_south_m": [
+     499006.0,
+     493041.99
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site04-shackleton-rim"
+  },
+  {
+   "analysis_point_id": "pgda-site07-peak-near-shackleton",
+   "name": "Peak Near Shackleton",
+   "region_id": null,
+   "region_assignment": {
+    "status": "unassigned",
+    "note": "Not assigned to any of the nine 2024 regions: no verified region geometry contains this point."
+   },
+   "lat_deg": -88.811008,
+   "lon_deg": 123.690068,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site07' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site07_final_adj_5mpp_surf.tif: x=30000 m, y=-20000 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site07",
+    "x_m": 30000.0,
+    "y_m": -20000.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "9f042eace17cc5fa0c0a05990aa1c4ff809d77592c2e492902c6fcfe052b8682"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1645.0,
+   "terrain_slope": {
+    "value_deg": 2.283,
+    "status": "computed",
+    "baseline_m": 160.0,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     -0.011510215,
+     0.017265323,
+     -0.999784689
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     30000.0,
+     -20000.0
+    ],
+    "lps_south_m": [
+     529820.0,
+     480120.0
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site07-peak-near-shackleton"
+  },
+  {
+   "analysis_point_id": "pgda-site11-de-gerlache-rim-1",
+   "name": "de Gerlache Rim 1",
+   "region_id": null,
+   "region_assignment": {
+    "status": "unassigned",
+    "note": "Not assigned to any of the nine 2024 regions: no verified region geometry contains this point."
+   },
+   "lat_deg": -88.683418,
+   "lon_deg": -67.9321,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site11' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site11_final_adj_5mpp_surf.tif: x=-37000 m, y=15000 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site11",
+    "x_m": -37000.0,
+    "y_m": 15000.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "b5bab60d52ff70a5b70745d8e003586c1c4b0e3b696e5ac7e6974803c027ef2b"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1793.6,
+   "terrain_slope": {
+    "value_deg": 3.764,
+    "status": "computed",
+    "baseline_m": 160.0,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.008632452,
+     -0.021293381,
+     -0.999736002
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -37000.0,
+     15000.0
+    ],
+    "lps_south_m": [
+     463222.0,
+     514910.0
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site11-de-gerlache-rim-1"
+  },
+  {
+   "analysis_point_id": "pgda-site20-leibnitz-beta-plateau",
+   "name": "Leibnitz Beta Plateau",
+   "region_id": null,
+   "region_assignment": {
+    "status": "unassigned",
+    "note": "Not assigned to any of the nine 2024 regions: no verified region geometry contains this point."
+   },
+   "lat_deg": -85.426577,
+   "lon_deg": 31.742761,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site20' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site20_final_adj_5mpp_surf.tif: x=73000 m, y=118000 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site20",
+    "x_m": 73000.0,
+    "y_m": 118000.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "75420544f6cd8eb32cc5560951bb38624c3d6b2315d8c1627a86a52dc28bc5e4"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 6398.2,
+   "terrain_slope": {
+    "value_deg": 7.527,
+    "status": "computed",
+    "baseline_m": 159.7,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.067809457,
+     0.041949918,
+     -0.996815972
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     73000.0,
+     118000.01
+    ],
+    "lps_south_m": [
+     572562.0,
+     617292.01
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site20-leibnitz-beta-plateau"
+  },
+  {
+   "analysis_point_id": "pgda-site23-malapert-massif",
+   "name": "Malapert Massif",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS 1 km grid rectangle of 'Malapert Massif' (not an official boundary)"
+   },
+   "lat_deg": -85.994785,
+   "lon_deg": -0.235784,
+   "role": "frontend_study_location",
+   "is_landing_site": false,
+   "selection_reason": "centre of the PGDA 5 m/px LOLA DEM tile 'Site23' (location shown in the frontend draft)",
+   "coordinate_source": {
+    "description": "centre of Site23_final_adj_5mpp_surf.tif: x=-500 m, y=121500 m in south polar stereographic (k=1, R=1737400 m), from the GeoTIFF tie point, pixel scale and size",
+    "pgda_site": "Site23",
+    "x_m": -500.0,
+    "y_m": 121500.0,
+    "source": {
+     "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+     "url": "https://pgda.gsfc.nasa.gov/products/78",
+     "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+     "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+     "accessed": "2026-11-14"
+    },
+    "header_sha256": "719646b07a77ec9590b834dc4d8b8a47fc1b054a8fe6b02b9358934bf36f2e4e"
+   },
+   "verification_status": "coordinates_verified_against_source_raster_header",
+   "verification_note": "The frontend draft coordinates match this tile centre to 4 decimals. A tile centre is a geometric centre of a study area, not a selected landing point.",
+   "navigation_cell": null,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4784.8,
+   "terrain_slope": {
+    "value_deg": 3.03,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.069846679,
+     -0.000287435,
+     -0.997557697
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -500.0,
+     121499.99
+    ],
+    "lps_south_m": [
+     499503.0,
+     620770.99
+    ]
+   },
+   "details_url": "/api/v1/sites/pgda-site23-malapert-massif"
+  },
+  {
+   "analysis_point_id": "haworth-grid-center",
+   "name": "Haworth (grid centre)",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.766106,
+   "lon_deg": -22.619865,
+   "role": "region_label_anchor_point",
+   "selection_reason": "centre of the 1 km grid rectangle",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": null,
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1613.7,
+   "terrain_slope": {
+    "value_deg": 3.36,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.05207274,
+     -0.021696975,
+     -0.998407568
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -37726.36,
+     90543.27
+    ],
+    "lps_south_m": [
+     462500.0,
+     590000.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-grid-center"
+  },
+  {
+   "analysis_point_id": "haworth-highest-cell",
+   "name": "Haworth (highest 1 km cell)",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.368,
+   "lon_deg": -23.40469,
+   "role": "representative_analysis_point",
+   "selection_reason": "centre of the 1 km cell with the highest LOLA 80 m DEM height at its centre (high ground tends to have better illumination; not a landing-safety judgement)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 784,
+    "lgrs_acc": "AYSF-"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2818.3,
+   "terrain_slope": {
+    "value_deg": 5.325,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.058135781,
+     -0.025163249,
+     -0.997991504
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -43762.58,
+     101106.64
+    ],
+    "lps_south_m": [
+     456500.0,
+     600500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-highest-cell"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0064",
+   "name": "Haworth cell AXRZB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.931821,
+   "lon_deg": -33.088785,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 64,
+    "lgrs_acc": "AXRZB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 207.6,
+   "terrain_slope": {
+    "value_deg": 1.873,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.044843975,
+     -0.029220913,
+     -0.998566551
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.83,
+     77967.8
+    ],
+    "lps_south_m": [
+     449500.0,
+     577500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0064"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0069",
+   "name": "Haworth cell AYRDB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.019082,
+   "lon_deg": -30.417058,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 69,
+    "lgrs_acc": "AYRDB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 543.6,
+   "terrain_slope": {
+    "value_deg": 4.623,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.044845777,
+     -0.026328812,
+     -0.99864691
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.65,
+     77967.8
+    ],
+    "lps_south_m": [
+     454500.0,
+     577500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0069"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0074",
+   "name": "Haworth cell AYRJB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.099486,
+   "lon_deg": -27.590697,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 74,
+    "lgrs_acc": "AYRJB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 734.4,
+   "terrain_slope": {
+    "value_deg": 11.032,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.04484739,
+     -0.023436378,
+     -0.998718903
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.46,
+     77967.8
+    ],
+    "lps_south_m": [
+     459500.0,
+     577499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0074"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0079",
+   "name": "Haworth cell AYRPB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.172446,
+   "lon_deg": -24.610835,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 79,
+    "lgrs_acc": "AYRPB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1348.1,
+   "terrain_slope": {
+    "value_deg": 10.286,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.044848822,
+     -0.020543654,
+     -0.99878253
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.28,
+     77967.81
+    ],
+    "lps_south_m": [
+     464500.0,
+     577500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0079"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0084",
+   "name": "Haworth cell AYRUB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.237372,
+   "lon_deg": -21.482038,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 84,
+    "lgrs_acc": "AYRUB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 131.8,
+   "terrain_slope": {
+    "value_deg": 6.698,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.044850056,
+     -0.017650667,
+     -0.998837788
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.1,
+     77967.8
+    ],
+    "lps_south_m": [
+     469500.01,
+     577499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0084"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0089",
+   "name": "Haworth cell AYRZB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.293683,
+   "lon_deg": -18.212873,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 89,
+    "lgrs_acc": "AYRZB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": -547.7,
+   "terrain_slope": {
+    "value_deg": 14.26,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.044851117,
+     -0.014757464,
+     -0.998884675
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.92,
+     77967.81
+    ],
+    "lps_south_m": [
+     474500.0,
+     577500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0089"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0219",
+   "name": "Haworth cell AXRZG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.791665,
+   "lon_deg": -31.471685,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 219,
+    "lgrs_acc": "AXRZG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 177.4,
+   "terrain_slope": {
+    "value_deg": 6.592,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.047733945,
+     -0.029218961,
+     -0.998432633
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.84,
+     82998.0
+    ],
+    "lps_south_m": [
+     449499.99,
+     582500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0219"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0224",
+   "name": "Haworth cell AYRDG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.875003,
+   "lon_deg": -28.877401,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 224,
+    "lgrs_acc": "AYRDG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 875.7,
+   "terrain_slope": {
+    "value_deg": 12.85,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.047735854,
+     -0.026327047,
+     -0.998512982
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.64,
+     82997.98
+    ],
+    "lps_south_m": [
+     454500.0,
+     582500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0224"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0229",
+   "name": "Haworth cell AYRJG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.951597,
+   "lon_deg": -26.146841,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 229,
+    "lgrs_acc": "AYRJG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1446.2,
+   "terrain_slope": {
+    "value_deg": 5.211,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.047737579,
+     -0.023434811,
+     -0.998584965
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.47,
+     82997.99
+    ],
+    "lps_south_m": [
+     459500.0,
+     582500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0229"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0234",
+   "name": "Haworth cell AYRPG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.020927,
+   "lon_deg": -23.282356,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 234,
+    "lgrs_acc": "AYRPG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1604.8,
+   "terrain_slope": {
+    "value_deg": 8.61,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.047739096,
+     -0.020542278,
+     -0.998648584
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.29,
+     82997.99
+    ],
+    "lps_south_m": [
+     464500.0,
+     582500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0234"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0239",
+   "name": "Haworth cell AYRUG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.082473,
+   "lon_deg": -20.289201,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 239,
+    "lgrs_acc": "AYRUG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 372.3,
+   "terrain_slope": {
+    "value_deg": 9.645,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.04774042,
+     -0.017649489,
+     -0.998703834
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.11,
+     82998.0
+    ],
+    "lps_south_m": [
+     469500.0,
+     582500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0239"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0244",
+   "name": "Haworth cell AYRZG",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -87.135733,
+   "lon_deg": -17.175904,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 244,
+    "lgrs_acc": "AYRZG"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": -233.8,
+   "terrain_slope": {
+    "value_deg": 10.415,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.047741537,
+     -0.014756475,
+     -0.998750716
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.93,
+     82997.99
+    ],
+    "lps_south_m": [
+     474500.0,
+     582500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0244"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0374",
+   "name": "Haworth cell AXRZM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.64918,
+   "lon_deg": -29.991086,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 374,
+    "lgrs_acc": "AXRZM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 742.4,
+   "terrain_slope": {
+    "value_deg": 4.594,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050623306,
+     -0.029216879,
+     -0.998290366
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.83,
+     88028.18
+    ],
+    "lps_south_m": [
+     449499.99,
+     587500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0374"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0379",
+   "name": "Haworth cell AYRDM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.728878,
+   "lon_deg": -27.474432,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 379,
+    "lgrs_acc": "AYRDM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 920.5,
+   "terrain_slope": {
+    "value_deg": 8.149,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050625335,
+     -0.026325175,
+     -0.998370703
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.65,
+     88028.17
+    ],
+    "lps_south_m": [
+     454500.0,
+     587500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0379"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0384",
+   "name": "Haworth cell AYRJM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.801964,
+   "lon_deg": -24.837396,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 384,
+    "lgrs_acc": "AYRJM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1434.3,
+   "terrain_slope": {
+    "value_deg": 10.763,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050627153,
+     -0.023433139,
+     -0.998442677
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.46,
+     88028.16
+    ],
+    "lps_south_m": [
+     459500.0,
+     587499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0384"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0389",
+   "name": "Haworth cell AYRPM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.867973,
+   "lon_deg": -22.083097,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 389,
+    "lgrs_acc": "AYRPM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1800.6,
+   "terrain_slope": {
+    "value_deg": 3.856,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050628773,
+     -0.020540816,
+     -0.998506286
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.29,
+     88028.17
+    ],
+    "lps_south_m": [
+     464500.0,
+     587500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0389"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0394",
+   "name": "Haworth cell AYRUM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.926449,
+   "lon_deg": -19.217095,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 394,
+    "lgrs_acc": "AYRUM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1542.3,
+   "terrain_slope": {
+    "value_deg": 8.463,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050630177,
+     -0.017648233,
+     -0.998561528
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.11,
+     88028.18
+    ],
+    "lps_south_m": [
+     469500.0,
+     587500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0394"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0399",
+   "name": "Haworth cell AYRZM",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.976954,
+   "lon_deg": -16.247632,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 399,
+    "lgrs_acc": "AYRZM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 384.2,
+   "terrain_slope": {
+    "value_deg": 13.844,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.050631363,
+     -0.014755426,
+     -0.998608403
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.93,
+     88028.18
+    ],
+    "lps_south_m": [
+     474500.0,
+     587500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0399"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0529",
+   "name": "Haworth cell AXRZS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.504653,
+   "lon_deg": -28.632154,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 529,
+    "lgrs_acc": "AXRZS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 632.0,
+   "terrain_slope": {
+    "value_deg": 7.592,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053512023,
+     -0.029214672,
+     -0.998139753
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.83,
+     93058.35
+    ],
+    "lps_south_m": [
+     449500.0,
+     592500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0529"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0534",
+   "name": "Haworth cell AYRDS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.580972,
+   "lon_deg": -26.192199,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 534,
+    "lgrs_acc": "AYRDS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 905.2,
+   "terrain_slope": {
+    "value_deg": 2.557,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053514178,
+     -0.02632319,
+     -0.998220077
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.65,
+     93058.35
+    ],
+    "lps_south_m": [
+     454500.0,
+     592500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0534"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0539",
+   "name": "Haworth cell AYRJS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.650821,
+   "lon_deg": -23.645623,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 539,
+    "lgrs_acc": "AYRJS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1481.4,
+   "terrain_slope": {
+    "value_deg": 7.891,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053516111,
+     -0.023431379,
+     -0.99829204
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.47,
+     93058.36
+    ],
+    "lps_south_m": [
+     459499.99,
+     592500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0539"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0544",
+   "name": "Haworth cell AYRPS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.713787,
+   "lon_deg": -20.995992,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 544,
+    "lgrs_acc": "AYRPS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1678.6,
+   "terrain_slope": {
+    "value_deg": 13.811,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053517811,
+     -0.020539267,
+     -0.998355639
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.29,
+     93058.35
+    ],
+    "lps_south_m": [
+     464500.0,
+     592500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0544"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0549",
+   "name": "Haworth cell AYRUS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.769466,
+   "lon_deg": -18.248924,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 549,
+    "lgrs_acc": "AYRUS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1408.4,
+   "terrain_slope": {
+    "value_deg": 7.445,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053519282,
+     -0.017646898,
+     -0.998410874
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.1,
+     93058.34
+    ],
+    "lps_south_m": [
+     469500.0,
+     592499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0549"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0554",
+   "name": "Haworth cell AYRZS",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.817474,
+   "lon_deg": -15.412237,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 554,
+    "lgrs_acc": "AYRZS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1107.7,
+   "terrain_slope": {
+    "value_deg": 15.799,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.053520534,
+     -0.01475431,
+     -0.998457742
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.92,
+     93058.34
+    ],
+    "lps_south_m": [
+     474500.0,
+     592499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0554"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0684",
+   "name": "Haworth cell AXRZX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.358328,
+   "lon_deg": -27.38184,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 684,
+    "lgrs_acc": "AXRZX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 546.2,
+   "terrain_slope": {
+    "value_deg": 14.142,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056400082,
+     -0.02921235,
+     -0.997980796
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.83,
+     98088.53
+    ],
+    "lps_south_m": [
+     449500.0,
+     597500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0684"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0689",
+   "name": "Haworth cell AYRDX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.431509,
+   "lon_deg": -25.016893,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 689,
+    "lgrs_acc": "AYRDX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1824.5,
+   "terrain_slope": {
+    "value_deg": 20.913,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056402343,
+     -0.026321093,
+     -0.998061108
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.64,
+     98088.52
+    ],
+    "lps_south_m": [
+     454500.01,
+     597499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0689"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0694",
+   "name": "Haworth cell AYRJX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.498368,
+   "lon_deg": -22.557247,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 694,
+    "lgrs_acc": "AYRJX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2139.6,
+   "terrain_slope": {
+    "value_deg": 17.707,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056404381,
+     -0.023429513,
+     -0.998133059
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.47,
+     98088.53
+    ],
+    "lps_south_m": [
+     459500.0,
+     597500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0694"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0699",
+   "name": "Haworth cell AYRPX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.558537,
+   "lon_deg": -20.006695,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 699,
+    "lgrs_acc": "AYRPX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1672.5,
+   "terrain_slope": {
+    "value_deg": 16.176,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056406174,
+     -0.020537633,
+     -0.998196649
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.29,
+     98088.53
+    ],
+    "lps_south_m": [
+     464500.0,
+     597500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0699"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0704",
+   "name": "Haworth cell AYRUX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.611658,
+   "lon_deg": -17.370753,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 704,
+    "lgrs_acc": "AYRUX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1056.0,
+   "terrain_slope": {
+    "value_deg": 5.381,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056407729,
+     -0.017645494,
+     -0.998251874
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.1,
+     98088.52
+    ],
+    "lps_south_m": [
+     469500.0,
+     597499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0704"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0709",
+   "name": "Haworth cell AYRZX",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.657393,
+   "lon_deg": -14.656751,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 709,
+    "lgrs_acc": "AYRZX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1120.4,
+   "terrain_slope": {
+    "value_deg": 9.338,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.056409063,
+     -0.014753139,
+     -0.998298734
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.93,
+     98088.54
+    ],
+    "lps_south_m": [
+     474500.0,
+     597500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0709"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0839",
+   "name": "Haworth cell AXSZB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.210417,
+   "lon_deg": -26.228681,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 839,
+    "lgrs_acc": "AXSZB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 708.8,
+   "terrain_slope": {
+    "value_deg": 16.064,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.059287424,
+     -0.029209902,
+     -0.997813501
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -50804.83,
+     103118.7
+    ],
+    "lps_south_m": [
+     449500.0,
+     602499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0839"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0844",
+   "name": "Haworth cell AYSDB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.280678,
+   "lon_deg": -23.936552,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 844,
+    "lgrs_acc": "AYSDB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2321.4,
+   "terrain_slope": {
+    "value_deg": 18.255,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.05928981,
+     -0.026318892,
+     -0.997893799
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -45774.65,
+     103118.71
+    ],
+    "lps_south_m": [
+     454500.0,
+     602500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0844"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0849",
+   "name": "Haworth cell AYSJB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.34477,
+   "lon_deg": -21.560064,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 849,
+    "lgrs_acc": "AYSJB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2207.8,
+   "terrain_slope": {
+    "value_deg": 12.18,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.05929195,
+     -0.023427551,
+     -0.997965738
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -40744.47,
+     103118.72
+    ],
+    "lps_south_m": [
+     459500.0,
+     602500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0849"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0854",
+   "name": "Haworth cell AYSPB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.402363,
+   "lon_deg": -19.103091,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 854,
+    "lgrs_acc": "AYSPB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 1589.0,
+   "terrain_slope": {
+    "value_deg": 11.319,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.05929383,
+     -0.020535912,
+     -0.998029317
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -35714.28,
+     103118.71
+    ],
+    "lps_south_m": [
+     464500.0,
+     602500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0854"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0859",
+   "name": "Haworth cell AYSUB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.453138,
+   "lon_deg": -16.570951,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 859,
+    "lgrs_acc": "AYSUB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 943.8,
+   "terrain_slope": {
+    "value_deg": 5.232,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.059295473,
+     -0.017644019,
+     -0.998084533
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -30684.11,
+     103118.72
+    ],
+    "lps_south_m": [
+     469500.0,
+     602500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0859"
+  },
+  {
+   "analysis_point_id": "haworth-cell-0864",
+   "name": "Haworth cell AYSZB",
+   "region_id": "haworth",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.496799,
+   "lon_deg": -13.970462,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 864,
+    "lgrs_acc": "AYSZB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 691.0,
+   "terrain_slope": {
+    "value_deg": 11.049,
+    "status": "computed",
+    "baseline_m": 159.9,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.059296857,
+     -0.014751901,
+     -0.998131386
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -25653.92,
+     103118.7
+    ],
+    "lps_south_m": [
+     474500.0,
+     602499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/haworth-cell-0864"
+  },
+  {
+   "analysis_point_id": "malapert-massif-grid-center",
+   "name": "Malapert Massif (grid centre)",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.987196,
+   "lon_deg": -0.236758,
+   "role": "region_label_anchor_point",
+   "selection_reason": "centre of the 1 km grid rectangle",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": null,
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4801.3,
+   "terrain_slope": {
+    "value_deg": 5.835,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.069978802,
+     -0.000289169,
+     -0.997548437
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -503.02,
+     121730.39
+    ],
+    "lps_south_m": [
+     499500.0,
+     621000.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-grid-center"
+  },
+  {
+   "analysis_point_id": "malapert-massif-highest-cell",
+   "name": "Malapert Massif (highest 1 km cell)",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.967902,
+   "lon_deg": 2.121096,
+   "role": "representative_analysis_point",
+   "selection_reason": "centre of the 1 km cell with the highest LOLA 80 m DEM height at its centre (high ground tends to have better illumination; not a landing-safety judgement)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 246,
+    "lgrs_acc": "BASDW"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 5155.7,
+   "terrain_slope": {
+    "value_deg": 4.282,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.070267136,
+     0.002602486,
+     -0.997524815
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     4527.16,
+     122233.4
+    ],
+    "lps_south_m": [
+     504500.0,
+     621500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-highest-cell"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0044",
+   "name": "Malapert Massif cell AZSRM",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.258285,
+   "lon_deg": -4.320805,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 44,
+    "lgrs_acc": "AZSRM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2064.6,
+   "terrain_slope": {
+    "value_deg": 10.518,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.065073362,
+     -0.004916654,
+     -0.99786837
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -8551.31,
+     113179.09
+    ],
+    "lps_south_m": [
+     491500.0,
+     612500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0044"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0049",
+   "name": "Malapert Massif cell AZSWM",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.267108,
+   "lon_deg": -1.781961,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 49,
+    "lgrs_acc": "AZSWM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2432.5,
+   "terrain_slope": {
+    "value_deg": 8.979,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.06507369,
+     -0.002024515,
+     -0.997878408
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -3521.13,
+     113179.09
+    ],
+    "lps_south_m": [
+     496500.0,
+     612500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0049"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0054",
+   "name": "Malapert Massif cell BASAM",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.268581,
+   "lon_deg": 0.763898,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 54,
+    "lgrs_acc": "BASAM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2759.1,
+   "terrain_slope": {
+    "value_deg": 8.603,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.065073736,
+     0.000867649,
+     -0.997880081
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     1509.05,
+     113179.07
+    ],
+    "lps_south_m": [
+     501500.0,
+     612500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0054"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0059",
+   "name": "Malapert Massif cell BASFM",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.262694,
+   "lon_deg": 3.306746,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 59,
+    "lgrs_acc": "BASFM"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 3134.2,
+   "terrain_slope": {
+    "value_deg": 16.515,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.065073524,
+     0.003759803,
+     -0.997873389
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     6539.24,
+     113179.08
+    ],
+    "lps_south_m": [
+     506500.0,
+     612500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0059"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0149",
+   "name": "Malapert Massif cell AZSRS",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.093036,
+   "lon_deg": -4.137594,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 149,
+    "lgrs_acc": "AZSRS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 3502.2,
+   "terrain_slope": {
+    "value_deg": 23.013,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.067958966,
+     -0.004916181,
+     -0.997676005
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -8551.31,
+     118209.27
+    ],
+    "lps_south_m": [
+     491500.0,
+     617500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0149"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0154",
+   "name": "Malapert Massif cell AZSWS",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.101484,
+   "lon_deg": -1.706178,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 154,
+    "lgrs_acc": "AZSWS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 3953.9,
+   "terrain_slope": {
+    "value_deg": 22.903,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.067959307,
+     -0.002024319,
+     -0.99768604
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -3521.13,
+     118209.27
+    ],
+    "lps_south_m": [
+     496500.0,
+     617500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0154"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0159",
+   "name": "Malapert Massif cell BASAS",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.102894,
+   "lon_deg": 0.731396,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 159,
+    "lgrs_acc": "BASAS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4119.8,
+   "terrain_slope": {
+    "value_deg": 20.751,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.06795936,
+     0.000867567,
+     -0.997687713
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     1509.05,
+     118209.26
+    ],
+    "lps_south_m": [
+     501500.0,
+     617500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0159"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0164",
+   "name": "Malapert Massif cell BASFS",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -86.097258,
+   "lon_deg": 3.166327,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 164,
+    "lgrs_acc": "BASFS"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4701.3,
+   "terrain_slope": {
+    "value_deg": 14.862,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.067959132,
+     0.003759442,
+     -0.997681023
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     6539.24,
+     118209.26
+    ],
+    "lps_south_m": [
+     506500.0,
+     617500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0164"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0254",
+   "name": "Malapert Massif cell AZSRX",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.927767,
+   "lon_deg": -3.969263,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 254,
+    "lgrs_acc": "AZSRX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4848.6,
+   "terrain_slope": {
+    "value_deg": 7.947,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.070843711,
+     -0.004915686,
+     -0.997475315
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -8551.31,
+     123239.43
+    ],
+    "lps_south_m": [
+     491500.0,
+     622500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0254"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0259",
+   "name": "Malapert Massif cell AZSWX",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.93587,
+   "lon_deg": -1.636577,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 259,
+    "lgrs_acc": "AZSWX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4708.4,
+   "terrain_slope": {
+    "value_deg": 16.034,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.070844073,
+     -0.002024116,
+     -0.997485348
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -3521.13,
+     123239.44
+    ],
+    "lps_south_m": [
+     496500.0,
+     622500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0259"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0264",
+   "name": "Malapert Massif cell BASAX",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.937222,
+   "lon_deg": 0.701546,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 264,
+    "lgrs_acc": "BASAX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4727.3,
+   "terrain_slope": {
+    "value_deg": 15.325,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.070844135,
+     0.000867479,
+     -0.997487021
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     1509.05,
+     123239.45
+    ],
+    "lps_south_m": [
+     501500.0,
+     622500.01
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0264"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0269",
+   "name": "Malapert Massif cell BASFX",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.931817,
+   "lon_deg": 3.037336,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 269,
+    "lgrs_acc": "BASFX"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 4903.6,
+   "terrain_slope": {
+    "value_deg": 6.202,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.070843883,
+     0.003759063,
+     -0.997480332
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     6539.24,
+     123239.42
+    ],
+    "lps_south_m": [
+     506500.0,
+     622499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0269"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0359",
+   "name": "Malapert Massif cell AZTRB",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.762482,
+   "lon_deg": -3.814075,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 359,
+    "lgrs_acc": "AZTRB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2838.6,
+   "terrain_slope": {
+    "value_deg": 23.146,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.073727578,
+     -0.004915172,
+     -0.997266306
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -8551.31,
+     128269.62
+    ],
+    "lps_south_m": [
+     491500.0,
+     627500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0359"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0364",
+   "name": "Malapert Massif cell AZTWB",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.770268,
+   "lon_deg": -1.57243,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 364,
+    "lgrs_acc": "AZTWB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2605.5,
+   "terrain_slope": {
+    "value_deg": 28.439,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.073727941,
+     -0.002023904,
+     -0.997276338
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     -3521.13,
+     128269.61
+    ],
+    "lps_south_m": [
+     496500.0,
+     627499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0364"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0369",
+   "name": "Malapert Massif cell BATAB",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.771567,
+   "lon_deg": 0.674037,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 369,
+    "lgrs_acc": "BATAB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 2870.0,
+   "terrain_slope": {
+    "value_deg": 26.325,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.073728003,
+     0.000867388,
+     -0.99727801
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     1509.05,
+     128269.61
+    ],
+    "lps_south_m": [
+     501500.0,
+     627499.99
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0369"
+  },
+  {
+   "analysis_point_id": "malapert-massif-cell-0374",
+   "name": "Malapert Massif cell BATFB",
+   "region_id": "malapert-massif",
+   "region_assignment": {
+    "status": "inside_navigation_grid_extent",
+    "note": "inside the USGS grid rectangle of the region (not an official boundary)"
+   },
+   "lat_deg": -85.766373,
+   "lon_deg": 2.918435,
+   "role": "sampling_lattice_point",
+   "selection_reason": "every 5th 1 km cell in easting and northing (offset 2)",
+   "coordinate_source": {
+    "description": "derived from USGS LGRS grid geometry",
+    "source": {
+     "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+     "author": "McClernan, M. T.",
+     "publisher": "U.S. Geological Survey",
+     "published": "2024-12-05",
+     "doi": "10.5066/P1MEQ6UK",
+     "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+     "sciencebase_item": "671a6fa8d34efed5620f89f8",
+     "accessed": "2026-11-14"
+    }
+   },
+   "navigation_cell": {
+    "grid": "1km",
+    "cell_id": 374,
+    "lgrs_acc": "BATFB"
+   },
+   "verification_status": "coordinates_derived_reproducibly",
+   "is_landing_site": false,
+   "schema_version": "1.0.0",
+   "frame": "MOON_ME (DE421), planetocentric latitude, east-positive longitude, degrees",
+   "terrain_height_m": 3948.6,
+   "terrain_slope": {
+    "value_deg": 18.997,
+    "status": "computed",
+    "baseline_m": 159.8,
+    "source": "LDEM_80S_80MPP_ADJ.TIF",
+    "note": "Regional-scale slope at a ~160 m baseline; not a lander-scale (metres) slope."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.073727763,
+     0.003758671,
+     -0.997271322
+    ]
+   },
+   "projected": {
+    "pgda_south_stereo_m": [
+     6539.24,
+     128269.62
+    ],
+    "lps_south_m": [
+     506500.0,
+     627500.0
+    ]
+   },
+   "details_url": "/api/v1/sites/malapert-massif-cell-0374"
+  }
+ ]
+}

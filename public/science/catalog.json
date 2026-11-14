@@ -1,0 +1,894 @@
+{
+ "schema_version": "1.0.0",
+ "catalog_version": "artemis3-candidate-regions-2024-10-28",
+ "catalog_date": "2024-10-28",
+ "generated_utc": "2026-11-14T12:09:07Z",
+ "title": "Artemis III candidate landing regions (NASA, 28 Oct 2024) - prototype catalog",
+ "disclaimer": "Student prototype built from public data. Not a NASA product; no approval or operational capability is implied.",
+ "sources": {
+  "region_list": {
+   "title": "NASA Provides Update on Artemis III Moon Landing Regions",
+   "publisher": "NASA",
+   "published": "2024-10-28",
+   "url": "https://www.nasa.gov/news-release/nasa-provides-update-on-artemis-iii-moon-landing-regions/",
+   "accessed": "2026-11-14",
+   "note": "Lists the nine region names 'in no priority order'; gives no coordinates or boundary geometry."
+  },
+  "navigation_grids": {
+   "title": "Down Selected Artemis III Candidate Landing Site Navigational Grids",
+   "author": "McClernan, M. T.",
+   "publisher": "U.S. Geological Survey",
+   "published": "2024-12-05",
+   "doi": "10.5066/P1MEQ6UK",
+   "url": "https://www.usgs.gov/data/down-selected-artemis-iii-candidate-landing-site-navigational-grids",
+   "sciencebase_item": "671a6fa8d34efed5620f89f8",
+   "accessed": "2026-11-14"
+  },
+  "named_features": {
+   "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+   "publisher": "IAU / USGS Astrogeology",
+   "url": "https://planetarynames.wr.usgs.gov/",
+   "file": "MOON_nomenclature_center_pts.zip",
+   "accessed": "2026-11-14"
+  },
+  "study_locations": {
+   "title": "High-Resolution LOLA Topography for Lunar South Pole Sites (PGDA product 78)",
+   "url": "https://pgda.gsfc.nasa.gov/products/78",
+   "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+   "reference": "Barker, M. K., et al. (2021), Planet. Space Sci. 203, 105119, doi:10.1016/j.pss.2020.105119",
+   "accessed": "2026-11-14"
+  },
+  "dem": {
+   "product": "A New View of the Lunar South Pole from LOLA (PGDA product 90)",
+   "url": "https://pgda.gsfc.nasa.gov/products/90",
+   "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/",
+   "doi": "10.60903/gsfcpgda-lola-spole",
+   "reference": "Barker, M. K., et al. (2023), Planetary Science Journal 4, 183, doi:10.3847/PSJ/acf3e1",
+   "frame": "MOON_ME of JPL DE421 (per product page)",
+   "height_definition": "surface height in metres above the 1 737 400 m reference sphere",
+   "files": [
+    {
+     "name": "LDEM_60S_240MPP_ADJ.TIF.partial",
+     "size_bytes": 102084608,
+     "sha256": "8885efc39fb05dfc3ddb24c9fb30f07cc65aae42eb6cf5672bcf00e65ca7c7f4",
+     "complete": false
+    },
+    {
+     "name": "LDEM_80S_80MPP_ADJ.TIF",
+     "size_bytes": 189158392,
+     "sha256": "82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a",
+     "complete": true
+    }
+   ]
+  }
+ },
+ "coordinate_reference": {
+  "body": "Moon",
+  "frame": "MOON_ME (mean Earth / polar axis), DE421 realisation",
+  "reference_surface": "sphere, radius 1 737 400 m (IAU 2015 'Moon (2015) - Sphere')",
+  "latitude_type": "planetocentric (identical to planetographic on a sphere)",
+  "longitude_convention": "east positive, exported in [-180, 180)",
+  "units": {
+   "angles": "degrees",
+   "lengths": "metres"
+  },
+  "height_definition": "radial height above the 1 737 400 m sphere (LOLA LDEM)",
+  "projections": {
+   "LPS_south": {
+    "description": "USGS Lunar Polar Stereographic, south zone (LGRS grids)",
+    "proj4": "+proj=stere +lat_0=-90 +lon_0=0 +k=0.994 +x_0=500000 +y_0=500000 +R=1737400 +units=m +no_defs",
+    "scale_factor_at_pole": 0.994,
+    "false_easting_m": 500000,
+    "false_northing_m": 500000
+   },
+   "PGDA_south_stereo": {
+    "description": "PGDA LOLA polar DEMs",
+    "proj4": "+proj=stere +lat_0=-90 +lon_0=0 +k=1 +x_0=0 +y_0=0 +R=1737400 +units=m +no_defs",
+    "scale_factor_at_pole": 1.0
+   }
+  },
+  "not_geojson": "Structures here are NOT RFC 7946 GeoJSON: coordinates are lunar (MOON_ME), not WGS 84."
+ },
+ "entity_model": {
+  "region": "candidate landing region (9)",
+  "navigation_cell": "USGS LGRS/ACC grid cell",
+  "analysis_point": "coordinate where visibility is computed; never a certified landing site",
+  "landing_area": "not available"
+ },
+ "regions": [
+  {
+   "schema_version": "1.0.0",
+   "region_id": "peak-near-cabeus-b",
+   "name": "Peak near Cabeus B",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Peak_Near_Cabeus_B.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -82.2587,
+    "lon_deg": -54.584599999999966,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Cabeus B",
+     "type": "Satellite Feature",
+     "diameter_km": 59.617268,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/8058"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Cabeus B' (diameter 60 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.078058956,
+     -0.109777122,
+     -0.990886362
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.078058956,
+     -0.109777122,
+     -0.990886362
+    ],
+    "position": [
+     0.082608286,
+     -0.116175008,
+     -1.048635897
+    ],
+    "distance_from_surface": 0.058281,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/peak-near-cabeus-b"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "haworth",
+   "name": "Haworth",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": "navigation_grid_extent",
+   "geometry_status": "verified_against_source_files",
+   "geometry_status_reason": "Rectangle enclosing the USGS 1 km LGRS/ACC grid cells, read from the shapefile and converted with the projection in its .prj. It is the grid extent, not an official region boundary.",
+   "label_position": {
+    "lat_deg": -86.766106,
+    "lon_deg": -22.619865,
+    "height_m": 1613.7,
+    "kind": "navigation_grid_extent_center",
+    "status": "derived_from_verified_geometry",
+    "note": "Centre of the grid rectangle: a label/camera anchor, not a landing site."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.052072734,
+     -0.021696972,
+     -0.998407568
+    ],
+    "status": "derived_from_verified_geometry",
+    "kind": "navigation_grid_extent_center"
+   },
+   "bounding_volume": {
+    "type": "sphere",
+    "center_unit_vector": [
+     0.052072734,
+     -0.021696972,
+     -0.998407568
+    ],
+    "angular_radius_deg": 0.71516,
+    "radius_m": 21685.8,
+    "radius_in_globe_radii": 0.0124814
+   },
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.052072734,
+     -0.021696972,
+     -0.998407568
+    ],
+    "position": [
+     0.054280629,
+     -0.022616929,
+     -1.040740267
+    ],
+    "distance_from_surface": 0.0424,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": "/assets/terrain/haworth-80m.glb",
+   "data_quality": {
+    "geometry": "grid extent verified against source files",
+    "label_position": "derived",
+    "analysis": "points available"
+   },
+   "limitations": [
+    "Boundary is the navigation-grid rectangle, not an official NASA region outline.",
+    "Analysis points inside the rectangle are sampling points, not selected landing sites."
+   ],
+   "analysis_point_ids": [
+    "haworth-grid-center",
+    "haworth-highest-cell",
+    "haworth-cell-0064",
+    "haworth-cell-0069",
+    "haworth-cell-0074",
+    "haworth-cell-0079",
+    "haworth-cell-0084",
+    "haworth-cell-0089",
+    "haworth-cell-0219",
+    "haworth-cell-0224",
+    "haworth-cell-0229",
+    "haworth-cell-0234",
+    "haworth-cell-0239",
+    "haworth-cell-0244",
+    "haworth-cell-0374",
+    "haworth-cell-0379",
+    "haworth-cell-0384",
+    "haworth-cell-0389",
+    "haworth-cell-0394",
+    "haworth-cell-0399",
+    "haworth-cell-0529",
+    "haworth-cell-0534",
+    "haworth-cell-0539",
+    "haworth-cell-0544",
+    "haworth-cell-0549",
+    "haworth-cell-0554",
+    "haworth-cell-0684",
+    "haworth-cell-0689",
+    "haworth-cell-0694",
+    "haworth-cell-0699",
+    "haworth-cell-0704",
+    "haworth-cell-0709",
+    "haworth-cell-0839",
+    "haworth-cell-0844",
+    "haworth-cell-0849",
+    "haworth-cell-0854",
+    "haworth-cell-0859",
+    "haworth-cell-0864"
+   ],
+   "representative_analysis_point_id": "haworth-highest-cell",
+   "url": "/api/v1/regions/haworth"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "malapert-massif",
+   "name": "Malapert Massif",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": "navigation_grid_extent",
+   "geometry_status": "verified_against_source_files",
+   "geometry_status_reason": "Rectangle enclosing the USGS 1 km LGRS/ACC grid cells, read from the shapefile and converted with the projection in its .prj. It is the grid extent, not an official region boundary.",
+   "label_position": {
+    "lat_deg": -85.987196,
+    "lon_deg": -0.236758,
+    "height_m": 4801.3,
+    "kind": "navigation_grid_extent_center",
+    "status": "derived_from_verified_geometry",
+    "note": "Centre of the grid rectangle: a label/camera anchor, not a landing site."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.0699788,
+     -0.000289169,
+     -0.997548437
+    ],
+    "status": "derived_from_verified_geometry",
+    "kind": "navigation_grid_extent_center"
+   },
+   "bounding_volume": {
+    "type": "sphere",
+    "center_unit_vector": [
+     0.0699788,
+     -0.000289169,
+     -0.997548437
+    ],
+    "angular_radius_deg": 0.50396,
+    "radius_m": 15281.6,
+    "radius_in_globe_radii": 0.0087955
+   },
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.0699788,
+     -0.000289169,
+     -0.997548437
+    ],
+    "position": [
+     0.072069696,
+     -0.000297809,
+     -1.027354174
+    ],
+    "distance_from_surface": 0.029879,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": "/assets/terrain/malapert-massif-80m.glb",
+   "data_quality": {
+    "geometry": "grid extent verified against source files",
+    "label_position": "derived",
+    "analysis": "points available"
+   },
+   "limitations": [
+    "Boundary is the navigation-grid rectangle, not an official NASA region outline.",
+    "Analysis points inside the rectangle are sampling points, not selected landing sites."
+   ],
+   "analysis_point_ids": [
+    "pgda-site23-malapert-massif",
+    "malapert-massif-grid-center",
+    "malapert-massif-highest-cell",
+    "malapert-massif-cell-0044",
+    "malapert-massif-cell-0049",
+    "malapert-massif-cell-0054",
+    "malapert-massif-cell-0059",
+    "malapert-massif-cell-0149",
+    "malapert-massif-cell-0154",
+    "malapert-massif-cell-0159",
+    "malapert-massif-cell-0164",
+    "malapert-massif-cell-0254",
+    "malapert-massif-cell-0259",
+    "malapert-massif-cell-0264",
+    "malapert-massif-cell-0269",
+    "malapert-massif-cell-0359",
+    "malapert-massif-cell-0364",
+    "malapert-massif-cell-0369",
+    "malapert-massif-cell-0374"
+   ],
+   "representative_analysis_point_id": "malapert-massif-highest-cell",
+   "url": "/api/v1/regions/malapert-massif"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "mons-mouton-plateau",
+   "name": "Mons Mouton Plateau",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Mons_Mouton_Plateau.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -84.60000000000001,
+    "lon_deg": 31.0,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Mons Mouton",
+     "type": "Mons, montes",
+     "diameter_km": 130.0,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/16070"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Mons Mouton' (diameter 130 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.080666569,
+     0.048469365,
+     -0.995561965
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.080666569,
+     0.048469365,
+     -0.995561965
+    ],
+    "position": [
+     0.09091623,
+     0.054627982,
+     -1.122060125
+    ],
+    "distance_from_surface": 0.127062,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/mons-mouton-plateau"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "mons-mouton",
+   "name": "Mons Mouton",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Mons_Mouton.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -84.60000000000001,
+    "lon_deg": 31.0,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Mons Mouton",
+     "type": "Mons, montes",
+     "diameter_km": 130.0,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/16070"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Mons Mouton' (diameter 130 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.080666569,
+     0.048469365,
+     -0.995561965
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.080666569,
+     0.048469365,
+     -0.995561965
+    ],
+    "position": [
+     0.09091623,
+     0.054627982,
+     -1.122060125
+    ],
+    "distance_from_surface": 0.127062,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/mons-mouton"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "nobile-rim-1",
+   "name": "Nobile Rim 1",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Nobile_Rim_1.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -85.2752,
+    "lon_deg": 53.27250000000001,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Nobile",
+     "type": "Crater, craters",
+     "diameter_km": 79.27233,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/4321"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Nobile' (diameter 79 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.049258008,
+     0.066018535,
+     -0.996601827
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.049258008,
+     0.066018535,
+     -0.996601827
+    ],
+    "position": [
+     0.053075118,
+     0.071134454,
+     -1.073830667
+    ],
+    "distance_from_surface": 0.077492,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/nobile-rim-1"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "nobile-rim-2",
+   "name": "Nobile Rim 2",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Nobile_Rim_2.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -85.2752,
+    "lon_deg": 53.27250000000001,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Nobile",
+     "type": "Crater, craters",
+     "diameter_km": 79.27233,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/4321"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Nobile' (diameter 79 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.049258008,
+     0.066018535,
+     -0.996601827
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.049258008,
+     0.066018535,
+     -0.996601827
+    ],
+    "position": [
+     0.053075118,
+     0.071134454,
+     -1.073830667
+    ],
+    "distance_from_surface": 0.077492,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/nobile-rim-2"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "de-gerlache-rim-2",
+   "name": "de Gerlache Rim 2",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'de_Gerlache_Rim_2.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -88.48490000000001,
+    "lon_deg": -88.34469999999999,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "de Gerlache",
+     "type": "Crater, craters",
+     "diameter_km": 32.705418,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/1439"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'de Gerlache' (diameter 33 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     0.000763768,
+     -0.026429368,
+     -0.999650391
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     0.000763768,
+     -0.026429368,
+     -0.999650391
+    ],
+    "position": [
+     0.000788189,
+     -0.027274402,
+     -1.031612492
+    ],
+    "distance_from_surface": 0.031973,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/de-gerlache-rim-2"
+  },
+  {
+   "schema_version": "1.0.0",
+   "region_id": "slater-plain",
+   "name": "Slater Plain",
+   "catalog_version": "artemis3-candidate-regions-2024-10-28",
+   "geometry_type": null,
+   "geometry_status": "unavailable",
+   "geometry_status_reason": "USGS grid package 'Slater_Plain.zip' has not been ingested (ScienceBase blocks automated download). Run scripts/ingest_usgs_grids.py after downloading it.",
+   "label_position": {
+    "lat_deg": -88.0792,
+    "lon_deg": 111.28809999999999,
+    "kind": "nearby_named_feature_center",
+    "status": "approximate",
+    "feature": {
+     "name": "Slater",
+     "type": "Crater, craters",
+     "diameter_km": 25.119,
+     "link": "http://planetarynames.wr.usgs.gov/Feature/15325"
+    },
+    "source": {
+     "title": "Gazetteer of Planetary Nomenclature - Moon, feature centre points",
+     "publisher": "IAU / USGS Astrogeology",
+     "url": "https://planetarynames.wr.usgs.gov/",
+     "file": "MOON_nomenclature_center_pts.zip",
+     "accessed": "2026-11-14"
+    },
+    "warning": "This is the centre of the IAU feature 'Slater' (diameter 25 km), used only so a label can be shown. The candidate region is near, not at, this point; the offset can be tens of km. Do not use for analysis."
+   },
+   "render_position": {
+    "unit_vector": [
+     -0.01216897,
+     0.031230959,
+     -0.999438114
+    ],
+    "status": "approximate",
+    "kind": "nearby_named_feature_center"
+   },
+   "bounding_volume": null,
+   "camera_suggestion": {
+    "frame": "canonical science frame scaled so that the globe radius = 1 (apply the render matrix, then multiply by the scene radius)",
+    "target": [
+     -0.01216897,
+     0.031230959,
+     -0.999438114
+    ],
+    "position": [
+     -0.012467802,
+     0.031997893,
+     -1.023981153
+    ],
+    "distance_from_surface": 0.024557,
+    "up_hint": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "up_hint_note": "direction of (0N, 0E): keeps the Earth-facing meridian 'up' in south-polar views",
+    "fov_deg_vertical": 45.0,
+    "assumptions": [
+     "perspective camera",
+     "vertical FOV 45 deg",
+     "viewport aspect >= 1 and no side panel (use the adapter's frameTargets() to account for the panel)",
+     "margin factor 1.3"
+    ]
+   },
+   "terrain_asset_url": null,
+   "data_quality": {
+    "geometry": "unavailable",
+    "label_position": "approximate",
+    "analysis": "unavailable"
+   },
+   "limitations": [
+    "No verified geometry for this region yet; the label position is an approximate anchor.",
+    "No analysis points are defined for this region."
+   ],
+   "analysis_point_ids": [],
+   "representative_analysis_point_id": null,
+   "url": "/api/v1/regions/slater-plain"
+  }
+ ],
+ "region_geometry_summary": {
+  "verified_grid_extent": 2,
+  "unavailable": 7
+ },
+ "default_panel_analysis_point_ids": [
+  "pgda-site01-connecting-ridge",
+  "pgda-site04-shackleton-rim",
+  "pgda-site07-peak-near-shackleton",
+  "pgda-site11-de-gerlache-rim-1",
+  "pgda-site20-leibnitz-beta-plateau",
+  "pgda-site23-malapert-massif"
+ ],
+ "default_panel_bounding_volume": {
+  "type": "sphere",
+  "center_unit_vector": [
+   0.020656967,
+   0.005125383,
+   -0.999773484
+  ],
+  "angular_radius_deg": 3.4326
+ },
+ "analysis_points_url": "/api/v1/sites",
+ "defaults": {
+  "observer_height_m": 2.0,
+  "observer_height_note": "2 m above the DEM surface (mast-level sensor/antenna); used when the UI does not expose the height",
+  "mission_duration_hours": 72,
+  "max_consecutive_darkness_hours": 12
+ }
+}
