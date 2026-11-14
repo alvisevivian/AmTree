@@ -55,7 +55,9 @@ header{position:fixed;z-index:10;top:0;left:0;right:0;height:76px;padding:0 4vw;
 @media(max-width:620px){.ops-head{padding:24px 18px 20px}.ops-head h2{font-size:34px}.ops-head .coverage-state{font-size:7px}.decision-banner{grid-template-columns:auto 1fr;padding:19px 18px}.decision-key{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}.decision-score strong{font-size:54px}.decision-copy{padding-left:16px}.mission-console{padding:18px}.console-head{grid-template-columns:1fr 14px 1fr}.console-head>div{display:block}.console-head>div:last-child{text-align:right}.console-head strong{display:block;margin-top:4px;font-size:8px}.console-controls{grid-template-columns:1fr 1fr}.console-controls label:first-child{grid-column:1/-1;border-bottom:1px solid #303640}.console-controls label:nth-child(2){border-bottom:1px solid #303640}.delay-command{min-height:58px}.impact-brief{grid-template-columns:1fr;padding:17px 18px}.impact-events{grid-template-columns:1fr}.screening-head{padding:21px 18px 11px;align-items:flex-start}.screening-head>span{max-width:120px;text-align:right}.screening-row{min-width:0;grid-template-columns:40px 1fr 12px;padding:15px 18px}.screening-name{grid-column:2}.screening-metrics{grid-column:1/4;grid-row:2}.screening-verdict{grid-column:2;grid-row:3;justify-self:start}.screening-arrow{grid-column:3;grid-row:1}.screening-rule{grid-template-columns:1fr;margin:18px}}
 
 :root{--dashboard-width:clamp(650px,54vw,760px)}
-.planning .planner{grid-template-columns:minmax(0,1fr) var(--dashboard-width)}
+.planning .planner{grid-template-columns:minmax(0,1fr) var(--dashboard-width);pointer-events:none}
+.planning .panel{pointer-events:auto}
+.planning .map-caption{pointer-events:none}
 .planning>.moon-stage{top:68px;right:var(--dashboard-width);background:radial-gradient(circle at 50% 52%,#151d27 0,#080b0f 45%,#030405 78%)}
 .planning>.moon-stage canvas{touch-action:none}
 @media(max-width:900px){.planning>.moon-stage{top:auto;right:auto;background:radial-gradient(circle at 50% 52%,#151d27 0,#080b0f 50%,#030405 85%)}}
