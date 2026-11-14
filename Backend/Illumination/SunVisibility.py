@@ -29,18 +29,25 @@ except ImportError:
     STL_AVAILABLE = False
 
 # ==============================================================================
-# ADVANCED LUNAR ILLUMINATION SIMULATOR (CLI INTERACTIVE)
-# Mode S: 2D Spatial Heatmap Snapshot & Optional 3D STL Print Export
-# Mode D: Time-Series (CSV/Chart) + 2D Animated Heatmap (GIF) + STL Export
-# Core Calculation: High-Fidelity DEM Terrain Masking (LOLA South Pole)
+# ARTEMIS III - SUN VISIBILITY SIMULATOR (ILLUMINATION)
+# Architecture: Static (Instant Snapshot PNG) & Dynamic (Time-Series & GIF)
+# Note: Bulletproof dynamic paths. Runs perfectly regardless of terminal location.
 # ==============================================================================
 
-KERNEL_DIR = "kernels"
-GEOJSON_FILE = "LandingSides/A3-9regions-lonlat-simplified.geojson"
-DEM_DIR = "LandingSides/DEMs"
-CSV_OUTPUT = "Artemis3_Illumination_Results.csv"
-DYNAMIC_IMAGE = "Illumination_Time_Series.png"
-SNAPSHOT_DIR = "Snapshot_Maps"
+# DYNAMIC ABSOLUTE PATHS (Anchored to this script's exact location)
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+
+KERNEL_DIR = os.path.join(BASE_DIR, "kernels")
+GEOJSON_FILE = os.path.join(BASE_DIR, "LandingSides", "A3-9regions-lonlat-simplified.geojson")
+DEM_DIR = os.path.join(BASE_DIR, "LandingSides", "DEMs")
+
+# OUTPUT DIRECTORIES SPLIT
+STATIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Static")
+DYNAMIC_OUT = os.path.join(SCRIPT_DIR, "Outputs", "Dynamic")
+
+CSV_OUTPUT = os.path.join(DYNAMIC_OUT, "Artemis3_Illumination_Results.csv")
+DYNAMIC_IMAGE = os.path.join(DYNAMIC_OUT, "Illumination_Time_Series.png")
 
 KERNELS_TO_DOWNLOAD = {
     "naif0012.tls": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
@@ -49,9 +56,9 @@ KERNELS_TO_DOWNLOAD = {
 }
 
 def setup_environment():
-    for directory in [KERNEL_DIR, DEM_DIR, SNAPSHOT_DIR]:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+    for d in [KERNEL_DIR, DEM_DIR, STATIC_OUT, DYNAMIC_OUT]:
+        if not os.path.exists(d):
+            os.makedirs(d)
             
     for filename, url in KERNELS_TO_DOWNLOAD.items():
         filepath = os.path.join(KERNEL_DIR, filename)
@@ -62,15 +69,15 @@ def setup_environment():
 
 def get_user_inputs(geojson_data):
     print("\n" + "="*65)
-    print(" ARTEMIS III ILLUMINATION SIMULATOR ".center(65, "="))
+    print(" ARTEMIS III - SUN VISIBILITY SIMULATOR ".center(65, "="))
     print("="*65)
     
     prefs = {}
     
     # 1. SIMULATION MODE
     print("\n[ SIMULATION MODE ]")
-    print("  S - Static Mode  (Instant 2D Snapshot Heatmap PNG)")
-    print("  D - Dynamic Mode (Time-Series Propagation & 2D Animated GIF)")
+    print("  S - Static Mode  (Instant Snapshot Heatmap PNG -> Outputs/Static)")
+    print("  D - Dynamic Mode (Time-Series & Animated GIF -> Outputs/Dynamic)")
     mode = input("Your Choice [S/D] (Default: D): ").strip().upper()
     prefs['mode'] = 'S' if mode == 'S' else 'D'
     
@@ -108,7 +115,7 @@ def get_user_inputs(geojson_data):
         prefs['step'] = int(step) if step.isdigit() else 60
         
         print("\n[ ANIMATION EXPORT ]")
-        gif_exp = input("Generate 2D Animated Heatmap (.GIF) for regions? [Y/N] (Default: N): ").strip().upper()
+        gif_exp = input("Generate Animated Heatmap (.GIF) for regions? [Y/N] (Default: N): ").strip().upper()
         prefs['generate_gif'] = True if gif_exp == 'Y' else False
 
     # 5. REGION SELECTION
@@ -133,7 +140,6 @@ def get_user_inputs(geojson_data):
     return prefs
 
 def get_elevation_from_dem(lon_array, lat_array, dem_path):
-    """Reads altitude data from a localized TIF file for given lon/lat arrays."""
     try:
         with rasterio.open(dem_path) as src:
             dem_crs = src.crs
@@ -181,7 +187,6 @@ def build_region_cache(prefs, geojson_data, re, flat):
         else:
             alts = [0.0] * len(lons)
             
-        # 3D Vector calculation using the exact DEM altitudes
         pos_list = [spice.georec(np.radians(lon), np.radians(lat), alt, re, flat) for lon, lat, alt in zip(lons, lats, alts)]
         
         c_lon, c_lat = np.mean(lons), np.mean(lats)
@@ -200,11 +205,11 @@ def build_region_cache(prefs, geojson_data, re, flat):
         }
     return region_cache
 
-def export_3d_stl(r_name, dem_path, safe_name):
+def export_3d_stl(r_name, dem_path, safe_name, target_dir):
     if not dem_path or not os.path.exists(dem_path):
         return
-    stl_path = os.path.join(SNAPSHOT_DIR, f"{safe_name}_Topography.stl")
-    print(f"    [*] Generating 3D Print File (STL) for {r_name}...")
+    stl_path = os.path.join(target_dir, f"{safe_name}_Topography.stl")
+    print(f"    [*] Generating 3D Print File (STL) for {r_name} -> {target_dir}...")
     
     with rasterio.open(dem_path) as src:
         z_arr = src.read(1).astype(np.float32)
@@ -252,7 +257,7 @@ def run_static_snapshot(prefs, geojson_data):
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
     re, flat = radii[0], (radii[0] - radii[2]) / radii[0]
 
-    print(f"\n[*] Generating 2D static snapshot for {prefs['target']}...")
+    print(f"\n[*] Generating 2D static snapshot for {prefs['target']} -> Outputs/Static...")
     region_cache = build_region_cache(prefs, geojson_data, re, flat)
     
     for r_name, cache in region_cache.items():
@@ -272,10 +277,9 @@ def run_static_snapshot(prefs, geojson_data):
         levels[1:] = np.linspace(0.0, max_el, 30)
         c_list = ['black'] + [plt.cm.Reds(x) for x in np.linspace(0.2, 1.0, 29)]
 
-        # Pure 2D Visualization
         fig = plt.figure(figsize=(10, 8))
         mode_title = "DEM Calculated" if prefs['use_dem'] else "Ellipsoid Calculated"
-        plt.title(f"Solar Elevation Gradient: {r_name} ({mode_title})\nSnapshot UTC: {prefs['target']}", fontsize=14, fontweight='bold')
+        plt.title(f"Sun Visibility Gradient: {r_name} ({mode_title})\nSnapshot UTC: {prefs['target']}", fontsize=14, fontweight='bold')
         
         plt.xlabel("Longitude (deg)", fontsize=12, fontweight='bold')
         plt.ylabel("Latitude (deg)", fontsize=12, fontweight='bold')
@@ -291,15 +295,15 @@ def run_static_snapshot(prefs, geojson_data):
         plt.plot(boundary[:, 0], boundary[:, 1], color='cyan', linewidth=2, label='Region Boundary')
         plt.legend(loc='upper right')
         
-        out_path = os.path.join(SNAPSHOT_DIR, f"{safe_name}_Snapshot.png")
+        out_path = os.path.join(STATIC_OUT, f"{safe_name}_Snapshot.png")
         plt.savefig(out_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f" -> Saved 2D Heatmap PNG: {out_path}")
+        print(f" -> Saved Static Heatmap PNG: {out_path}")
         
         if prefs.get('export_stl'):
-            export_3d_stl(r_name, cache['dem_path'], safe_name)
+            export_3d_stl(r_name, cache['dem_path'], safe_name, STATIC_OUT)
 
-    print(f"[*] Static analysis complete. Files saved in '{SNAPSHOT_DIR}'.")
+    print(f"[*] Static analysis complete. Files saved in '{STATIC_OUT}'.")
 
 def run_dynamic_timeseries(prefs, geojson_data):
     et_start, et_end = spice.str2et(prefs['start']), spice.str2et(prefs['end'])
@@ -309,7 +313,7 @@ def run_dynamic_timeseries(prefs, geojson_data):
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
     re, flat = radii[0], (radii[0] - radii[2]) / radii[0]
 
-    print(f"\n[*] Preparing Dynamic Propagation... (Time Steps: {len(et_times)})")
+    print(f"\n[*] Preparing Dynamic Propagation -> Outputs/Dynamic (Time Steps: {len(et_times)})")
     region_cache = build_region_cache(prefs, geojson_data, re, flat)
     csv_data = [["Region", "Time_UTC", "Elevation_Deg", "Sunlit_Area_Pct", "Status"]]
 
@@ -317,7 +321,7 @@ def run_dynamic_timeseries(prefs, geojson_data):
         safe_name = r_name.replace(" ", "_")
         
         if prefs.get('export_stl'):
-            export_3d_stl(r_name, cache['dem_path'], safe_name)
+            export_3d_stl(r_name, cache['dem_path'], safe_name, DYNAMIC_OUT)
 
         print(f"    -> Calculating time-series for {r_name}...")
         all_frames = [] if prefs.get('generate_gif') else None
@@ -346,7 +350,7 @@ def run_dynamic_timeseries(prefs, geojson_data):
             status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
             csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
 
-        # --- 2D ANIMATED GIF GENERATION ---
+        # --- 2D ANIMATED GIF GENERATION (DYNAMIC) ---
         if prefs.get('generate_gif') and all_frames:
             print(f"    [*] Rendering 2D Timelapse GIF for {r_name}...")
             
@@ -378,10 +382,10 @@ def run_dynamic_timeseries(prefs, geojson_data):
                 ax.legend(loc='upper right')
 
             ani = animation.FuncAnimation(fig, update_frame, frames=len(et_times), repeat=False)
-            gif_path = os.path.join(SNAPSHOT_DIR, f"{safe_name}_Timelapse.gif")
+            gif_path = os.path.join(DYNAMIC_OUT, f"{safe_name}_Timelapse.gif")
             ani.save(gif_path, writer='pillow', fps=10)
             plt.close(fig)
-            print(f"    [+] Saved 2D GIF: {gif_path}")
+            print(f"    [+] Saved Dynamic GIF: {gif_path}")
 
     with open(CSV_OUTPUT, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -390,7 +394,7 @@ def run_dynamic_timeseries(prefs, geojson_data):
     print(f"[*] Time-series processed and saved to: {CSV_OUTPUT}")
 
 def process_and_visualize_data(prefs):
-    print(f"[*] Reading {CSV_OUTPUT} to generate chart...\n")
+    print(f"[*] Reading {CSV_OUTPUT} to generate dynamic summary chart...\n")
     try:
         df = pd.read_csv(CSV_OUTPUT)
         df['Time_UTC'] = pd.to_datetime(df['Time_UTC'])
@@ -416,7 +420,7 @@ def process_and_visualize_data(prefs):
         ax1.set_ylabel("Sunlit Surface Area (%)", fontsize=12, fontweight='bold')
         
         mode_text = "DEM Topology Integrated" if prefs['use_dem'] else "Ellipsoid Reference"
-        ax1.set_title(f"Dynamic Mode: Area-Based Illumination ({mode_text})", fontsize=16, fontweight='bold')
+        ax1.set_title(f"Dynamic Mode: Area-Based Sun Visibility ({mode_text})", fontsize=16, fontweight='bold')
         
         ax1.set_ylim(0, 105)
         ax1.margins(x=0)
@@ -435,7 +439,7 @@ def process_and_visualize_data(prefs):
         plt.tight_layout()
 
         plt.savefig(DYNAMIC_IMAGE, dpi=300, bbox_inches='tight')
-        print(f"[*] Propagation chart successfully saved to: {DYNAMIC_IMAGE}")
+        print(f"[*] Dynamic summary chart successfully saved to: {DYNAMIC_IMAGE}")
         
     except Exception as e:
         print(f"\n[!] Error generating chart: {e}")
@@ -446,7 +450,7 @@ def run_simulation():
         with open(GEOJSON_FILE, 'r', encoding='utf-8') as f:
             geojson_data = json.load(f)
     except FileNotFoundError:
-        print(f"ERROR: {GEOJSON_FILE} not found.")
+        print(f"ERROR: {GEOJSON_FILE} not found. Check absolute path mapping.")
         return None
 
     prefs = get_user_inputs(geojson_data)
