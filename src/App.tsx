@@ -7,15 +7,17 @@ import { MALAPERT_HORIZON, MALAPERT_SAMPLES, SOURCE_SUMMARY, hasDetailedSeries, 
 
 const fmt = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} h`;
 
-function Moon({ planning, selected, onSelect }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void }) {
+function Moon({ planning, selected, onSelect, autoRotate }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void; autoRotate: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const focusLabel = useRef<HTMLDivElement>(null);
   const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; markers: Map<SiteId, THREE.Sprite>; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion } | null>(null);
   const onSelectRef = useRef(onSelect);
   const planningRef = useRef(planning);
+  const autoRotateRef = useRef(autoRotate);
   const selectedRef = useRef(selected);
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
   useEffect(() => { planningRef.current = planning; }, [planning]);
+  useEffect(() => { autoRotateRef.current = autoRotate; }, [autoRotate]);
   useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => {
     const container = host.current;
@@ -110,7 +112,7 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
       const wheel=(e:WheelEvent)=>{e.preventDefault();cameraTarget.z=THREE.MathUtils.clamp(cameraTarget.z+e.deltaY*.002,2.05,6)};
       addEventListener("resize",resize);renderer.domElement.style.touchAction="none";renderer.domElement.addEventListener("pointerdown",down);addEventListener("pointermove",move);addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
       const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
-      const animate=()=>{if(!state.current)return;camera.position.lerp(cameraTarget,.06);moon.quaternion.slerp(rotationTarget,.075);if(!dragging&&!planningRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
+      const animate=()=>{if(!state.current)return;camera.position.lerp(cameraTarget,.06);moon.quaternion.slerp(rotationTarget,.075);if(!dragging&&!planningRef.current&&autoRotateRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=world.clone().normalize().dot(centerToCamera)>.05});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
       return()=>{removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
@@ -143,7 +145,8 @@ function ComparisonRow({site,result,duration,limit,onSelect}:{site:(typeof SITES
 }
 
 export default function App(){
-  const [planning,setPlanning]=useState(false),[selected,setSelected]=useState<SiteId|null>(null),[scenario,setScenario]=useState<ScenarioId>("baseline"),[limit,setLimit]=useState(12),[cursor,setCursor]=useState(Date.parse(MALAPERT_SAMPLES[0].time_utc)),[method,setMethod]=useState(false);
+  const [planning,setPlanning]=useState(false),[selected,setSelected]=useState<SiteId|null>(null),[scenario,setScenario]=useState<ScenarioId>("baseline"),[limit,setLimit]=useState(12),[cursor,setCursor]=useState(Date.parse(MALAPERT_SAMPLES[0].time_utc)),[method,setMethod]=useState(false),[introStage,setIntroStage]=useState<"running"|"reveal"|"leaving"|"done">("running");
+  useEffect(()=>{if(matchMedia("(prefers-reduced-motion: reduce)").matches){setIntroStage("done");return}const reveal=window.setTimeout(()=>setIntroStage("reveal"),5100),leave=window.setTimeout(()=>setIntroStage("leaving"),6400),done=window.setTimeout(()=>setIntroStage("done"),7350);return()=>{clearTimeout(reveal);clearTimeout(leave);clearTimeout(done)}},[]);
   const info=scenarioInfo(scenario),duration=info.duration,missionStart=info.start,missionEnd=info.end;
   const results=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,scenario,limit)])) as Record<SiteId,SiteMetrics>,[scenario,limit]);
   const baseline=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,"baseline",limit)])) as Record<SiteId,SiteMetrics>,[limit]);
@@ -154,8 +157,9 @@ export default function App(){
   const selectedSite=SITES.find(s=>s.id===selected),selectedResult=selected?results[selected]:null;
   const shortlist=SITES.filter(s=>results[s.id].meets).length;
   const utc=(date:Date)=>date.toISOString().replace("T"," · ").slice(0,18)+" UTC";
-  return <main className={planning?"planning":"opening"}>
-    <Moon planning={planning} selected={selected} onSelect={choose}/>
+  return <main className={`${planning?"planning":"opening"} ${!planning?`intro-${introStage}`:""}`}>
+    {!planning&&introStage!=="done"&&<div className="intro-flight" aria-hidden="true"><iframe src="/intro/terra-luna/index.html" title="Earth to Moon opening animation" tabIndex={-1}/></div>}
+    <Moon planning={planning} selected={selected} onSelect={choose} autoRotate={!planning&&introStage!=="done"}/>
     <header><div className="brand"><span className="brand-mark">A</span><span>AmTree</span></div>{planning&&<div className="header-actions"><span className="demo-badge real-data">LOLA terrain · SPICE ephemeris</span><button className="text-button" onClick={()=>setMethod(true)}>Data &amp; Method</button><button className="text-button" onClick={reset}>Reset</button></div>}</header>
     {!planning?<section className="hero"><p className="eyebrow">AMTREE LUNAR NAVIGATOR</p><h1>Lunar Navigator</h1><p>Compare computed lighting and Earth visibility conditions at the lunar south pole.</p><button className="primary" onClick={()=>setPlanning(true)}>Plan a landing <span>→</span></button></section>:<section className="planner">
       <div className="map-caption"><span>NASA LRO imagery · LOLA 80 m polar relief · Six study locations</span><strong>{selectedSite?.name||"South polar overview"}</strong></div>
