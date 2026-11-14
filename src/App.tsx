@@ -11,36 +11,46 @@ const hourFromDate = (value: string) => (Date.parse(`${value}Z`) - Date.parse(CO
 
 function Moon({ planning, selected, onSelect }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void }) {
   const host = useRef<HTMLDivElement>(null);
-  const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; markers: Map<SiteId, THREE.Mesh>; frame: number; target: THREE.Vector3 } | null>(null);
+  const focusLabel = useRef<HTMLDivElement>(null);
+  const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; markers: Map<SiteId, THREE.Mesh>; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion } | null>(null);
   const onSelectRef = useRef(onSelect);
   const planningRef = useRef(planning);
+  const selectedRef = useRef(selected);
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
   useEffect(() => { planningRef.current = planning; }, [planning]);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
   useEffect(() => {
     const container = host.current;
     if (!container) return;
     try {
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2.5));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.12;
       container.appendChild(renderer.domElement);
       const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(34, 1, .1, 100);
       camera.position.set(0, .5, 5.2);
       const moon = new THREE.Group(); scene.add(moon);
       const loader = new THREE.TextureLoader();
-      Promise.all([loader.loadAsync("/assets/lroc_color_4k.jpg"), loader.loadAsync("/assets/ldem_4.png")]).then(([texture, displacement]) => {
+      Promise.all([loader.loadAsync("/assets/lroc_color_poles_8k.jpg"), loader.loadAsync("/assets/ldem_4.png")]).then(([texture, displacement]) => {
         texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        displacement.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        const geometry = new THREE.SphereGeometry(1.55, 320, 240);
-        const material = new THREE.MeshStandardMaterial({ map: texture, displacementMap: displacement, displacementScale: .012, displacementBias: -.006, roughness: .94, metalness: 0 });
+        const anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texture.anisotropy = anisotropy;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.generateMipmaps = true;
+        displacement.anisotropy = anisotropy;
+        displacement.minFilter = THREE.LinearMipmapLinearFilter;
+        displacement.magFilter = THREE.LinearFilter;
+        const geometry = new THREE.SphereGeometry(1.55, 384, 256);
+        const material = new THREE.MeshStandardMaterial({ map: texture, displacementMap: displacement, displacementScale: .018, displacementBias: -.009, roughness: .88, metalness: 0 });
         const sphere = new THREE.Mesh(geometry, material);
-        sphere.rotation.y = -Math.PI / 2;
         moon.add(sphere);
       });
-      scene.add(new THREE.HemisphereLight(0x8aa5c5, 0x010205, .38));
-      const key = new THREE.DirectionalLight(0xfff8eb, 3.15); key.position.set(-4, 2.4, 5); scene.add(key);
-      const rim = new THREE.DirectionalLight(0x6f9bc7, 1.35); rim.position.set(4,-2,-4); scene.add(rim);
+      scene.add(new THREE.HemisphereLight(0x7790ad, 0x010205, .22));
+      const key = new THREE.DirectionalLight(0xfff7e8, 3.8); key.position.set(-4, 2.6, 5); scene.add(key);
+      const rim = new THREE.DirectionalLight(0x608cc0, .72); rim.position.set(4,-2,-4); scene.add(rim);
       const markers = new Map<SiteId, THREE.Mesh>();
       for (const site of SITES) {
         const phi = THREE.MathUtils.degToRad(90 - site.latitude), theta = THREE.MathUtils.degToRad(site.longitude);
@@ -51,18 +61,20 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
         marker.position.set(1.59*Math.sin(phi)*Math.cos(theta),1.59*Math.cos(phi),-1.59*Math.sin(phi)*Math.sin(theta));
         marker.userData.id = site.id; moon.add(marker); markers.set(site.id, marker);
       }
-      const target = new THREE.Vector3(0, 0, 5.2);
-      state.current = { renderer, scene, camera, moon, markers, frame: 0, target };
+      const cameraTarget = new THREE.Vector3(0, 0, 5.2);
+      const rotationTarget = moon.quaternion.clone();
+      state.current = { renderer, scene, camera, moon, markers, frame: 0, cameraTarget, rotationTarget };
       const resize = () => { const {clientWidth:w,clientHeight:h}=container; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
       const ray = new THREE.Raycaster(), pointer = new THREE.Vector2(); let dragging=false, px=0, py=0;
       const down=(e:PointerEvent)=>{dragging=true;px=e.clientX;py=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)};
-      const move=(e:PointerEvent)=>{if(!dragging)return;moon.rotation.y+=(e.clientX-px)*.006;moon.rotation.x+=(e.clientY-py)*.006;px=e.clientX;py=e.clientY};
+      const move=(e:PointerEvent)=>{if(!dragging)return;const delta=new THREE.Quaternion().setFromEuler(new THREE.Euler((e.clientY-py)*.006,(e.clientX-px)*.006,0,"XYZ"));moon.quaternion.premultiply(delta).normalize();rotationTarget.copy(moon.quaternion);px=e.clientX;py=e.clientY};
       const up=(e:PointerEvent)=>{dragging=false;renderer.domElement.releasePointerCapture(e.pointerId)};
       const click=(e:MouseEvent)=>{const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects([...markers.values()],true)[0];if(hit){const target=hit.object.userData.id?hit.object:hit.object.parent;if(target?.userData.id)onSelectRef.current(target.userData.id)}};
-      const wheel=(e:WheelEvent)=>{e.preventDefault();camera.position.z=THREE.MathUtils.clamp(camera.position.z+e.deltaY*.002,2.6,6)};
+      const wheel=(e:WheelEvent)=>{e.preventDefault();cameraTarget.z=THREE.MathUtils.clamp(cameraTarget.z+e.deltaY*.002,2.25,6)};
       addEventListener("resize",resize); renderer.domElement.addEventListener("pointerdown",down);renderer.domElement.addEventListener("pointermove",move);renderer.domElement.addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
-      const animate=()=>{if(!state.current)return;camera.position.lerp(target,.045); if(!dragging&&!planningRef.current)moon.rotation.y+=.0012;renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
-      return()=>{removeEventListener("resize",resize);cancelAnimationFrame(state.current?.frame||0);renderer.dispose();container.replaceChildren();state.current=null};
+      const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
+      const animate=()=>{if(!state.current)return;camera.position.lerp(cameraTarget,.06);moon.quaternion.slerp(rotationTarget,.075);if(!dragging&&!planningRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);const visible=world.clone().normalize().dot(centerToCamera)>.05;const dot=marker.userData.dot as THREE.Mesh;dot.visible=visible});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);const visible=(marker.userData.dot as THREE.Mesh).visible;focusLabel.current.style.opacity=visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
+      return()=>{removeEventListener("resize",resize);cancelAnimationFrame(state.current?.frame||0);renderer.dispose();renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
       fallback.className = "fallback";
@@ -70,9 +82,11 @@ function Moon({ planning, selected, onSelect }: { planning: boolean; selected: S
       container.appendChild(fallback);
     }
   }, []);
-  useEffect(()=>{if(!state.current)return;state.current.target.set(0,planning?-1.05:.5,planning?3.15:5.2);if(planning)state.current.moon.rotation.x=-1.2;},[planning]);
-  useEffect(()=>{state.current?.markers.forEach((m,id)=>{const dot=m.userData.dot as THREE.Mesh;(dot.material as THREE.MeshBasicMaterial).color.set(id===selected?0xffffff:0xf3b44b);dot.scale.setScalar(id===selected?2.2:1)})},[selected]);
-  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon. Drag to rotate and scroll to zoom."><div className="map-tools"><button onClick={()=>{if(state.current){state.current.moon.rotation.set(-1.2,0,0);state.current.target.set(0,-1.05,3.15)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
+  const polarQuaternion=()=>new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,-1,0),new THREE.Vector3(0,-.35,1).normalize());
+  useEffect(()=>{if(!state.current)return;state.current.cameraTarget.set(0,planning?-.18:.5,planning?3.85:5.2);if(planning)state.current.rotationTarget.copy(polarQuaternion());},[planning]);
+  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((m,id)=>{const dot=m.userData.dot as THREE.Mesh;(dot.material as THREE.MeshBasicMaterial).color.set(id===selected?0xffffff:0xf3b44b);dot.scale.setScalar(id===selected?2.35:1)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.18,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.08,3.05)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.18,3.85)}},[selected,planning]);
+  const selectedName=SITES.find(site=>site.id===selected)?.name;
+  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.18,3.85)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
 }
 
 function Timeline({ id, cursor, setCursor, start, duration }:{id:SiteId;cursor:number;setCursor:(n:number)=>void;start:number;duration:number}) {
@@ -140,6 +154,6 @@ export default function App(){
         </>}
       </aside>
     </section>}
-    {method&&<div className="modal" role="dialog" aria-modal="true" aria-label="Data and Method"><button className="modal-close" onClick={()=>setMethod(false)}>Close</button><p className="eyebrow">TRANSPARENT BY DESIGN</p><h2>Data &amp; Method</h2><h3>What this demo uses</h3><p>Official 2025 4K lunar color imagery from NASA’s Goddard Space Flight Center CGI Moon Kit, official LOLA elevation displacement, and study-location coordinates from NASA’s Lunar Surface Data Book, ACD-50044 Rev A.</p><h3>What is synthetic</h3><p>Sun and Earth positions, local horizon profiles, and visibility windows are deterministic illustrative conditions. They are not NASA predictions or MATLAB output.</p><h3>Future scientific integration</h3><p>The fixture schema is ready for MATLAB exports informed by higher-resolution LOLA terrain products and JPL Horizons. Moon Trek, QuickMap, and CSA mission context are reference resources only.</p><p className="method-note">No live APIs or external services are used at runtime.</p></div>}
+    {method&&<div className="modal" role="dialog" aria-modal="true" aria-label="Data and Method"><button className="modal-close" onClick={()=>setMethod(false)}>Close</button><p className="eyebrow">TRANSPARENT BY DESIGN</p><h2>Data &amp; Method</h2><h3>What this demo uses</h3><p>Official polar-enhanced 8K lunar color imagery from NASA’s Goddard Space Flight Center CGI Moon Kit, official LOLA elevation displacement, and study-location coordinates from NASA’s Lunar Surface Data Book, ACD-50044 Rev A.</p><h3>What is synthetic</h3><p>Sun and Earth positions, local horizon profiles, and visibility windows are deterministic illustrative conditions. They are not NASA predictions or MATLAB output.</p><h3>Future scientific integration</h3><p>The fixture schema is ready for MATLAB exports informed by higher-resolution LOLA terrain products and JPL Horizons. Moon Trek, QuickMap, and CSA mission context are reference resources only.</p><p className="method-note">No live APIs or external services are used at runtime.</p></div>}
   </main>;
 }
