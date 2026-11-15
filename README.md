@@ -1,4 +1,4 @@
-# AmTree Lunar Navigator
+# AmTree Lunar Navigators
 
 NASA Space Apps Challenge project by the AmTree team. The current `frontend` branch combines the latest mission-screening UI with traceable precomputed lunar south-pole data.
 
