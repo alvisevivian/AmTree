@@ -1,5 +1,13 @@
 # AmTree browser — verifica del 15 novembre 2026
 
+## Avvio progressivo
+
+L'animazione Earth-to-Moon parte direttamente dall'HTML, prima di React, del planner e del servizio browser. Il piccolo bootstrap (2,73 kB, 1,32 kB gzip) attende il completamento dell'animazione prima di importare l'applicazione principale (circa 1,46 MB). L'ultimo orientamento del filmato viene passato alla Luna interattiva per mantenere la transizione. L'introduzione resta visibile fino alla disponibilità della scena interattiva e non viene riprodotta una seconda volta. Un fallback a 20 secondi consente l'avvio dell'applicazione se il messaggio finale del filmato non arriva.
+
+Il servizio browser viene installato entrando nel planner; l'analisi attende che sia pronto, senza bloccare l'animazione o la pagina iniziale. Pyodide, SPICE, kernel e terreno scientifico vengono caricati soltanto alla prima richiesta di simulazione. Questo intervento accelera l'apertura percepita ma non elimina il download iniziale dei circa 43 MiB necessari al primo calcolo.
+
+Verifica da profilo browser nuovo su Chrome e WebKit 27.2: durante l'inizio del filmato non vengono richiesti il bundle principale né file /runtime/; dopo la fine dell'introduzione e all'apertura del planner non risultano richieste /runtime/; il primo Run simulation carica il worker e completa correttamente l'analisi. Build riuscita e sette test unitari superati. Il confronto delle dimensioni riguarda il bootstrap JavaScript, non tutti gli asset dell'animazione o il tempo su ogni connessione.
+
 ## Aggiornamento compatibilità SPICE
 
 Segnalazione: Safari macOS, analisi dinamica 10 gennaio 2029 12:00 UTC – 13 gennaio 2029 12:00 UTC, errore SPKINSUFFDATA con epoca inattesa nel 1941. Le copie online di de432s.bsp e worker.js sono risultate identiche a quelle locali. Lo stesso errore non è stato riprodotto nei test automatici precedenti alla modifica: la causa specifica nella sessione Safari dell'utente resta non dimostrata.

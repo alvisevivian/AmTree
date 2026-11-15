@@ -9,13 +9,9 @@
     <title>AmTree Lunar Navigator</title>
   </head>
   <body>
-    <div id="root">
-      <div style="padding: 1.5rem; background: #0d131c; color: #f1f5fa; font: 16px system-ui">
-        <p>Loading AmTree Lunar Navigator…</p>
-        <details><summary>Preview help</summary>
-          <p>Run <code>npm run dev</code> to open the development site. For VS Code Live Server, run <code>npm run build</code> first and serve <code>dist/index.html</code>.</p>
-        </details>
-      </div>
+    <div id="root"></div>
+    <div id="startup-intro" style="position:fixed;inset:0;z-index:100;background:#000;transition:opacity .3s">
+      <iframe id="startup-flight" src="%BASE_URL%intro/earth-to-moon/index.html" title="Earth-to-Moon flyby" style="display:block;width:100%;height:100%;border:0"></iframe>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

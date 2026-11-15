@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ensureBrowserRuntime } from './runtimeReady';
 import * as THREE from "three";
 import { GroundFlight, type GroundStatus } from "./lib/ground";
 import { LOCATIONS, REGIONS, SITES, type LocationId, type SiteId } from "./lib/sites";
@@ -21,7 +22,7 @@ const arrivalHold = 280;
 type Phase = "opening" | "approach" | "planning";
 
 type Vector = [number, number, number];
-type FlybyPose = {
+export type FlybyPose = {
   eye: Vector;
   forward: Vector;
   right: Vector;
@@ -483,7 +484,7 @@ function ExposureMetrics({ result, duration }: { result: WindowExposure; duratio
 
 const dateInput = (timestamp: number) => new Date(timestamp).toISOString().slice(0, 16);
 
-export default function App(){
+export default function App({ initialIntroComplete = false, initialPose = null, onVisualReady }: { initialIntroComplete?: boolean; initialPose?: FlybyPose | null; onVisualReady?: () => void } = {}){
   const [phase, setPhase] = useState<Phase>("opening");
   const planning = phase === "planning";
   const [selected, setSelected] = useState<LocationId | null>(null);
@@ -501,13 +502,13 @@ export default function App(){
   const [loadingWindow, setLoadingWindow] = useState(false);
   const requestRef = useRef<AbortController | null>(null);
   useEffect(() => () => requestRef.current?.abort(), []);
-  const [introComplete, setIntroComplete] = useState(false);
+  const [introComplete, setIntroComplete] = useState(initialIntroComplete);
   const [moonAvailable, setMoonAvailable] = useState<boolean | null>(null);
-  const [showFlyby, setShowFlyby] = useState(true);
+  const [showFlyby, setShowFlyby] = useState(!initialIntroComplete);
   const introFrame = useRef<HTMLIFrameElement>(null);
-  const flybyPose = useRef<FlybyPose | null>(null);
+  const flybyPose = useRef<FlybyPose | null>(initialPose);
   const plannerHeading = useRef<HTMLHeadingElement>(null);
-  const handleMoonReady = useCallback((available: boolean) => setMoonAvailable(available), []);
+  const handleMoonReady = useCallback((available: boolean) => { setMoonAvailable(available); onVisualReady?.(); }, [onVisualReady]);
   const handleArrival = useCallback(() => setPhase("planning"), []);
   const heroReady = introComplete && (!showFlyby || moonAvailable === false);
 
@@ -520,6 +521,7 @@ export default function App(){
 
   useEffect(() => {
     if (planning) plannerHeading.current?.focus({ preventScroll: true });
+    if (planning) void ensureBrowserRuntime().catch(() => {});
   }, [planning]);
   useEffect(() => {
     const complete = (event: MessageEvent) => {
@@ -560,6 +562,7 @@ export default function App(){
     setLoadingWindow(true);
     setWindowStatus("");
     try {
+      await ensureBrowserRuntime();
       const query = new URLSearchParams({ mode, start: start.toISOString(), end: end.toISOString(), interval: String(cadence) }).toString();
       const response = await fetch(`/api/mission-window?${query}`, { signal: controller.signal });
       if (!response.headers.get("content-type")?.includes("application/json")) {
