@@ -1,0 +1,816 @@
+{
+ "job_id": "job_cd2bcc1080674a78",
+ "kind": "comparison",
+ "result_id": "cmp_1ac4674a4101513b",
+ "request_id": "example-1",
+ "status": "succeeded",
+ "progress": {
+  "done": null,
+  "total": null
+ },
+ "created_utc": "2026-11-14T12:06:19Z",
+ "error": null,
+ "elapsed_s": 0.0,
+ "cache": "hit",
+ "comparison_id": "cmp_1ac4674a4101513b",
+ "science_id": "sci_98892839028ae12a",
+ "result_url": "/api/v1/comparisons/cmp_1ac4674a4101513b",
+ "period": {
+  "start_utc": "2027-01-10T12:00:00Z",
+  "end_utc": "2027-01-13T12:00:00Z"
+ },
+ "status_url": "/api/v1/jobs/job_cd2bcc1080674a78",
+ "updated_utc": "2026-11-14T12:06:19Z",
+ "result": {
+  "schema_version": "1.0.0",
+  "comparison_id": "cmp_1ac4674a4101513b",
+  "science_id": "sci_98892839028ae12a",
+  "request_id": "example-1",
+  "created_utc": "2026-11-14T11:57:51Z",
+  "data_status": "computed",
+  "is_demo_data": false,
+  "period": {
+   "landing_time_utc": "2027-01-10T12:00:00Z",
+   "start_utc": "2027-01-10T12:00:00Z",
+   "end_utc": "2027-01-13T12:00:00Z",
+   "mission_duration_hours": 72.0,
+   "step_s": 240
+  },
+  "title_hint": "72-hour site screening",
+  "observer_height_m": 2.0,
+  "requirements": {
+   "hard": {
+    "max_consecutive_darkness_hours": 12.0
+   },
+   "preferences": {
+    "weights": {
+     "sun_fraction": 0.4,
+     "earth_fraction": 0.3,
+     "sun_and_earth_fraction": 0.2,
+     "darkness_continuity": 0.1
+    }
+   }
+  },
+  "counts": {
+   "total": 6,
+   "compliant": 3,
+   "non_compliant": 3,
+   "indeterminate": 0,
+   "not_evaluated": 0
+  },
+  "counts_message": "3 of 6 meet the darkness limit",
+  "rows": [
+   {
+    "analysis_point_id": "pgda-site01-connecting-ridge",
+    "marker_id": "pgda-site01-connecting-ridge",
+    "region_id": null,
+    "name": "Connecting Ridge",
+    "coordinates": {
+     "lat_deg": -89.463163,
+     "lon_deg": -137.489553,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_a29200f8850b023f",
+    "data_status": "computed",
+    "sun_visible_hours": 72.0,
+    "earth_visible_hours": 25.8793,
+    "sun_and_earth_visible_hours": 25.8793,
+    "longest_darkness_hours": 0.0,
+    "darkness_hours": 0.0,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 72.0,
+     "sun_not_visible_hours": 0.0,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 25.8793,
+     "earth_not_visible_hours": 46.1207,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 25.8793,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 0.0,
+     "longest_darkness_hours": 0.0,
+     "longest_darkness_upper_bound_hours": 0.0,
+     "longest_sunlight_hours": 72.0,
+     "longest_sunlight_upper_bound_hours": 72.0,
+     "longest_earth_visible_hours": 25.8793,
+     "longest_earth_visible_upper_bound_hours": 25.8793,
+     "longest_earth_outage_hours": 46.1207,
+     "longest_earth_outage_upper_bound_hours": 46.1207,
+     "unknown_hours": 0.0,
+     "sun_fraction": 1.0,
+     "earth_fraction": 0.3594,
+     "sun_and_earth_fraction": 0.3594,
+     "sun_fraction_of_known": 1.0,
+     "earth_fraction_of_known": 0.3594,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 1.0,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "feasible",
+    "constraint_message": "Meets darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 0.0,
+      "value_bound": 0.0,
+      "status": "pass",
+      "reason": "longest interval 0.00 h <= 12 h"
+     }
+    ],
+    "preference_score": 0.6797,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.4,
+      "contribution": 0.4
+     },
+     "earth_fraction": {
+      "normalized_value": 0.3594,
+      "weight": 0.3,
+      "contribution": 0.1078
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 0.3594,
+      "weight": 0.2,
+      "contribution": 0.0719
+     },
+     "darkness_continuity": {
+      "normalized_value": 1.0,
+      "weight": 0.1,
+      "contribution": 0.1
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_a29200f8850b023f",
+    "timeseries_url": "/api/v1/analyses/an_a29200f8850b023f/timeseries",
+    "intervals_url": "/api/v1/analyses/an_a29200f8850b023f/intervals",
+    "error": null,
+    "rank": 3
+   },
+   {
+    "analysis_point_id": "pgda-site04-shackleton-rim",
+    "marker_id": "pgda-site04-shackleton-rim",
+    "region_id": null,
+    "name": "Shackleton Rim",
+    "coordinates": {
+     "lat_deg": -89.766811,
+     "lon_deg": -171.869898,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_dd1b1422400fcec9",
+    "data_status": "computed",
+    "sun_visible_hours": 36.7648,
+    "earth_visible_hours": 0.0,
+    "sun_and_earth_visible_hours": 0.0,
+    "longest_darkness_hours": 19.4803,
+    "darkness_hours": 35.2352,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 36.7648,
+     "sun_not_visible_hours": 35.2352,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 0.0,
+     "earth_not_visible_hours": 72.0,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 0.0,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 35.2352,
+     "longest_darkness_hours": 19.4803,
+     "longest_darkness_upper_bound_hours": 19.4803,
+     "longest_sunlight_hours": 36.7648,
+     "longest_sunlight_upper_bound_hours": 36.7648,
+     "longest_earth_visible_hours": 0.0,
+     "longest_earth_visible_upper_bound_hours": 0.0,
+     "longest_earth_outage_hours": 72.0,
+     "longest_earth_outage_upper_bound_hours": 72.0,
+     "unknown_hours": 0.0,
+     "sun_fraction": 0.5106,
+     "earth_fraction": 0.0,
+     "sun_and_earth_fraction": 0.0,
+     "sun_fraction_of_known": 0.5106,
+     "earth_fraction_of_known": 0.0,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 0.4147,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "infeasible",
+    "constraint_message": "Exceeds darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 19.4803,
+      "value_bound": 19.4803,
+      "status": "fail",
+      "reason": "longest interval 19.48 h > 12 h"
+     }
+    ],
+    "preference_score": 0.2771,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 0.5106,
+      "weight": 0.4,
+      "contribution": 0.2042
+     },
+     "earth_fraction": {
+      "normalized_value": 0.0,
+      "weight": 0.3,
+      "contribution": 0.0
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 0.0,
+      "weight": 0.2,
+      "contribution": 0.0
+     },
+     "darkness_continuity": {
+      "normalized_value": 0.7294,
+      "weight": 0.1,
+      "contribution": 0.0729
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_dd1b1422400fcec9",
+    "timeseries_url": "/api/v1/analyses/an_dd1b1422400fcec9/timeseries",
+    "intervals_url": "/api/v1/analyses/an_dd1b1422400fcec9/intervals",
+    "error": null,
+    "rank": 5
+   },
+   {
+    "analysis_point_id": "pgda-site07-peak-near-shackleton",
+    "marker_id": "pgda-site07-peak-near-shackleton",
+    "region_id": null,
+    "name": "Peak Near Shackleton",
+    "coordinates": {
+     "lat_deg": -88.811008,
+     "lon_deg": 123.690068,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_8f605b66c733bfe6",
+    "data_status": "computed",
+    "sun_visible_hours": 72.0,
+    "earth_visible_hours": 72.0,
+    "sun_and_earth_visible_hours": 72.0,
+    "longest_darkness_hours": 0.0,
+    "darkness_hours": 0.0,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 72.0,
+     "sun_not_visible_hours": 0.0,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 72.0,
+     "earth_not_visible_hours": 0.0,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 72.0,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 0.0,
+     "longest_darkness_hours": 0.0,
+     "longest_darkness_upper_bound_hours": 0.0,
+     "longest_sunlight_hours": 72.0,
+     "longest_sunlight_upper_bound_hours": 72.0,
+     "longest_earth_visible_hours": 72.0,
+     "longest_earth_visible_upper_bound_hours": 72.0,
+     "longest_earth_outage_hours": 0.0,
+     "longest_earth_outage_upper_bound_hours": 0.0,
+     "unknown_hours": 0.0,
+     "sun_fraction": 1.0,
+     "earth_fraction": 1.0,
+     "sun_and_earth_fraction": 1.0,
+     "sun_fraction_of_known": 1.0,
+     "earth_fraction_of_known": 1.0,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 1.0,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "feasible",
+    "constraint_message": "Meets darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 0.0,
+      "value_bound": 0.0,
+      "status": "pass",
+      "reason": "longest interval 0.00 h <= 12 h"
+     }
+    ],
+    "preference_score": 1.0,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.4,
+      "contribution": 0.4
+     },
+     "earth_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.3,
+      "contribution": 0.3
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.2,
+      "contribution": 0.2
+     },
+     "darkness_continuity": {
+      "normalized_value": 1.0,
+      "weight": 0.1,
+      "contribution": 0.1
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_8f605b66c733bfe6",
+    "timeseries_url": "/api/v1/analyses/an_8f605b66c733bfe6/timeseries",
+    "intervals_url": "/api/v1/analyses/an_8f605b66c733bfe6/intervals",
+    "error": null,
+    "rank": 1
+   },
+   {
+    "analysis_point_id": "pgda-site11-de-gerlache-rim-1",
+    "marker_id": "pgda-site11-de-gerlache-rim-1",
+    "region_id": null,
+    "name": "de Gerlache Rim 1",
+    "coordinates": {
+     "lat_deg": -88.683418,
+     "lon_deg": -67.9321,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_04f72c16e9039cec",
+    "data_status": "computed",
+    "sun_visible_hours": 72.0,
+    "earth_visible_hours": 72.0,
+    "sun_and_earth_visible_hours": 72.0,
+    "longest_darkness_hours": 0.0,
+    "darkness_hours": 0.0,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 72.0,
+     "sun_not_visible_hours": 0.0,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 72.0,
+     "earth_not_visible_hours": 0.0,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 72.0,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 0.0,
+     "longest_darkness_hours": 0.0,
+     "longest_darkness_upper_bound_hours": 0.0,
+     "longest_sunlight_hours": 72.0,
+     "longest_sunlight_upper_bound_hours": 72.0,
+     "longest_earth_visible_hours": 72.0,
+     "longest_earth_visible_upper_bound_hours": 72.0,
+     "longest_earth_outage_hours": 0.0,
+     "longest_earth_outage_upper_bound_hours": 0.0,
+     "unknown_hours": 0.0,
+     "sun_fraction": 1.0,
+     "earth_fraction": 1.0,
+     "sun_and_earth_fraction": 1.0,
+     "sun_fraction_of_known": 1.0,
+     "earth_fraction_of_known": 1.0,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 0.9426,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "feasible",
+    "constraint_message": "Meets darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 0.0,
+      "value_bound": 0.0,
+      "status": "pass",
+      "reason": "longest interval 0.00 h <= 12 h"
+     }
+    ],
+    "preference_score": 1.0,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.4,
+      "contribution": 0.4
+     },
+     "earth_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.3,
+      "contribution": 0.3
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 1.0,
+      "weight": 0.2,
+      "contribution": 0.2
+     },
+     "darkness_continuity": {
+      "normalized_value": 1.0,
+      "weight": 0.1,
+      "contribution": 0.1
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_04f72c16e9039cec",
+    "timeseries_url": "/api/v1/analyses/an_04f72c16e9039cec/timeseries",
+    "intervals_url": "/api/v1/analyses/an_04f72c16e9039cec/intervals",
+    "error": null,
+    "rank": 2
+   },
+   {
+    "analysis_point_id": "pgda-site20-leibnitz-beta-plateau",
+    "marker_id": "pgda-site20-leibnitz-beta-plateau",
+    "region_id": null,
+    "name": "Leibnitz Beta Plateau",
+    "coordinates": {
+     "lat_deg": -85.426577,
+     "lon_deg": 31.742761,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_02b19df170a89e18",
+    "data_status": "computed",
+    "sun_visible_hours": 0.0,
+    "earth_visible_hours": 24.9923,
+    "sun_and_earth_visible_hours": 0.0,
+    "longest_darkness_hours": 72.0,
+    "darkness_hours": 72.0,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 0.0,
+     "sun_not_visible_hours": 72.0,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 24.9923,
+     "earth_not_visible_hours": 47.0077,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 0.0,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 72.0,
+     "longest_darkness_hours": 72.0,
+     "longest_darkness_upper_bound_hours": 72.0,
+     "longest_sunlight_hours": 0.0,
+     "longest_sunlight_upper_bound_hours": 0.0,
+     "longest_earth_visible_hours": 24.9923,
+     "longest_earth_visible_upper_bound_hours": 24.9923,
+     "longest_earth_outage_hours": 47.0077,
+     "longest_earth_outage_upper_bound_hours": 47.0077,
+     "unknown_hours": 0.0,
+     "sun_fraction": 0.0,
+     "earth_fraction": 0.3471,
+     "sun_and_earth_fraction": 0.0,
+     "sun_fraction_of_known": 0.0,
+     "earth_fraction_of_known": 0.3471,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 0.0,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "infeasible",
+    "constraint_message": "Exceeds darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 72.0,
+      "value_bound": 72.0,
+      "status": "fail",
+      "reason": "longest interval 72.00 h > 12 h"
+     }
+    ],
+    "preference_score": 0.1041,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 0.0,
+      "weight": 0.4,
+      "contribution": 0.0
+     },
+     "earth_fraction": {
+      "normalized_value": 0.3471,
+      "weight": 0.3,
+      "contribution": 0.1041
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 0.0,
+      "weight": 0.2,
+      "contribution": 0.0
+     },
+     "darkness_continuity": {
+      "normalized_value": 0.0,
+      "weight": 0.1,
+      "contribution": 0.0
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_02b19df170a89e18",
+    "timeseries_url": "/api/v1/analyses/an_02b19df170a89e18/timeseries",
+    "intervals_url": "/api/v1/analyses/an_02b19df170a89e18/intervals",
+    "error": null,
+    "rank": 6
+   },
+   {
+    "analysis_point_id": "pgda-site23-malapert-massif",
+    "marker_id": "pgda-site23-malapert-massif",
+    "region_id": "malapert-massif",
+    "name": "Malapert Massif",
+    "coordinates": {
+     "lat_deg": -85.994785,
+     "lon_deg": -0.235784,
+     "units": "degrees",
+     "frame": "MOON_ME (DE421)",
+     "latitude_type": "planetocentric",
+     "longitude_convention": "east positive, [-180,180)"
+    },
+    "role": "frontend_study_location",
+    "analysis_id": "an_65588a6849fac351",
+    "data_status": "computed",
+    "sun_visible_hours": 47.6327,
+    "earth_visible_hours": 62.8301,
+    "sun_and_earth_visible_hours": 38.4628,
+    "longest_darkness_hours": 24.3673,
+    "darkness_hours": 24.3673,
+    "unknown_hours": 0.0,
+    "metrics": {
+     "duration_hours": 72.0,
+     "sun_visible_hours": 47.6327,
+     "sun_not_visible_hours": 24.3673,
+     "sun_unknown_hours": 0.0,
+     "earth_visible_hours": 62.8301,
+     "earth_not_visible_hours": 9.1699,
+     "earth_unknown_hours": 0.0,
+     "sun_and_earth_visible_hours": 38.4628,
+     "sun_and_earth_unknown_hours": 0.0,
+     "darkness_hours": 24.3673,
+     "longest_darkness_hours": 24.3673,
+     "longest_darkness_upper_bound_hours": 24.3673,
+     "longest_sunlight_hours": 47.6327,
+     "longest_sunlight_upper_bound_hours": 47.6327,
+     "longest_earth_visible_hours": 62.8301,
+     "longest_earth_visible_upper_bound_hours": 62.8301,
+     "longest_earth_outage_hours": 9.1699,
+     "longest_earth_outage_upper_bound_hours": 9.1699,
+     "unknown_hours": 0.0,
+     "sun_fraction": 0.6616,
+     "earth_fraction": 0.8726,
+     "sun_and_earth_fraction": 0.5342,
+     "sun_fraction_of_known": 0.6616,
+     "earth_fraction_of_known": 0.8726,
+     "data_coverage_fraction": 1.0,
+     "fraction_denominator": "requested period (unknown time counts as not visible); *_of_known uses visible + not_visible time only",
+     "sun_mean_disk_fraction_lower": 0.6608,
+     "sun_eclipsed_by_earth_hours_sampled": 0.0
+    },
+    "constraint_status": "infeasible",
+    "constraint_message": "Exceeds darkness limit",
+    "constraints_evaluated": [
+     "max_consecutive_darkness_hours"
+    ],
+    "constraint_results": [
+     {
+      "constraint": "max_consecutive_darkness_hours",
+      "label": "darkness limit",
+      "threshold": 12.0,
+      "unit": "h",
+      "value": 24.3673,
+      "value_bound": 24.3673,
+      "status": "fail",
+      "reason": "longest interval 24.37 h > 12 h"
+     }
+    ],
+    "preference_score": 0.6994,
+    "preference_breakdown": {
+     "sun_fraction": {
+      "normalized_value": 0.6616,
+      "weight": 0.4,
+      "contribution": 0.2646
+     },
+     "earth_fraction": {
+      "normalized_value": 0.8726,
+      "weight": 0.3,
+      "contribution": 0.2618
+     },
+     "sun_and_earth_fraction": {
+      "normalized_value": 0.5342,
+      "weight": 0.2,
+      "contribution": 0.1068
+     },
+     "darkness_continuity": {
+      "normalized_value": 0.6616,
+      "weight": 0.1,
+      "contribution": 0.0662
+     }
+    },
+    "preference_note": "score = sum(weight_i * normalized_i), all terms in [0,1]; unknown time counts as not visible. Used only to order candidates with the same constraint_status.",
+    "checks_not_performed": [
+     "reachability from orbit / descent trajectory",
+     "landing navigation and hazard avoidance",
+     "lander-scale slope and roughness",
+     "vehicle power and thermal constraints",
+     "radio link budget and ground-station availability"
+    ],
+    "algorithm": "req-1",
+    "analysis_method": {
+     "name": "terrain-horizon visibility of Sun/Earth discs",
+     "versions": {
+      "horizon": "horizon-1",
+      "visibility": "vis-2",
+      "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+      "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ"
+     },
+     "sun_visible_definition": ">= 50% of the solar disc above the terrain horizon",
+     "earth_visible_definition": ">= 50% of the Earth disc above the terrain horizon",
+     "observer_height_above_terrain_m": 2.0,
+     "analysis_scope": "single_point"
+    },
+    "details_url": "/api/v1/analyses/an_65588a6849fac351",
+    "timeseries_url": "/api/v1/analyses/an_65588a6849fac351/timeseries",
+    "intervals_url": "/api/v1/analyses/an_65588a6849fac351/intervals",
+    "error": null,
+    "rank": 4
+   }
+  ],
+  "ranking": [
+   "pgda-site07-peak-near-shackleton",
+   "pgda-site11-de-gerlache-rim-1",
+   "pgda-site01-connecting-ridge",
+   "pgda-site23-malapert-massif",
+   "pgda-site04-shackleton-rim",
+   "pgda-site20-leibnitz-beta-plateau"
+  ],
+  "ranking_method": "constraint_status (feasible, indeterminate, infeasible) then preference_score descending",
+  "derived_from": null,
+  "reuse": {
+   "analyses_reused_from_cache": 0,
+   "analyses_total": 6,
+   "note": "Changing only thresholds keeps science_id and re-evaluates constraints on cached analyses."
+  },
+  "provenance": {
+   "ephemeris": "spice:de440s+moon_pa_de440_200625+moon_de440_250416",
+   "dem": "pgda-lola-spole:LDEM_80S_80MPP_ADJ+LDEM_60S_240MPP_ADJ",
+   "method": "terrain-horizon visibility of Sun/Earth discs (see row.analysis_method and details_url)"
+  },
+  "limitations": [
+   "Prototype for site screening; not validated for flight operations and not NASA-approved.",
+   "Horizon from LOLA gridded DEMs (80 m/px within ~300 km of the pole, 480 m/px overview beyond): terrain smaller than the pixel scale (boulders, small crater rims, the lander itself) is not modelled.",
+   "The observer is a point at the stated height above the DEM surface at the stated coordinates.",
+   "Sun visibility is a geometric power *opportunity*; no power-system, thermal or array-pointing model.",
+   "Earth visibility is geometric line of sight to the Earth disc; no antenna, ground-station, link-budget or multipath analysis, so it does not prove a usable radio link.",
+   "Sun and Earth are uniform discs; solar limb darkening is ignored. Eclipses of the Sun by the Earth are flagged geometrically and not subtracted from sunlight.",
+   "Reachability, descent trajectory, navigation, slopes/hazards at lander scale and vehicle constraints are not evaluated."
+  ]
+ },
+ "_http_status": 200,
+ "_client_elapsed_s": 0.019
+}

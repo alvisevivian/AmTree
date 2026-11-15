@@ -1,0 +1,49 @@
+{
+ "schema_version": "1.0.0",
+ "asset_id": "haworth-80m",
+ "url": "/assets/terrain/haworth-80m.glb",
+ "format": "glb (glTF 2.0)",
+ "sha256": "59e34ccd9d0d5edb1aca9dacb8af8219d937f5f51621b8b0a4001f54a2f2d51a",
+ "size_bytes": 1237504,
+ "purpose": "rendering only; calculations use the full-resolution DEM",
+ "units": "metres",
+ "vertical_exaggeration": 1.0,
+ "mesh_frame": "+X local east, +Y local up (radial at centre), +Z local south; origin on the 1737.4 km sphere at the patch centre; curvature included",
+ "center": {
+  "lat_deg": -86.76610637344606,
+  "lon_deg": -22.61986494804043,
+  "frame": "MOON_ME"
+ },
+ "local_to_moon_me": {
+  "matrix": [
+   0.38461538461538464,
+   0.923076923076923,
+   0.0,
+   0.0,
+   0.052072733719534886,
+   -0.02169697238313954,
+   -0.9984075679763148,
+   0.0,
+   -0.9216069858242906,
+   0.3840029107601211,
+   -0.0564121281961628,
+   0.0,
+   90471.16756431991,
+   -37696.31981846663,
+   -1734633.3086020492,
+   1.0
+  ],
+  "order": "column-major (glTF/three.js Matrix4.fromArray)",
+  "convention": "p_me[m] = M * [x, y, z, 1]^T (column vectors)"
+ },
+ "ground_size_m": 39187.12273641851,
+ "vertices_per_side": 161,
+ "vertex_spacing_m": 244.92,
+ "height_range_m": [
+  -3503.0485526914963,
+  2836.305636535528
+ ],
+ "source_dem": "LDEM_80S_80MPP_ADJ.TIF",
+ "source_pixel_m": 80.0,
+ "note": "Spacing is in stereographic map metres (scale 1.0 at the pole; <0.2 % larger than ground metres poleward of 85S)."
+}

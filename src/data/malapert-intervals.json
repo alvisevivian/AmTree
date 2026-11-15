@@ -1,0 +1,123 @@
+{
+ "schema_version": "1.0.0",
+ "analysis_id": "an_65588a6849fac351",
+ "period": {
+  "start_utc": "2027-01-10T12:00:00Z",
+  "end_utc": "2027-01-13T12:00:00Z",
+  "duration_hours": 72.0,
+  "step_s": 240,
+  "n_samples": 1081,
+  "start_et_s": 852854469.1841874,
+  "time_scale": "UTC (ISO 8601, 'Z'); internally TDB seconds past J2000 via naif0012.tls"
+ },
+ "state_values": [
+  "visible",
+  "not_visible",
+  "unknown"
+ ],
+ "sun": [
+  {
+   "start_utc": "2027-01-10T12:00:00Z",
+   "end_utc": "2027-01-12T11:37:58Z",
+   "start_offset_s": 0.0,
+   "end_offset_s": 171477.7,
+   "duration_hours": 47.6327,
+   "state": "visible",
+   "clipped_by_period_start": true,
+   "clipped_by_period_end": false,
+   "start_refined": false,
+   "end_refined": true
+  },
+  {
+   "start_utc": "2027-01-12T11:37:58Z",
+   "end_utc": "2027-01-13T12:00:00Z",
+   "start_offset_s": 171477.7,
+   "end_offset_s": 259200.0,
+   "duration_hours": 24.3673,
+   "state": "not_visible",
+   "clipped_by_period_start": false,
+   "clipped_by_period_end": true,
+   "start_refined": true,
+   "end_refined": false
+  }
+ ],
+ "earth": [
+  {
+   "start_utc": "2027-01-10T12:00:00Z",
+   "end_utc": "2027-01-10T21:10:12Z",
+   "start_offset_s": 0.0,
+   "end_offset_s": 33011.7,
+   "duration_hours": 9.1699,
+   "state": "not_visible",
+   "clipped_by_period_start": true,
+   "clipped_by_period_end": false,
+   "start_refined": false,
+   "end_refined": true
+  },
+  {
+   "start_utc": "2027-01-10T21:10:12Z",
+   "end_utc": "2027-01-13T12:00:00Z",
+   "start_offset_s": 33011.7,
+   "end_offset_s": 259200.0,
+   "duration_hours": 62.8301,
+   "state": "visible",
+   "clipped_by_period_start": false,
+   "clipped_by_period_end": true,
+   "start_refined": true,
+   "end_refined": false
+  }
+ ],
+ "sun_and_earth": [
+  {
+   "start_utc": "2027-01-10T12:00:00Z",
+   "end_utc": "2027-01-10T21:10:12Z",
+   "start_offset_s": 0.0,
+   "end_offset_s": 33011.7,
+   "duration_hours": 9.1699,
+   "state": "not_visible",
+   "clipped_by_period_start": true,
+   "clipped_by_period_end": false,
+   "start_refined": true,
+   "end_refined": true
+  },
+  {
+   "start_utc": "2027-01-10T21:10:12Z",
+   "end_utc": "2027-01-12T11:37:58Z",
+   "start_offset_s": 33011.7,
+   "end_offset_s": 171477.7,
+   "duration_hours": 38.4628,
+   "state": "visible",
+   "clipped_by_period_start": false,
+   "clipped_by_period_end": false,
+   "start_refined": true,
+   "end_refined": true
+  },
+  {
+   "start_utc": "2027-01-12T11:37:58Z",
+   "end_utc": "2027-01-13T12:00:00Z",
+   "start_offset_s": 171477.7,
+   "end_offset_s": 259200.0,
+   "duration_hours": 24.3673,
+   "state": "not_visible",
+   "clipped_by_period_start": false,
+   "clipped_by_period_end": true,
+   "start_refined": true,
+   "end_refined": true
+  }
+ ],
+ "darkness": [
+  {
+   "start_utc": "2027-01-12T11:37:58Z",
+   "end_utc": "2027-01-13T12:00:00Z",
+   "start_offset_s": 171477.7,
+   "end_offset_s": 259200.0,
+   "duration_hours": 24.3673,
+   "state": "not_visible",
+   "clipped_by_period_start": false,
+   "clipped_by_period_end": true,
+   "start_refined": true,
+   "end_refined": false
+  }
+ ],
+ "notes": "Durations in metrics are the integrals of these intervals. 'clipped_by_period_*' marks intervals that touch the period limits and may extend beyond them."
+}
