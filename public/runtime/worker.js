@@ -10,12 +10,16 @@ async function checked(url) {
   return new Uint8Array(await response.arrayBuffer());
 }
 async function initialize() {
+  self.postMessage({ type: 'progress', progress: 5 });
   const base = new URL('./', import.meta.url);
   const spice = await loadSpiceQL({ moduleOverrides: { locateFile: name => new URL(`spice/${name}`, base).href } });
   const naif = loadNaifspice(spice);
+  self.postMessage({ type: 'progress', progress: 20 });
   const py = await loadPyodide({ indexURL: new URL('pyodide/', base).href });
   await py.loadPackage(['numpy', 'pillow']);
+  self.postMessage({ type: 'progress', progress: 40 });
   const manifest = await (await fetch(new URL('manifest.json', base))).json();
+  let loaded = 0;
   await Promise.all(manifest.map(async path => {
     const bytes = await checked(new URL(`data/${path}`, base));
     const destination = `/amtree/${path}`;
@@ -24,6 +28,7 @@ async function initialize() {
     if (path.startsWith('Backend/kernels/')) {
       spice.mountKernel(`/kernels/${path.split('/').pop()}`, bytes);
     }
+    self.postMessage({ type: 'progress', progress: 40 + Math.round(++loaded / manifest.length * 50) });
   }));
   const resetKernels = () => {
     naif.kclear();
@@ -42,6 +47,10 @@ self.onmessage = event => {
     try {
       runtime ||= initialize().catch(error => { runtime = undefined; throw error; });
       const py = await runtime;
+      if (query === undefined) {
+        self.postMessage({ id, ready: true });
+        return;
+      }
       py.globals.set('request_query', query);
       const result = await py.runPythonAsync('browser_request(request_query)');
       const values = result.toJs();

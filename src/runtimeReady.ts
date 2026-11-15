@@ -5,3 +5,7 @@ export function ensureBrowserRuntime() {
     throw error;
   });
 }
+export async function prepareScientificEngine() {
+  await ensureBrowserRuntime();
+  await (await import('./browserRuntime')).warmupScientificEngine();
+}

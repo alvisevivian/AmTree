@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { ensureBrowserRuntime } from './runtimeReady';
+import { ensureBrowserRuntime, prepareScientificEngine } from './runtimeReady';
 import * as THREE from "three";
 import { GroundFlight, type GroundStatus } from "./lib/ground";
 import { LOCATIONS, REGIONS, SITES, type LocationId, type SiteId } from "./lib/sites";
@@ -484,9 +484,22 @@ function ExposureMetrics({ result, duration }: { result: WindowExposure; duratio
 
 const dateInput = (timestamp: number) => new Date(timestamp).toISOString().slice(0, 16);
 
-export default function App({ initialIntroComplete = false, initialPose = null, onVisualReady }: { initialIntroComplete?: boolean; initialPose?: FlybyPose | null; onVisualReady?: () => void } = {}){
+export default function App({ initialIntroComplete = false, initialPose = null, onVisualReady, externalIntro = false }: { initialIntroComplete?: boolean; initialPose?: FlybyPose | null; onVisualReady?: () => void; externalIntro?: boolean } = {}){
   const [phase, setPhase] = useState<Phase>("opening");
   const planning = phase === "planning";
+  const [engineReady, setEngineReady] = useState(false);
+  const [engineProgress, setEngineProgress] = useState(0);
+  const [engineError, setEngineError] = useState('');
+  const [engineAttempt, setEngineAttempt] = useState(0);
+  useEffect(() => {
+    if (!planning || engineReady) return;
+    let active = true;
+    setEngineError('');
+    const progress = (event: Event) => setEngineProgress((event as CustomEvent<number>).detail);
+    window.addEventListener('amtree:engine-progress', progress);
+    void prepareScientificEngine().then(() => { if (active) { setEngineProgress(100); setEngineReady(true); } }).catch(error => { if (active) setEngineError(String(error)); });
+    return () => { active = false; window.removeEventListener('amtree:engine-progress', progress); };
+  }, [planning, engineReady, engineAttempt]);
   const [selected, setSelected] = useState<LocationId | null>(null);
   const [limitInput, setLimitInput] = useState("");
   const [cursor, setCursor] = useState(SOLAR_START);
@@ -504,7 +517,7 @@ export default function App({ initialIntroComplete = false, initialPose = null, 
   useEffect(() => () => requestRef.current?.abort(), []);
   const [introComplete, setIntroComplete] = useState(initialIntroComplete);
   const [moonAvailable, setMoonAvailable] = useState<boolean | null>(null);
-  const [showFlyby, setShowFlyby] = useState(!initialIntroComplete);
+  const [showFlyby, setShowFlyby] = useState(!initialIntroComplete && !externalIntro);
   const introFrame = useRef<HTMLIFrameElement>(null);
   const flybyPose = useRef<FlybyPose | null>(initialPose);
   const plannerHeading = useRef<HTMLHeadingElement>(null);
@@ -521,11 +534,11 @@ export default function App({ initialIntroComplete = false, initialPose = null, 
 
   useEffect(() => {
     if (planning) plannerHeading.current?.focus({ preventScroll: true });
-    if (planning) void ensureBrowserRuntime().catch(() => {});
   }, [planning]);
   useEffect(() => {
     const complete = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin || event.source !== introFrame.current?.contentWindow) return;
+      const externalFrame = document.getElementById('startup-flight') as HTMLIFrameElement | null;
+      if (event.origin !== window.location.origin || event.source !== (externalIntro ? externalFrame?.contentWindow : introFrame.current?.contentWindow)) return;
       if (event.data?.type === "earth-to-moon:pose") flybyPose.current = event.data.pose;
       if (event.data === "earth-to-moon:complete") setIntroComplete(true);
     };
@@ -669,7 +682,13 @@ export default function App({ initialIntroComplete = false, initialPose = null, 
     {planning&&<section className="planner">
       <div className="map-caption"><span className="orbit-caption">NASA LRO imagery · LOLA 80 m polar relief</span><span className="surface-caption">NASA LOLA elevations · 30 m near field</span><strong>{selectedRegion?.name ?? selectedSite?.name ?? "South polar overview"}</strong></div>
       <aside className={`panel ${selected ? "site-detail-panel" : "screening-dashboard"}`}>
-        {selectedRegion ? <>
+        {!engineReady ? <section className="dashboard-loading" role="status" aria-live="polite">
+          <h2>Preparing your dashboard</h2>
+          <p>Loading the scientific engine and mission data. You can keep exploring the Moon.</p>
+          <progress max={100} value={engineProgress} aria-label="Dashboard preparation" />
+          <span>{engineProgress}%</span>
+          {engineError && <><p>{engineError}</p><button className="text-button" onClick={() => setEngineAttempt(value => value + 1)}>Retry</button></>}
+        </section> : selectedRegion ? <>
           <div className="detail-nav"><button className="back" onClick={showAllSites}>← All locations</button></div>
           <div className="detail-hero">
             <div><p className="eyebrow">REGION CENTROID</p><h2>{selectedRegion.name}</h2>

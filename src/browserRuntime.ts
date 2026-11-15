@@ -1,3 +1,16 @@
+let startEngine: ((query: string | undefined, port: MessagePort) => void) | undefined;
+let warming: Promise<void> | undefined;
+export function warmupScientificEngine() {
+  return warming ||= new Promise<void>((resolve, reject) => {
+    if (!startEngine) { reject(new Error('Browser runtime is not ready.')); return; }
+    const channel = new MessageChannel();
+    channel.port1.onmessage = ({ data }) => {
+      channel.port1.close();
+      if (data.error) reject(new Error(data.error)); else resolve();
+    };
+    startEngine(undefined, channel.port2);
+  }).catch(error => { warming = undefined; throw error; });
+}
 export async function installBrowserRuntime() {
   if (!('serviceWorker' in navigator)) throw new Error('AmTree requires a browser with service worker support and HTTPS (or localhost).');
   let engine: Worker | undefined;
@@ -28,11 +41,14 @@ export async function installBrowserRuntime() {
       target.removeAttribute('aria-busy');
     }
   });
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data?.type !== 'amtree-compute') return;
+  startEngine = (query, port) => {
     if (!engine) {
       engine = new Worker(import.meta.env.BASE_URL + 'runtime/worker.js?v=2', { type: 'module' });
       engine.onmessage = ({ data }) => {
+        if (data.type === 'progress') {
+          window.dispatchEvent(new CustomEvent('amtree:engine-progress', { detail: data.progress }));
+          return;
+        }
         const port = pending.get(data.id);
         if (!port) return;
         port.postMessage(data, data.bytes ? [data.bytes.buffer] : []);
@@ -50,8 +66,11 @@ export async function installBrowserRuntime() {
       };
     }
     const id = ++sequence;
-    pending.set(id, event.ports[0]);
-    engine.postMessage({ id, query: event.data.query });
+    pending.set(id, port);
+    engine.postMessage({ id, query });
+  };
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'amtree-compute') startEngine!(event.data.query, event.ports[0]);
   });
   await navigator.serviceWorker.register(import.meta.env.BASE_URL + 'browser-api-sw.js', { scope: import.meta.env.BASE_URL });
   await navigator.serviceWorker.ready;

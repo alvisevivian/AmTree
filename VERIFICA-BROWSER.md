@@ -1,5 +1,13 @@
 # AmTree browser — verifica del 15 novembre 2026
 
+## Transizione continua e caricamento nella dashboard
+
+Questo aggiornamento sostituisce l'ordine di avvio descritto nella sezione successiva. Logo, texture della Luna e rilievo hanno preload espliciti. Il filmato segnala quando il renderer dei pianeti è pronto; solo allora viene importata e preparata in parallelo la scena interattiva. Non si attende più la fine del filmato per iniziare a costruire la Luna. La transizione conserva l'ultima posa del filmato e rimuove l'introduzione solo dopo il completamento dell'animazione, la preparazione della scena e la decodifica del logo.
+
+Entrando nel planner, il pannello della dashboard mostra una barra di avanzamento al posto dei controlli. In quel momento vengono caricati e inizializzati Python, SPICE e i dati. La barra segue le fasi effettive di inizializzazione e il completamento dei file; non stima il tempo residuo né la percentuale dei byte. Il globo resta interattivo. La dashboard appare solo dopo la disponibilità del motore; in caso di errore è disponibile Retry.
+
+Test Chrome e WebKit 27.2: nessun file /runtime/ prima del clic su Plan a landing; logo decodificato e scena pronta prima del caricamento scientifico; barra visibile nel pannello dopo il clic; preparazione completata e Run simulation riuscito. Su Chrome è stato verificato anche il trascinamento della Luna durante il caricamento, confrontando i fotogrammi prima e dopo. Build e sette test unitari superati. Le istruzioni precedenti sul caricamento del motore solo al primo Run simulation sono superate da questa versione.
+
 ## Avvio progressivo
 
 L'animazione Earth-to-Moon parte direttamente dall'HTML, prima di React, del planner e del servizio browser. Il piccolo bootstrap (2,73 kB, 1,32 kB gzip) attende il completamento dell'animazione prima di importare l'applicazione principale (circa 1,46 MB). L'ultimo orientamento del filmato viene passato alla Luna interattiva per mantenere la transizione. L'introduzione resta visibile fino alla disponibilità della scena interattiva e non viene riprodotta una seconda volta. Un fallback a 20 secondi consente l'avvio dell'applicazione se il messaggio finale del filmato non arriva.

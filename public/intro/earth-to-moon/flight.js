@@ -156,6 +156,7 @@
   function begin() {
     if (started) return;
     started = true;
+    if (window.parent !== window) window.parent.postMessage('earth-to-moon:ready', window.location.origin);
     if (motion.matches && window.parent !== window) elapsed = openingHold + duration;
     playing = true;
     requestFrame();
