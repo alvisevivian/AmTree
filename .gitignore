@@ -1,7 +1,11 @@
-Backend/LandingSides/States/wrtSun/Amundsen Rim - Sun.txt
-Backend/LandingSides/DEMs/LRO_LOLA_DEM_SPole75_30mp_v04.tif
 node_modules
 dist
 .DS_Store
 *.local
 *.tsbuildinfo
+__pycache__/
+*.pyc
+.venv/
+Backend/.deps/
+.env
+.env.*

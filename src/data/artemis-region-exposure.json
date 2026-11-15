@@ -1,0 +1,132 @@
+{
+  "baseline": {
+    "region-nobile-rim-2": {
+      "sunlightHours": 56.395917120835804,
+      "earthHours": 72.0,
+      "simultaneousHours": 56.395917120835804,
+      "longestDarknessHours": 15.6040828791642,
+      "unknownHours": 0
+    },
+    "region-mons-mouton": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-malapert-massif": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-de-gerlache-rim-2": {
+      "sunlightHours": 0.0,
+      "earthHours": 58.49383616359308,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-mons-mouton-plateau": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-slater-plain": {
+      "sunlightHours": 58.42599419270806,
+      "earthHours": 0.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 13.57400580729194,
+      "unknownHours": 0
+    },
+    "region-peak-near-cabeus-b": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-nobile-rim-1": {
+      "sunlightHours": 0.0,
+      "earthHours": 68.99579769986804,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-haworth": {
+      "sunlightHours": 0.0,
+      "earthHours": 0.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    }
+  },
+  "delay48": {
+    "region-nobile-rim-2": {
+      "sunlightHours": 72.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 72.0,
+      "longestDarknessHours": 0.0,
+      "unknownHours": 0
+    },
+    "region-mons-mouton": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-malapert-massif": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-de-gerlache-rim-2": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-mons-mouton-plateau": {
+      "sunlightHours": 15.88942836741739,
+      "earthHours": 72.0,
+      "simultaneousHours": 15.88942836741739,
+      "longestDarknessHours": 56.11057163258261,
+      "unknownHours": 0
+    },
+    "region-slater-plain": {
+      "sunlightHours": 72.0,
+      "earthHours": 43.77685706846739,
+      "simultaneousHours": 43.77685706846739,
+      "longestDarknessHours": 0.0,
+      "unknownHours": 0
+    },
+    "region-peak-near-cabeus-b": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-nobile-rim-1": {
+      "sunlightHours": 0.0,
+      "earthHours": 72.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    },
+    "region-haworth": {
+      "sunlightHours": 0.0,
+      "earthHours": 0.0,
+      "simultaneousHours": 0.0,
+      "longestDarknessHours": 72.0,
+      "unknownHours": 0
+    }
+  }
+}

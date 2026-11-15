@@ -1,0 +1,14 @@
+:root { color-scheme: dark; background: #000; }
+body { margin: 0; }
+.stage { position: relative; height: 100vh; height: 100dvh; overflow: hidden; background: #000; }
+#space, .stills { position: absolute; inset: 0; width: 100%; height: 100%; }
+#space { display: block; touch-action: none; }
+#space.moon-hover { cursor: grab; }
+#space.moon-dragging { cursor: grabbing; }
+#space:focus-visible { outline: 2px solid #74bfff; outline-offset: -3px; }
+.stills { pointer-events: none; }
+.stills img { position: absolute; width: 0; max-width: none; transform: translate(-50%, -50%); }
+.stage.ready .stills { opacity: 0; transition: opacity .45s; }
+@media (prefers-reduced-motion: reduce) {
+  .stage.ready .stills { transition: none; }
+}

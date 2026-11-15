@@ -1,54 +1,72 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { SITES, type SiteId } from "./lib/sites";
-import { loadCandidateRegions, VERIFIED_REGION_OUTLINES, type CandidateRegion } from "./lib/regions";
-import { MALAPERT_HORIZON, MALAPERT_SAMPLES, SOURCE_SUMMARY, hasDetailedSeries, malapertSampleAt, metrics, scenarioInfo, type ScenarioId, type SiteMetrics } from "./lib/simulation";
+import { GroundFlight, type GroundStatus } from "./lib/ground";
+import { LOCATIONS, REGIONS, SITES, type LocationId, type SiteId } from "./lib/sites";
+import { KERNEL_START, KERNEL_END, SOLAR_START, SOLAR_END, SOLAR_STEP, malapertSampleAt, meetsDarknessLimit, metrics, regionMetrics, scenarioInfo, type GroundSolarSample, type WindowExposure } from "./lib/simulation";
+import { DecisionDashboard } from "./DecisionDashboard";
+import { LocationTimelapses, StationBars, TimePlayback, VisibilityGraph, type MissionSimulation, type Playback, type VisibilitySample } from "./SimulationResults";
+
+// ★ Optional transition logo. Set false to revert the fading intro mark.
+const SHOW_TRANSITION_LOGO = false;
+// Starred: persistent transition navbar. Set false to revert.
+const PERSISTENT_NAVBAR = true;
 
 const fmt = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} h`;
 
-const FLIGHT_DURATION = 7;
-const FLIGHT_SCALE = 1.55 / .65;
-const ORIGINAL_MOON = new THREE.Vector3(1.32, -.18, 9.35);
-const FLIGHT_TIMELINE: [number, number[], number[]][] = [
-  [0.00,[ .11,.24,3.52],[ .00,.00,.00]], [0.91,[-.63,.37,3.76],[-.06,.01,.00]],
-  [1.68,[-1.06,.43,5.04],[-.09,.01,.00]], [2.32,[-.63,.42,7.35],[-.09,.00,.00]],
-  [2.91,[ .10,.32,10.37],[.03,.00,.40]], [3.47,[.40,.39,12.65],[.24,-.04,2.60]],
-  [4.15,[.23,.58,13.97],[.86,-.17,7.48]], [4.81,[-.18,.48,14.28],[1.32,-.18,9.35]],
-  [5.85,[-.38,.38,13.72],[1.32,-.18,9.35]], [7.00,[-.42,.30,13.28],[1.32,-.18,9.35]]
-];
-const flightVector=(seconds:number,slot:1|2)=>{
-  const t=Math.min(seconds,FLIGHT_DURATION),found=FLIGHT_TIMELINE.findIndex((_,index)=>index<FLIGHT_TIMELINE.length-1&&t<=FLIGHT_TIMELINE[index+1][0]);
-  const index=Math.max(0,found),a=FLIGHT_TIMELINE[index],b=FLIGHT_TIMELINE[index+1],lo=FLIGHT_TIMELINE[Math.max(0,index-1)],hi=FLIGHT_TIMELINE[Math.min(FLIGHT_TIMELINE.length-1,index+2)];
-  const span=b[0]-a[0],s=THREE.MathUtils.clamp((t-a[0])/span,0,1),s2=s*s,s3=s2*s;
-  const values=a[slot].map((value,axis)=>{const p=index===0?.54*(b[slot][axis]-value):span*(b[slot][axis]-lo[slot][axis])/(b[0]-lo[0]);const q=index===FLIGHT_TIMELINE.length-2?0:span*(hi[slot][axis]-value)/(hi[0]-a[0]);return(2*s3-3*s2+1)*value+(s3-2*s2+s)*p+(-2*s3+3*s2)*b[slot][axis]+(s3-s2)*q});
-  return new THREE.Vector3(values[0],values[1],values[2]).sub(ORIGINAL_MOON).multiplyScalar(FLIGHT_SCALE);
-};
-const flightEnd=()=>flightVector(FLIGHT_DURATION,1);
+const overviewCameraPosition = new THREE.Vector3(0, -.06, 4.7);
+const approachDuration = 2100;
+const arrivalHold = 280;
+type Phase = "opening" | "approach" | "planning";
 
-function Moon({ planning, selected, onSelect, autoRotate, onReady, regions, showRegions, selectedRegion, onRegionSelect }: { planning: boolean; selected: SiteId | null; onSelect: (id: SiteId) => void; autoRotate: boolean; onReady:()=>void; regions:CandidateRegion[]; showRegions:boolean; selectedRegion:string|null; onRegionSelect:(id:string)=>void }) {
+type Vector = [number, number, number];
+type FlybyPose = {
+  eye: Vector;
+  forward: Vector;
+  right: Vector;
+  up: Vector;
+  lens: [number, number];
+  moonCenter: Vector;
+  moonRadius: number;
+  moonLongitude: number;
+  moonLatitude: number;
+};
+
+function Moon({ phase, introComplete, flybyPose, onReady, onArrival, selected, onSelect, solarSample, timeline }: {
+  phase: Phase;
+  introComplete: boolean;
+  flybyPose: FlybyPose | null;
+  onReady: (available: boolean) => void;
+  onArrival: () => void;
+  selected: LocationId | null;
+  solarSample: GroundSolarSample | null;
+  timeline: { start: number; end: number; cursor: number; step: number; ticks?: number[]; index: number; change: (value: number) => void; playback: Playback };
+  onSelect: (id: LocationId) => void;
+}) {
   const host = useRef<HTMLDivElement>(null);
   const focusLabel = useRef<HTMLDivElement>(null);
-  const state = useRef<{ renderer: THREE.WebGLRenderer; scene: THREE.Scene; camera: THREE.PerspectiveCamera; moon: THREE.Group; earth: THREE.Group; markers: Map<SiteId, THREE.Sprite>; regionGroups:Map<string,THREE.Group>; regionTargets:THREE.Sprite[]; syncRegions:(items:CandidateRegion[])=>void; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion; introStart: number } | null>(null);
+  const selectedAt = useRef(0);
+  const [groundEnabled, setGroundEnabled] = useState(false);
+  const [groundDisplay, setGroundDisplay] = useState<{
+    status: GroundStatus;
+    altitude: string;
+  }>({ status: "idle", altitude: "" });
+  const state = useRef<{ ground: GroundFlight; moon: THREE.Group; markers: Map<LocationId, THREE.Sprite>; frame: number; cameraTarget: THREE.Vector3; rotationTarget: THREE.Quaternion } | null>(null);
+  const entryRef = useRef({ phase, introComplete, flybyPose });
+  useEffect(() => {
+    entryRef.current = { phase, introComplete, flybyPose };
+  }, [phase, introComplete, flybyPose]);
   const onSelectRef = useRef(onSelect);
-  const onRegionSelectRef = useRef(onRegionSelect);
-  const onReadyRef = useRef(onReady);
-  const planningRef = useRef(planning);
-  const autoRotateRef = useRef(autoRotate);
   const selectedRef = useRef(selected);
-  const showRegionsRef = useRef(showRegions);
-  const selectedRegionRef = useRef(selectedRegion);
-  const regionsRef = useRef(regions);
+  const solarSampleRef = useRef(solarSample);
+  useEffect(() => { solarSampleRef.current = solarSample; }, [solarSample]);
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
-  useEffect(() => { onRegionSelectRef.current = onRegionSelect; }, [onRegionSelect]);
-  useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
-  useEffect(() => { planningRef.current = planning; }, [planning]);
-  useEffect(() => { autoRotateRef.current = autoRotate; }, [autoRotate]);
-  useEffect(() => { selectedRef.current = selected; }, [selected]);
-  useEffect(() => { showRegionsRef.current = showRegions; }, [showRegions]);
-  useEffect(() => { selectedRegionRef.current = selectedRegion; }, [selectedRegion]);
-  useEffect(() => { regionsRef.current=regions;state.current?.syncRegions(regions); }, [regions]);
+  useEffect(() => {
+    selectedRef.current = selected;
+    selectedAt.current = performance.now();
+    if (focusLabel.current) focusLabel.current.style.opacity = "0";
+  }, [selected]);
   useEffect(() => {
     const container = host.current;
     if (!container) return;
@@ -60,39 +78,30 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady, regions, show
       renderer.toneMappingExposure = 1.12;
       container.appendChild(renderer.domElement);
       const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(43.1, 1, .1, 100);
-      camera.layers.enable(1);
-      camera.position.copy(flightVector(0,1));
+      camera.position.copy(overviewCameraPosition);
       const moon = new THREE.Group(); scene.add(moon);
-      const earthHome = ORIGINAL_MOON.clone().multiplyScalar(-FLIGHT_SCALE);
-      const earth = new THREE.Group(); earth.position.copy(earthHome); scene.add(earth);
       const loader = new THREE.TextureLoader();
-      let assetsReady=false,disposed=false,textureBlend=0,surfaceShader:THREE.WebGLProgramParametersWithUniforms|undefined,polarMaterial:THREE.MeshBasicMaterial|undefined;
-      Promise.all([loader.loadAsync("/intro/terra-luna/assets/moon-nasa.jpg"), loader.loadAsync("/assets/ldem_4.png"), loader.loadAsync("/assets/lola_south_pole_80m.webp"), loader.loadAsync("/assets/nasa_blue_marble_8k.jpg"), loader.loadAsync("/intro/terra-luna/assets/night-nasa.jpg")]).then(async([introTexture, displacement, polarRelief, earthTexture, nightTexture]) => {
-        introTexture.colorSpace = THREE.SRGBColorSpace;
+      let disposed = false;
+      let sceneReady = false;
+      let polarMaterial: THREE.MeshBasicMaterial | undefined;
+      Promise.all([
+        loader.loadAsync(import.meta.env.BASE_URL + "intro/earth-to-moon/assets/moon.jpg"),
+        loader.loadAsync(import.meta.env.BASE_URL + "assets/ldem_4.png"),
+        loader.loadAsync(import.meta.env.BASE_URL + "assets/lola_south_pole_80m.webp"),
+      ]).then(async ([moonTexture, displacement, polarRelief]) => {
+        if (disposed) return;
+        moonTexture.colorSpace = THREE.SRGBColorSpace;
         const anisotropy = renderer.capabilities.getMaxAnisotropy();
-        introTexture.anisotropy = anisotropy;
+        moonTexture.anisotropy = anisotropy;
         displacement.anisotropy = anisotropy;
         displacement.minFilter = THREE.LinearMipmapLinearFilter;
         displacement.magFilter = THREE.LinearFilter;
         const geometry = new THREE.SphereGeometry(1.55, 384, 256);
-        const material = new THREE.MeshStandardMaterial({ map: introTexture, displacementMap: displacement, displacementScale: .018, displacementBias: -.009, roughness: .88, metalness: 0 });
-        material.onBeforeCompile=shader=>{shader.uniforms.detailMap={value:introTexture};shader.uniforms.detailMix={value:textureBlend};shader.fragmentShader=shader.fragmentShader.replace("#include <map_pars_fragment>","#include <map_pars_fragment>\nuniform sampler2D detailMap;\nuniform float detailMix;").replace("#include <map_fragment>","#ifdef USE_MAP\nvec4 sampledDiffuseColor = mix(texture2D(map,vMapUv),texture2D(detailMap,vMapUv),detailMix);\ndiffuseColor *= sampledDiffuseColor;\n#endif");surfaceShader=shader};
+        const material = new THREE.MeshStandardMaterial({ map: moonTexture, displacementMap: displacement, displacementScale: .018, displacementBias: -.009, roughness: .88, metalness: 0 });
         const sphere = new THREE.Mesh(geometry, material);
         moon.add(sphere);
 
-        earthTexture.colorSpace = THREE.SRGBColorSpace;
-        earthTexture.anisotropy = anisotropy;
-        nightTexture.colorSpace = THREE.SRGBColorSpace;
-        const earthSphere = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE, 256, 160), new THREE.MeshStandardMaterial({ map: earthTexture, emissive: 0xffffff, emissiveMap: earthTexture, emissiveIntensity: .22, roughness: .88, metalness: 0 }));
-        earthSphere.rotation.y = -1.35;
-        earthSphere.layers.enable(1);
-        earth.add(earthSphere);
-        const nightLights = new THREE.Mesh(new THREE.SphereGeometry(FLIGHT_SCALE*1.004,192,128),new THREE.MeshBasicMaterial({map:nightTexture,transparent:true,opacity:.32,blending:THREE.AdditiveBlending,depthWrite:false}));
-        nightLights.rotation.y=-1.35;nightLights.layers.enable(1);earth.add(nightLights);
-
-        // The global 8K map is intentionally replaced by an 80 m/px NASA LOLA
-        // relief layer inside 80°S. A separate polar mesh preserves far more
-        // source detail than squeezing the polar product into an equirectangular map.
+        // A separate polar mesh preserves the 80 m/px NASA LOLA relief in the planner.
         polarRelief.colorSpace = THREE.SRGBColorSpace;
         polarRelief.anisotropy = anisotropy;
         polarRelief.minFilter = THREE.LinearMipmapLinearFilter;
@@ -126,151 +135,611 @@ function Moon({ planning, selected, onSelect, autoRotate, onReady, regions, show
         const polarMask = new THREE.CanvasTexture(maskCanvas);
         polarMaterial = new THREE.MeshBasicMaterial({ map: polarRelief, alphaMap: polarMask, color: 0xc7bca9, transparent: true, opacity: 0, alphaTest: .012, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 });
         const polarCap = new THREE.Mesh(polarGeometry, polarMaterial); polarCap.renderOrder = 2; moon.add(polarCap);
-        [introTexture,displacement,polarRelief,earthTexture,nightTexture].forEach(map=>renderer.initTexture(map));
-        await renderer.compileAsync(scene,camera);
-        assetsReady=true;if(state.current)state.current.introStart=performance.now();onReadyRef.current();
-        requestAnimationFrame(()=>loader.loadAsync("/assets/lroc_color_poles_8k.jpg").then(texture=>{
-          if(disposed){texture.dispose();return}
-          texture.colorSpace=THREE.SRGBColorSpace;
-          texture.anisotropy=anisotropy;
-          texture.minFilter=THREE.LinearMipmapLinearFilter;
-          texture.magFilter=THREE.LinearFilter;
-          texture.generateMipmaps=true;
-          renderer.initTexture(texture);
-          if(surfaceShader)surfaceShader.uniforms.detailMap.value=texture;
-        }));
+        await renderer.compileAsync(scene, camera);
+        if (!disposed) sceneReady = true;
+      }).catch(() => {
+        if (!disposed) onReady(false);
       });
       scene.add(new THREE.HemisphereLight(0x7790ad, 0x010205, .22));
       const key = new THREE.DirectionalLight(0xfff7e8, 3.8); key.position.set(-4, 2.6, 5); scene.add(key);
       const rim = new THREE.DirectionalLight(0x608cc0, .72); rim.position.set(4,-2,-4); scene.add(rim);
-      const earthFill = new THREE.HemisphereLight(0xe4f1ff,0x081321,.82); earthFill.layers.set(1); scene.add(earthFill);
-      const markerTexture=(active=false)=>{const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;const context=canvas.getContext("2d")!;context.clearRect(0,0,128,128);context.strokeStyle=active?"#fff5df":"#f4b94f";context.fillStyle="#f4b94f";context.lineWidth=active?8:7;context.lineCap="round";const corner=(x:number,y:number,sx:number,sy:number)=>{context.beginPath();context.moveTo(x+sx*25,y);context.lineTo(x,y);context.lineTo(x,y+sy*25);context.stroke()};corner(38,38,1,1);corner(90,38,-1,1);corner(38,90,1,-1);corner(90,90,-1,-1);context.save();context.translate(64,64);context.rotate(Math.PI/4);context.fillRect(active?-8:-5,active?-8:-5,active?16:10,active?16:10);context.restore();const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.minFilter=THREE.LinearFilter;return map};
-      const markers = new Map<SiteId, THREE.Sprite>();
-      for (const site of SITES) {
+      const markerTexture=(active=false, region=false)=>{const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;const context=canvas.getContext("2d")!;context.clearRect(0,0,128,128);const color=region?"#76cbef":"#f4b94f";context.strokeStyle=active?"#fff5df":color;context.fillStyle=color;context.lineWidth=active?8:7;context.lineCap="round";const corner=(x:number,y:number,sx:number,sy:number)=>{context.beginPath();context.moveTo(x+sx*25,y);context.lineTo(x,y);context.lineTo(x,y+sy*25);context.stroke()};corner(38,38,1,1);corner(90,38,-1,1);corner(38,90,1,-1);corner(90,90,-1,-1);context.save();context.translate(64,64);context.rotate(Math.PI/4);context.fillRect(active?-8:-5,active?-8:-5,active?16:10,active?16:10);context.restore();const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.minFilter=THREE.LinearFilter;return map};
+      const markers = new Map<LocationId, THREE.Sprite>();
+      for (const site of LOCATIONS) {
         const phi = THREE.MathUtils.degToRad(90 - site.latitude), theta = THREE.MathUtils.degToRad(site.longitude);
-        const normalTexture=markerTexture(),activeTexture=markerTexture(true);
+        const region = "elevationM" in site;
+        const normalTexture=markerTexture(false, region),activeTexture=markerTexture(true, region);
         const marker = new THREE.Sprite(new THREE.SpriteMaterial({ map:normalTexture,transparent:true,depthWrite:false,depthTest:true }));
-        marker.scale.setScalar(.13);
+        marker.scale.setScalar(region ? .046 : .036);
         marker.userData.normalTexture=normalTexture;marker.userData.activeTexture=activeTexture;
         marker.position.set(1.59*Math.sin(phi)*Math.cos(theta),1.59*Math.cos(phi),-1.59*Math.sin(phi)*Math.sin(theta));
-        marker.userData.id = site.id; moon.add(marker); markers.set(site.id, marker);
+        marker.userData.id = site.id;
+        marker.userData.region = region;
+        moon.add(marker);
+        markers.set(site.id, marker);
       }
-      const regionGroups=new Map<string,THREE.Group>(),regionTargets:THREE.Sprite[]=[];
-      const meToScene=(value:[number,number,number])=>new THREE.Vector3(value[0],value[2],-value[1]);
-      const regionLabel=(region:CandidateRegion)=>{
-        const verified=region.geometry_status==="verified_against_source_files";
-        const makeMap=(expanded:boolean)=>{const canvas=document.createElement("canvas");canvas.width=expanded?640:128;canvas.height=expanded?150:128;const context=canvas.getContext("2d")!;
-          if(expanded){context.fillStyle="rgba(8,12,16,.9)";context.strokeStyle=verified?"#64d8e8":"#98a2ad";context.lineWidth=3;if(!verified)context.setLineDash([8,7]);context.beginPath();context.roundRect(3,3,634,144,28);context.fill();context.stroke();context.setLineDash([]);context.beginPath();context.arc(35,75,verified?12:9,0,Math.PI*2);context.fillStyle=verified?"#64d8e8":"#98a2ad";context.fill();context.fillStyle="#f4f7f9";context.font="600 30px -apple-system, BlinkMacSystemFont, sans-serif";context.fillText(region.name,62,65);context.fillStyle=verified?"#76cfda":"#a7afb8";context.font="700 17px -apple-system, BlinkMacSystemFont, sans-serif";context.fillText(verified?"VERIFIED GRID EXTENT":"APPROXIMATE LOCATION",62,99)}
-          else{context.beginPath();verified?context.rect(32,32,64,64):context.arc(64,64,31,0,Math.PI*2);context.fillStyle="rgba(8,12,16,.9)";context.fill();context.strokeStyle=verified?"#64d8e8":"#aab2bb";context.lineWidth=7;if(!verified)context.setLineDash([9,7]);context.stroke();context.setLineDash([]);context.fillStyle=verified?"#7be3ee":"#d6dbe0";context.font="700 30px -apple-system, BlinkMacSystemFont, sans-serif";context.textAlign="center";context.textBaseline="middle";context.fillText(verified?"V":"A",64,66)}
-          const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;map.minFilter=THREE.LinearFilter;return map};
-        const compactMap=makeMap(false),expandedMap=makeMap(true),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:compactMap,transparent:true,depthTest:true,depthWrite:false}));sprite.scale.set(.105,.105,1);sprite.userData.regionId=region.region_id;sprite.userData.compactMap=compactMap;sprite.userData.expandedMap=expandedMap;sprite.renderOrder=5;return sprite;
+      const cameraTarget = overviewCameraPosition.clone();
+      const rotationTarget = polarQuaternion();
+      const ground = new GroundFlight((status, altitude) => setGroundDisplay({ status, altitude }));
+      state.current = { ground, moon, markers, frame: 0, cameraTarget, rotationTarget };
+      const canvas = renderer.domElement;
+      const resize = () => {
+        const { clientWidth: width, clientHeight: height } = canvas;
+        if (!width || !height) return;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
       };
-      const syncRegions=(items:CandidateRegion[])=>{
-        if(regionGroups.size||!items.length)return;
-        items.forEach(region=>{
-          const group=new THREE.Group();group.userData.regionId=region.region_id;
-          const anchor=meToScene(region.render_position.unit_vector).normalize().multiplyScalar(1.61),label=regionLabel(region);label.position.copy(anchor);group.add(label);regionTargets.push(label);
-          const outline=VERIFIED_REGION_OUTLINES[region.region_id];
-          if(outline){
-            const vertices:THREE.Vector3[]=[];
-            for(let edge=0;edge<outline.length-1;edge++){const from=meToScene(outline[edge]).normalize(),to=meToScene(outline[edge+1]).normalize();for(let step=0;step<18;step++)vertices.push(from.clone().lerp(to,step/18).normalize().multiplyScalar(1.588))}vertices.push(meToScene(outline.at(-1)!).normalize().multiplyScalar(1.588));
-            const lineMaterial=new THREE.LineBasicMaterial({color:0x64d8e8,transparent:true,opacity:.85,depthTest:true});const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(vertices),lineMaterial);line.renderOrder=4;group.userData.lineMaterial=lineMaterial;group.add(line);
-          }
-          moon.add(group);regionGroups.set(region.region_id,group);
-        });
-      };
-      syncRegions(regionsRef.current);
-      const cameraTarget = flightEnd();
-      const rotationTarget = moon.quaternion.clone();
-      state.current = { renderer, scene, camera, moon, earth, markers, regionGroups, regionTargets, syncRegions, frame: 0, cameraTarget, rotationTarget, introStart: performance.now() };
-      const resize = () => { const {clientWidth:w,clientHeight:h}=container; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); };
-      const observer=new ResizeObserver(resize);observer.observe(container);
+      const observer = new ResizeObserver(resize);
+      observer.observe(canvas);
       const ray = new THREE.Raycaster(), pointer = new THREE.Vector2(); let dragging=false, moved=false, px=0, py=0;
-      const down=(e:PointerEvent)=>{if(e.target!==renderer.domElement)return;dragging=true;moved=false;px=e.clientX;py=e.clientY;e.preventDefault()};
-      const move=(e:PointerEvent)=>{if(!dragging)return;const dx=e.clientX-px,dy=e.clientY-py;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;const delta=new THREE.Quaternion().setFromEuler(new THREE.Euler(dy*.006,dx*.006,0,"XYZ"));moon.quaternion.premultiply(delta).normalize();rotationTarget.copy(moon.quaternion);px=e.clientX;py=e.clientY};
-      const up=()=>{dragging=false};
-      const click=(e:MouseEvent)=>{if(moved)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects([...regionTargets,...markers.values()],false)[0];if(hit?.object.userData.regionId&&showRegionsRef.current)onRegionSelectRef.current(hit.object.userData.regionId);else if(hit?.object.userData.id)onSelectRef.current(hit.object.userData.id)};
-      const wheel=(e:WheelEvent)=>{e.preventDefault();cameraTarget.z=THREE.MathUtils.clamp(cameraTarget.z+e.deltaY*.002,2.05,6)};
-      addEventListener("resize",resize);renderer.domElement.style.touchAction="none";renderer.domElement.addEventListener("pointerdown",down);addEventListener("pointermove",move);addEventListener("pointerup",up);renderer.domElement.addEventListener("click",click);renderer.domElement.addEventListener("wheel",wheel,{passive:false}); resize();
+      const down = (event: PointerEvent) => {
+        if (event.target !== canvas || entryRef.current.phase === "approach" || !event.isPrimary) return;
+        dragging = true;
+        moved = false;
+        px = event.clientX;
+        py = event.clientY;
+        event.preventDefault();
+      };
+      const move = (event: PointerEvent) => {
+        if (!dragging || !event.isPrimary || entryRef.current.phase === "approach") return;
+        const dx = event.clientX - px, dy = event.clientY - py;
+        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+        px = event.clientX;
+        py = event.clientY;
+        if (ground.busy) {
+          if (ground.looking) ground.look(dx, dy);
+          return;
+        }
+        const delta = new THREE.Quaternion().setFromEuler(new THREE.Euler(dy * .006, dx * .006, 0, "XYZ"));
+        moon.quaternion.premultiply(delta).normalize();
+        rotationTarget.copy(moon.quaternion);
+      };
+      const up = () => { dragging = false; };
+      const click = (event: MouseEvent) => {
+        if (moved || ground.busy || entryRef.current.phase !== "planning") return;
+        const rect = canvas.getBoundingClientRect();
+        pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+        ray.setFromCamera(pointer, camera);
+        const candidates = ray.intersectObjects([...markers.values()].filter(marker => marker.visible), false);
+        let nearest: LocationId | null = null;
+        let minDistance = Infinity;
+        for (const { object } of candidates) {
+          object.getWorldPosition(projected).project(camera);
+          const distance = Math.hypot((projected.x - pointer.x) * rect.width, (projected.y - pointer.y) * rect.height);
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearest = object.userData.id;
+          }
+        }
+        if (nearest) onSelectRef.current(nearest);
+      };
+      const wheel = (event: WheelEvent) => {
+        if (entryRef.current.phase !== "planning") return;
+        event.preventDefault();
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? canvas.clientHeight : 1);
+        if (ground.busy) {
+          ground.zoom(delta, selectedRef.current);
+        } else if (selectedRef.current && delta < 0 && cameraTarget.z <= 2.05) {
+          ground.descend(selectedRef.current, false, moon.quaternion);
+        } else {
+          cameraTarget.z = THREE.MathUtils.clamp(cameraTarget.z + delta * .002, 2.05, 6);
+        }
+      };
+      const keydown = (event: KeyboardEvent) => {
+        if (event.key === "Escape" && ground.busy) ground.ascend();
+      };
+      addEventListener("resize", resize);
+      addEventListener("pointermove", move);
+      addEventListener("pointerup", up);
+      addEventListener("pointercancel", up);
+      addEventListener("keydown", keydown);
+      canvas.style.touchAction = "none";
+      canvas.addEventListener("pointerdown", down);
+      canvas.addEventListener("click", click);
+      canvas.addEventListener("wheel", wheel, { passive: false });
+      resize();
       const projected = new THREE.Vector3(), world = new THREE.Vector3(), centerToCamera = new THREE.Vector3();
-      const animate=()=>{if(!state.current)return;const elapsed=assetsReady?(performance.now()-state.current.introStart)/1000:0;textureBlend+=((planningRef.current?1:0)-textureBlend)*.045;if(surfaceShader)surfaceShader.uniforms.detailMix.value=textureBlend;if(polarMaterial)polarMaterial.opacity=.76*textureBlend;if(assetsReady&&!planningRef.current&&elapsed<FLIGHT_DURATION){const t=Math.min(elapsed,FLIGHT_DURATION),bank=THREE.MathUtils.clamp((t-2.88)/2.82,0,1),roll=-.022*Math.sin(t*.66)-.115*Math.sin(Math.PI*bank)**2,turn=THREE.MathUtils.clamp((t-2.85)/(FLIGHT_DURATION-2.85),0,1),moonSpin=.43+1.98*turn*turn*(2.5-1.5*turn),earthDeparture=THREE.MathUtils.smoothstep(t,4.65,6.85);camera.position.copy(flightVector(t,1));camera.up.set(0,1,0);camera.lookAt(flightVector(t,2));camera.rotateZ(roll);earth.position.copy(earthHome).addScaledVector(new THREE.Vector3(-22,12,-18),earthDeparture);earth.rotation.y=1.10+t*.125;const moonPose=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,moonSpin,.10,"ZYX"));moon.quaternion.copy(moonPose);rotationTarget.copy(moonPose);earth.visible=true}else if(assetsReady){earth.visible=false;camera.up.set(0,1,0);camera.position.lerp(cameraTarget,planningRef.current?.12:.045);camera.lookAt(0,0,0);if(!dragging&&!planningRef.current&&autoRotateRef.current){rotationTarget.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.0012)).normalize()}moon.quaternion.slerp(rotationTarget,planningRef.current?.075:.055)}centerToCamera.copy(camera.position).normalize();markers.forEach(marker=>{marker.getWorldPosition(world);marker.visible=planningRef.current&&world.clone().normalize().dot(centerToCamera)>.05});regionGroups.forEach((group,id)=>{group.visible=planningRef.current&&showRegionsRef.current;const label=group.children.find(child=>child instanceof THREE.Sprite) as THREE.Sprite|undefined;if(label){const active=id===selectedRegionRef.current,material=label.material as THREE.SpriteMaterial;if(label.userData.active!==active){label.userData.active=active;material.map=active?label.userData.expandedMap:label.userData.compactMap;label.scale.set(active?.74:.105,active?.173:.105,1)}material.opacity=active?1:.9}const lineMaterial=group.userData.lineMaterial as THREE.LineBasicMaterial|undefined;if(lineMaterial)lineMaterial.opacity=id===selectedRegionRef.current?1:.72});const active=selectedRef.current;if(active&&focusLabel.current){const marker=markers.get(active);if(marker){marker.getWorldPosition(projected);projected.project(camera);focusLabel.current.style.opacity=marker.visible?"1":"0";focusLabel.current.style.transform=`translate3d(${(projected.x*.5+.5)*container.clientWidth}px,${(-projected.y*.5+.5)*container.clientHeight}px,0) translate(-50%,-145%)`}}renderer.render(scene,camera);state.current.frame=requestAnimationFrame(animate)};animate();
-      return()=>{disposed=true;removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
+      const overviewView = camera.clone();
+      overviewView.position.copy(overviewCameraPosition);
+      overviewView.lookAt(0, -.38, 0);
+      const interactiveView = camera.clone();
+      const orbitView = camera.clone();
+      const overviewRotation = rotationTarget.clone();
+      const entryPosition = new THREE.Vector3();
+      const entryView = new THREE.Quaternion();
+      const entryRotation = new THREE.Quaternion();
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      let entryFov = camera.fov;
+      let entryStart: number | undefined;
+      let previewRendered = false;
+      let arrived = false;
+      let controlsStart: number | undefined;
+      const animate = (now: number) => {
+        if (!state.current) return;
+        state.current.frame = requestAnimationFrame(animate);
+        const { phase, introComplete, flybyPose } = entryRef.current;
+        if (!introComplete || !sceneReady) return;
+
+        if (!previewRendered) {
+          if (flybyPose) {
+            entryPosition.fromArray(flybyPose.eye).sub(world.fromArray(flybyPose.moonCenter))
+              .multiplyScalar(1.55 / flybyPose.moonRadius);
+            const viewBasis = new THREE.Matrix4().makeBasis(
+              new THREE.Vector3(...flybyPose.right),
+              new THREE.Vector3(...flybyPose.up),
+              new THREE.Vector3(...flybyPose.forward).negate(),
+            );
+            entryView.setFromRotationMatrix(viewBasis);
+            // Invert the flyby's texture rotations and align its longitude with SphereGeometry's UVs.
+            entryRotation.setFromEuler(new THREE.Euler(
+              -flybyPose.moonLatitude, flybyPose.moonLongitude + Math.PI / 2, .17, "YXZ",
+            )).invert();
+            entryFov = THREE.MathUtils.radToDeg(2 * Math.atan(flybyPose.lens[1]));
+          } else {
+            entryPosition.set(-4.15, 1.14, 9.37);
+            camera.position.copy(entryPosition);
+            camera.lookAt(0, 0, 0);
+            entryView.copy(camera.quaternion);
+          }
+          camera.position.copy(entryPosition);
+          camera.quaternion.copy(entryView);
+          camera.fov = entryFov;
+          camera.updateProjectionMatrix();
+          moon.quaternion.copy(entryRotation);
+          renderer.render(scene, camera);
+          previewRendered = true;
+          setGroundEnabled(true);
+          onReady(true);
+        }
+
+        if (phase === "approach") {
+          if (entryStart === undefined) {
+            entryStart = now;
+            dragging = false;
+            entryPosition.copy(camera.position);
+            entryView.copy(camera.quaternion);
+            entryRotation.copy(moon.quaternion);
+            entryFov = camera.fov;
+            rotationTarget.copy(overviewRotation);
+          }
+          const elapsed = now - entryStart;
+          const progress = reducedMotion.matches ? 1 : Math.min(elapsed / approachDuration, 1);
+          const turn = THREE.MathUtils.smootherstep(progress, 0, 1);
+          const dolly = THREE.MathUtils.smootherstep(progress, .08, 1);
+          camera.position.lerpVectors(entryPosition, overviewCameraPosition, dolly);
+          camera.quaternion.slerpQuaternions(entryView, overviewView.quaternion, dolly);
+          moon.quaternion.slerpQuaternions(entryRotation, overviewRotation, turn);
+          camera.fov = THREE.MathUtils.lerp(entryFov, overviewView.fov, dolly);
+          camera.updateProjectionMatrix();
+          if (polarMaterial) polarMaterial.opacity = .76 * THREE.MathUtils.smoothstep(progress, .25, .95);
+          if (!arrived && (reducedMotion.matches || elapsed >= approachDuration + arrivalHold)) {
+            arrived = true;
+            onArrival();
+          }
+        } else if (phase === "planning") {
+          controlsStart ??= now;
+          if (controlsStart === now) {
+            orbitView.position.copy(camera.position);
+            orbitView.quaternion.copy(camera.quaternion);
+          }
+          const smoothing = reducedMotion.matches ? 1 : .12;
+          orbitView.position.lerp(cameraTarget, smoothing);
+          interactiveView.position.copy(orbitView.position);
+          interactiveView.lookAt(0, selectedRef.current ? 0 : -.38, 0);
+          orbitView.quaternion.slerp(interactiveView.quaternion, smoothing);
+          camera.position.copy(orbitView.position);
+          camera.quaternion.copy(orbitView.quaternion);
+          if (!ground.busy) moon.quaternion.slerp(rotationTarget, reducedMotion.matches ? 1 : .075);
+          ground.update(now, camera, moon, reducedMotion.matches, solarSampleRef.current);
+        }
+        const markerOpacity = controlsStart === undefined
+          ? 0
+          : reducedMotion.matches ? 1 : THREE.MathUtils.smoothstep(now - controlsStart, 350, 1350);
+        const visibleMarkerOpacity = markerOpacity * ground.markerOpacity;
+        centerToCamera.copy(camera.position).normalize();
+        const focusOpacity = 1 - THREE.MathUtils.smoothstep(now - selectedAt.current, 1600, 2200);
+        markers.forEach(marker => {
+          const opacity = marker.userData.id === selectedRef.current ? visibleMarkerOpacity * focusOpacity : visibleMarkerOpacity;
+          marker.getWorldPosition(world);
+          marker.visible = opacity > 0 && world.normalize().dot(centerToCamera) > .05;
+          marker.material.opacity = opacity;
+        });
+        const activeMarker = selectedRef.current && markers.get(selectedRef.current);
+        if (activeMarker && focusLabel.current) {
+          activeMarker.getWorldPosition(projected).project(camera);
+          focusLabel.current.style.opacity = activeMarker.visible ? String(ground.markerOpacity * focusOpacity) : "0";
+          const image = canvas.getBoundingClientRect();
+          const stage = container.getBoundingClientRect();
+          const x = image.left - stage.left + (projected.x * .5 + .5) * image.width;
+          const y = image.top - stage.top + (-projected.y * .5 + .5) * image.height;
+          focusLabel.current.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-145%)`;
+        }
+        ground.render(renderer, scene, camera);
+      };
+      state.current.frame = requestAnimationFrame(animate);
+      return()=>{disposed=true;removeEventListener("resize",resize);removeEventListener("pointermove",move);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);removeEventListener("keydown",keydown);ground.dispose();observer.disconnect();cancelAnimationFrame(state.current?.frame||0);renderer.dispose();markers.forEach(marker=>{marker.userData.normalTexture?.dispose();marker.userData.activeTexture?.dispose();marker.material.dispose()});renderer.domElement.remove();state.current=null};
     } catch {
       const fallback = document.createElement("div");
       fallback.className = "fallback";
-      fallback.textContent = "3D Moon unavailable — the planner and all six locations remain accessible.";
+      fallback.textContent = "3D Moon unavailable — the planner and region directory remain accessible.";
       container.appendChild(fallback);
+      onReady(false);
+      return () => fallback.remove();
     }
-  }, []);
+  }, [onReady, onArrival]);
   const polarQuaternion=()=>new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,-1,0),new THREE.Vector3(0,-.35,1).normalize());
-  useEffect(()=>{if(!state.current)return;if(planning){state.current.cameraTarget.set(0,-.06,5.5);state.current.rotationTarget.copy(polarQuaternion())}else state.current.cameraTarget.copy(flightEnd())},[planning]);
-  useEffect(()=>{if(!state.current)return;state.current.markers.forEach((marker,id)=>{const active=id===selected;marker.material.map=active?marker.userData.activeTexture:marker.userData.normalTexture;marker.material.needsUpdate=true;marker.scale.setScalar(active ? .19 : .13)});if(selected){const marker=state.current.markers.get(selected);if(marker){const siteDirection=marker.position.clone().normalize();const viewDirection=new THREE.Vector3(0,-.14,1).normalize();state.current.rotationTarget.setFromUnitVectors(siteDirection,viewDirection);state.current.cameraTarget.set(0,-.04,2.3)}}else if(planning){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.5)}},[selected,planning]);
-  const selectedName=SITES.find(site=>site.id===selected)?.name;
-  return <div className="moon-stage" ref={host} aria-label="Interactive 3D Moon with high-resolution NASA LOLA south-pole relief. Drag to rotate and scroll to zoom."><div ref={focusLabel} className={`site-focus-label ${selected?"visible":""}`}><i/>{selectedName}</div><div className="map-tools"><button onClick={()=>{if(state.current){state.current.rotationTarget.copy(polarQuaternion());state.current.cameraTarget.set(0,-.06,5.5)}}}>South pole</button><span>Drag to rotate · Scroll to zoom</span></div></div>;
+  useEffect(() => {
+    const controls = state.current;
+    if (!controls) return;
+    controls.ground.ascend();
+    controls.markers.forEach((marker, id) => {
+      const active = id === selected;
+      marker.material.map = active ? marker.userData.activeTexture : marker.userData.normalTexture;
+      marker.material.needsUpdate = true;
+      marker.scale.setScalar(active ? .085 : marker.userData.region ? .046 : .036);
+    });
+    const marker = selected && controls.markers.get(selected);
+    if (marker) {
+      controls.rotationTarget.setFromUnitVectors(marker.position.clone().normalize(), new THREE.Vector3(0, -.14, 1).normalize());
+      controls.cameraTarget.set(0, -.04, 2.3);
+      controls.ground.preload(selected);
+    } else {
+      controls.rotationTarget.copy(polarQuaternion());
+      controls.cameraTarget.copy(overviewCameraPosition);
+    }
+  }, [selected]);
+  const selectedName = LOCATIONS.find(site => site.id === selected)?.name;
+  const { status, altitude } = groundDisplay;
+  const terrainVisible = status === "descending" || status === "surface" || status === "ascending" || status === "returning";
+  const flying = status === "loading" || status === "descending" || status === "surface" || status === "ascending";
+  const toggleGround = () => {
+    const controls = state.current;
+    if (!controls) return;
+    if (flying) controls.ground.ascend();
+    else if (selected) controls.ground.descend(selected, true, controls.moon.quaternion);
+  };
+  const overview = () => {
+    const controls = state.current;
+    if (!controls) return;
+    controls.ground.ascend();
+    controls.rotationTarget.copy(polarQuaternion());
+    controls.cameraTarget.copy(overviewCameraPosition);
+  };
+  return <div className={`moon-stage ${terrainVisible ? "surface-flight" : ""}`} ref={host}
+    aria-label="Interactive 3D Moon with NASA LOLA relief and ground-level views of study points and Artemis III region centers">
+    <div ref={focusLabel} className={`site-focus-label ${selected ? "visible" : ""}`}><i/>{selectedName}</div>
+    <div className="map-tools">
+      <div className="map-tool-buttons">
+        <button onClick={overview}>South pole</button>
+        {groundEnabled && (selected || terrainVisible) && <button className="ground-button" onClick={toggleGround} disabled={!selected || status === "returning"}>
+          {status === "returning" ? "Returning to orbit" : flying ? "Return to orbit" : "Ground level"}
+        </button>}
+        {status === "surface" && solarSample && <button onClick={() => state.current?.ground.aimAt("sun")}>Face Sun</button>}
+        {status === "surface" && solarSample && <button onClick={() => state.current?.ground.aimAt("earth")}>Face Earth</button>}
+      </div>
+      {status === "surface" && timeline.end > timeline.start && <div className="ground-time">
+        <div className="time-controls">
+          <span>Time <time>{new Date(timeline.cursor).toISOString().slice(0, 19).replace("T", " · ")} UTC</time></span>
+          <TimePlayback {...timeline.playback}/>
+        </div>
+        <input aria-label="Time" className="science-cursor" type="range"
+          min={timeline.ticks ? 0 : timeline.start} max={timeline.ticks ? timeline.ticks.length - 1 : timeline.end}
+          step={timeline.ticks ? 1 : timeline.step} value={timeline.ticks ? timeline.index : timeline.cursor}
+          onChange={event => {
+            const value = Number(event.target.value);
+            timeline.change(timeline.ticks ? timeline.ticks[value] : value);
+          }}/>
+      </div>}
+      <span>
+        {status === "loading" ? "Loading LOLA terrain…"
+          : status === "error" ? "Terrain unavailable · Select Ground level to retry"
+          : status === "surface" ? "2 m above surface · Drag to look · Scroll out to ascend"
+          : terrainVisible ? `${altitude || "Approaching"} above surface · Scroll to adjust`
+          : "Drag to rotate · Scroll to zoom"}
+      </span>
+    </div>
+  </div>;
 }
 
-function MalapertDetail({cursor,setCursor}:{cursor:number;setCursor:(value:number)=>void}){
-  const sample=malapertSampleAt(cursor),width=640,height=210,x=(az:number)=>az/360*width,y=(el:number)=>height-(el+8)/25*height;
-  const horizon=MALAPERT_HORIZON.map(point=>`${x(point.azDeg)},${y(point.elDeg)}`).join(" ");
-  return <><section className="detail-section"><div className="section-title"><div><small>REAL COMPUTED SERIES · 240 S</small><h3>Sun and Earth visibility</h3></div><span>{new Date(cursor).toISOString().slice(0,16).replace("T"," · ")} UTC</span></div><svg className="horizon" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Malapert local terrain horizon with computed Sun and Earth positions"><path d={`M0 ${height} L ${horizon} L${width} ${height}Z`} className="terrain"/><polyline points={horizon} className="ridge"/>{[0,90,180,270,360].map(a=><g key={a}><line x1={x(a)} y1="0" x2={x(a)} y2={height} className="grid"/><text x={x(a)+3} y={height-6}>{a}°</text></g>)}<circle cx={x(sample.sun_azimuth_deg)} cy={y(sample.sun_elevation_deg)} r="7" className="sun-dot"/><circle cx={x(sample.earth_azimuth_deg)} cy={y(sample.earth_elevation_deg)} r="7" className="earth-dot"/></svg><input className="science-cursor" aria-label="Observation time cursor" type="range" min={Date.parse(MALAPERT_SAMPLES[0].time_utc)} max={Date.parse(MALAPERT_SAMPLES[MALAPERT_SAMPLES.length-1].time_utc)} step={240000} value={cursor} onChange={event=>setCursor(Number(event.target.value))}/><div className="body-readout"><span className="sun"><i/><span><strong>Sun · {sample.sun_visibility_status.replace("_"," ")}</strong><small>Az {sample.sun_azimuth_deg.toFixed(1)}° · El {sample.sun_elevation_deg.toFixed(2)}° · terrain {sample.horizon_elevation_at_sun_deg.toFixed(2)}°</small></span></span><span className="earth"><i/><span><strong>Earth · {sample.earth_visibility_status.replace("_"," ")}</strong><small>Az {sample.earth_azimuth_deg.toFixed(1)}° · El {sample.earth_elevation_deg.toFixed(2)}° · terrain {sample.horizon_elevation_at_earth_deg.toFixed(2)}°</small></span></span></div></section></>;
-}
-
-function ComparisonRow({site,result,duration,limit,onSelect}:{site:(typeof SITES)[number];result:SiteMetrics;duration:number;limit:number;onSelect:()=>void}){
-  const values=[
-    {label:"Sunlight",value:result.sunlightHours,tone:"sun"},
-    {label:"Earth visibility",value:result.earthHours,tone:"earth"},
-    {label:"Sun + Earth",value:result.simultaneousHours,tone:"both"},
-    {label:"Longest dark",value:result.longestDarknessHours,tone:"dark"}
+function ExposureBars({ result, duration }: { result: WindowExposure; duration: number }) {
+  const values = [
+    { label: "Sunlight", value: result.sunlightHours, tone: "sun" },
+    { label: "Earth visibility", value: result.earthHours, tone: "earth" },
+    { label: "Sun + Earth", value: result.simultaneousHours, tone: "both" },
+    { label: "Longest dark", value: result.longestDarknessHours, tone: "dark" },
   ];
-  return <button className={`screening-row ${result.meets?"is-shortlisted":"is-review"}`} onClick={onSelect}><span className="site-code">{site.id}</span><span className="screening-name"><strong>{site.name}</strong><small>{site.latitude.toFixed(3)}° · {site.longitude.toFixed(3)}°</small></span><span className="screening-metrics">{values.map(metric=><span className={`screening-metric ${metric.tone}`} key={metric.label}><small>{metric.label}</small><strong>{fmt(metric.value)}</strong><i><b style={{width:`${Math.min(100,metric.value/duration*100)}%`}}/></i></span>)}</span><span className={`screening-verdict ${result.meets?"pass":"fail"}`}><i/>{result.meets?"Shortlist":`Review · >${fmt(limit)}`}</span><b className="screening-arrow">↗</b></button>;
+  return <span className="screening-metrics">
+    {values.map(metric => <span className={`screening-metric ${metric.tone}`} key={metric.label}>
+      <small>{metric.label}</small><strong>{fmt(metric.value)}</strong>
+      <i><b style={{ width: `${Math.min(100, metric.value / duration * 100)}%` }}/></i>
+    </span>)}
+  </span>;
 }
+
+function ScreeningVerdict({ result, limit }: { result: WindowExposure; limit: number }) {
+  const meets = meetsDarknessLimit(result, limit);
+  return <span className={`screening-verdict ${meets ? "pass" : "fail"}`}>
+    <i/>{meets ? "Shortlist" : result.unknownHours > 0 ? "Review" : `Review · >${fmt(limit)}`}
+  </span>;
+}
+
+function SnapshotExposure({ sample }: { sample: VisibilitySample }) {
+  return <div className="snapshot-exposure">
+    <span><small>Sunlight</small><strong>{sample[1] >= sample[2] ? "Visible" : "Below terrain"}</strong></span>
+    <span><small>Earth visibility</small><strong>{sample[4] >= sample[5] ? "Visible" : "Below terrain"}</strong></span>
+    <StationBars mask={sample[6]}/>
+  </div>;
+}
+
+function ExposureMetrics({ result, duration }: { result: WindowExposure; duration: number }) {
+  return <div className="detail-metrics">
+    <span className="sun"><small>Sunlight</small><strong>{fmt(result.sunlightHours)}</strong><em>{Math.round(result.sunlightHours / duration * 100)}% of mission</em></span>
+    <span className="earth"><small>Earth visibility</small><strong>{fmt(result.earthHours)}</strong><em>{Math.round(result.earthHours / duration * 100)}% of mission</em></span>
+    <span className="dark"><small>Longest darkness</small><strong>{fmt(result.longestDarknessHours)}</strong></span>
+    <span className="both"><small>Sun + Earth</small><strong>{fmt(result.simultaneousHours)}</strong></span>
+  </div>;
+}
+
+const dateInput = (timestamp: number) => new Date(timestamp).toISOString().slice(0, 16);
 
 export default function App(){
-  const [planning,setPlanning]=useState(false),[selected,setSelected]=useState<SiteId|null>(null),[scenario,setScenario]=useState<ScenarioId>("baseline"),[limit,setLimit]=useState(12),[cursor,setCursor]=useState(Date.parse(MALAPERT_SAMPLES[0].time_utc)),[method,setMethod]=useState(false),[introStage,setIntroStage]=useState<"running"|"reveal"|"done">("running"),[flightReady,setFlightReady]=useState(false),[regions,setRegions]=useState<CandidateRegion[]>([]),[showRegions,setShowRegions]=useState(false),[selectedRegion,setSelectedRegion]=useState<string|null>(null);
-  useEffect(()=>{let active=true;loadCandidateRegions().then(items=>{if(active)setRegions(items)});return()=>{active=false}},[]);
-  useEffect(()=>{if(!flightReady)return;if(matchMedia("(prefers-reduced-motion: reduce)").matches){setIntroStage("done");return}const reveal=window.setTimeout(()=>setIntroStage("reveal"),5100),done=window.setTimeout(()=>setIntroStage("done"),7100);return()=>{clearTimeout(reveal);clearTimeout(done)}},[flightReady]);
-  const info=scenarioInfo(scenario),duration=info.duration,missionStart=info.start,missionEnd=info.end;
-  const results=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,scenario,limit)])) as Record<SiteId,SiteMetrics>,[scenario,limit]);
-  const baseline=useMemo(()=>Object.fromEntries(SITES.map(s=>[s.id,metrics(s.id,"baseline",limit)])) as Record<SiteId,SiteMetrics>,[limit]);
-  const reset=()=>{setPlanning(true);setSelected(null);setSelectedRegion(null);setScenario("baseline");setLimit(12);setCursor(Date.parse(MALAPERT_SAMPLES[0].time_utc))};
+  const [phase, setPhase] = useState<Phase>("opening");
+  const planning = phase === "planning";
+  const [selected, setSelected] = useState<LocationId | null>(null);
+  const [limitInput, setLimitInput] = useState("");
+  const [cursor, setCursor] = useState(SOLAR_START);
+  const [playing, setPlaying] = useState(false);
+  const [method, setMethod] = useState(false);
+  const [custom, setCustom] = useState<MissionSimulation | null>(null);
+  const [mode, setMode] = useState<"static" | "dynamic">("dynamic");
+  const [landingInput, setLandingInput] = useState(dateInput(SOLAR_START));
+  const [endInput, setEndInput] = useState(dateInput(SOLAR_END));
+  const [interval, setInterval] = useState("240");
+  const [intervalUnit, setIntervalUnit] = useState<"seconds" | "hours" | "days">("seconds");
+  const [windowStatus, setWindowStatus] = useState("");
+  const [loadingWindow, setLoadingWindow] = useState(false);
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
+  const [introComplete, setIntroComplete] = useState(false);
+  const [moonAvailable, setMoonAvailable] = useState<boolean | null>(null);
+  const [showFlyby, setShowFlyby] = useState(true);
+  const introFrame = useRef<HTMLIFrameElement>(null);
+  const flybyPose = useRef<FlybyPose | null>(null);
+  const plannerHeading = useRef<HTMLHeadingElement>(null);
+  const handleMoonReady = useCallback((available: boolean) => setMoonAvailable(available), []);
+  const handleArrival = useCallback(() => setPhase("planning"), []);
+  const heroReady = introComplete && (!showFlyby || moonAvailable === false);
+
+  useEffect(() => {
+    if (!moonAvailable) return;
+    const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 520;
+    const timer = window.setTimeout(() => setShowFlyby(false), duration);
+    return () => window.clearTimeout(timer);
+  }, [moonAvailable]);
+
+  useEffect(() => {
+    if (planning) plannerHeading.current?.focus({ preventScroll: true });
+  }, [planning]);
+  useEffect(() => {
+    const complete = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== introFrame.current?.contentWindow) return;
+      if (event.data?.type === "earth-to-moon:pose") flybyPose.current = event.data.pose;
+      if (event.data === "earth-to-moon:complete") setIntroComplete(true);
+    };
+    window.addEventListener("message", complete);
+    return () => window.removeEventListener("message", complete);
+  }, []);
+  const info = custom ?? scenarioInfo("baseline");
+  const { duration, start: missionStart, end: missionEnd } = info;
+  const limit = limitInput.trim() === "" ? null : Number(limitInput);
+  const staticResult = custom?.mode === "static";
+
+  const applyWindow = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const start = new Date(landingInput + "Z");
+    const end = mode === "static" ? start : new Date(endInput + "Z");
+    const cadence = mode === "static" ? 240 : Number(interval) * { seconds: 1, hours: 3600, days: 86400 }[intervalUnit];
+    if (!Number.isSafeInteger(cadence) || cadence < 1) {
+      setWindowStatus("Enter an interval equal to at least one whole second.");
+      return;
+    }
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) ||
+        (mode === "dynamic" && end <= start) || start.getTime() < KERNEL_START || end.getTime() > KERNEL_END) {
+      setWindowStatus("Enter valid UTC dates. In Dynamic mode the end time must be later than the start.");
+      return;
+    }
+    const steps = Math.ceil((end.getTime() - start.getTime()) / (1000 * cadence));
+    if (steps + 1 > 4096) {
+      setWindowStatus(`Increase the interval to at least ${Math.ceil((end.getTime() - start.getTime()) / 4095000)} seconds for this period.`);
+      return;
+    }
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setLoadingWindow(true);
+    setWindowStatus("");
+    try {
+      const query = new URLSearchParams({ mode, start: start.toISOString(), end: end.toISOString(), interval: String(cadence) }).toString();
+      const response = await fetch(`/api/mission-window?${query}`, { signal: controller.signal });
+      if (!response.headers.get("content-type")?.includes("application/json")) {
+        throw new Error("Start the AmTree backend to run a simulation.");
+      }
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Could not calculate this simulation.");
+      if (controller.signal.aborted) return;
+      setCustom({ mode, start, end, duration: (end.getTime() - start.getTime()) / 3600000,
+        cadence, query, results: payload.results, solar: payload.solar, details: payload.details });
+      setCursor(start.getTime());
+      setPlaying(false);
+      setWindowStatus("Simulation complete. Select a location to see visibility and exports.");
+    } catch (error) {
+      if (!controller.signal.aborted) setWindowStatus(error instanceof Error ? error.message : "Could not calculate this simulation.");
+    } finally {
+      if (!controller.signal.aborted) setLoadingWindow(false);
+    }
+  };
+  const reset = () => {
+    requestRef.current?.abort();
+    setSelected(null);
+    setCustom(null);
+    setMode("dynamic");
+    setLandingInput(dateInput(SOLAR_START));
+    setEndInput(dateInput(SOLAR_END));
+    setInterval("240");
+    setIntervalUnit("seconds");
+    setLimitInput("");
+    setCursor(SOLAR_START);
+    setPlaying(false);
+    setWindowStatus("");
+    setLoadingWindow(false);
+  };
   const scrollPanelTop=()=>requestAnimationFrame(()=>document.querySelector(".panel")?.scrollTo({top:0,behavior:"smooth"}));
-  const choose=(id:SiteId)=>{setSelectedRegion(null);setSelected(id);scrollPanelTop()};
-  const chooseRegion=(id:string)=>{setSelected(null);setSelectedRegion(id)};
-  const showAllSites=()=>{setSelected(null);scrollPanelTop()};
-  const selectedSite=SITES.find(s=>s.id===selected),selectedResult=selected?results[selected]:null;
-  const activeRegion=regions.find(region=>region.region_id===selectedRegion),regionSite=activeRegion?.analysis_point_ids.map(id=>SITES.find(site=>site.analysisPointId===id)).find(Boolean),regionResult=regionSite?results[regionSite.id]:null;
-  const shortlist=SITES.filter(s=>results[s.id].meets).length;
+  const choose=(id:LocationId)=>{setSelected(id);scrollPanelTop()};
+  const showAllSites=()=>{setSelected(null);setPlaying(false);scrollPanelTop()};
+  const selectedSite = SITES.find(site => site.id === selected);
+  const selectedRegion = REGIONS.find(region => region.id === selected);
+  const solarStart = missionStart.getTime();
+  const solarEnd = missionEnd.getTime();
+  const solarCursor = Math.min(solarEnd, Math.max(solarStart, cursor));
+  useEffect(() => {
+    if (!playing || solarEnd === solarStart) return;
+    const samples = custom?.solar;
+    const length = samples?.length ?? (Math.round((solarEnd - solarStart) / SOLAR_STEP) + 1);
+    const stride = Math.max(1, Math.ceil((length - 1) / 120));
+    const timer = window.setInterval(() => {
+      setCursor(value => {
+        if (!custom || !samples) return Math.min(value + stride * SOLAR_STEP, solarEnd);
+        const index = Math.min(length - 1, Math.floor((value - solarStart) / (custom.cadence * 1000)) + stride);
+        return solarStart + samples[index].offsetSeconds * 1000;
+      });
+    }, 180);
+    return () => window.clearInterval(timer);
+  }, [playing, selected, custom, solarStart, solarEnd]);
+  useEffect(() => {
+    if (playing && solarCursor >= solarEnd) setPlaying(false);
+  }, [playing, solarCursor, solarEnd]);
+  const playback = {
+    playing,
+    toggle: () => {
+      if (!playing && solarCursor >= solarEnd) setCursor(solarStart);
+      setPlaying(!playing);
+    },
+  };
+  let sampleIndex = 0;
+  if (custom && custom.solar.length > 1) {
+    const offset = (solarCursor - solarStart) / 1000;
+    const before = Math.min(Math.floor(offset / custom.cadence), custom.solar.length - 1);
+    const after = Math.min(before + 1, custom.solar.length - 1);
+    sampleIndex = offset - custom.solar[before].offsetSeconds <= custom.solar[after].offsetSeconds - offset ? before : after;
+  }
+  const solarSample = planning && selected ? (custom ? custom.solar[sampleIndex] : malapertSampleAt(solarCursor)) : null;
+  const exposureAt = (location: (typeof LOCATIONS)[number]): WindowExposure => custom
+    ? custom.results[location.id]
+    : "analysisPointId" in location ? metrics(location.id, "baseline", limit ?? Infinity) : regionMetrics(location.id, "baseline");
+  const locationDetails = (location: (typeof LOCATIONS)[number]) => <>
+    {staticResult && custom ? <SnapshotExposure sample={custom.details[location.id].samples[0]}/> :
+      <ExposureMetrics result={exposureAt(location)} duration={duration}/>}
+    {custom ? <VisibilityGraph key={location.id} simulation={custom} siteId={location.id} sampleIndex={sampleIndex} playback={playback}
+      onSelectSample={index => setCursor(solarStart + custom.solar[index].offsetSeconds * 1000)}/> :
+      <section className="detail-section"><p>Run a simulation to view the Sun, Earth and DSN geometry at this location.</p></section>}
+  </>;
+  const locationRow = (location: (typeof LOCATIONS)[number]) => {
+    const result = exposureAt(location);
+    const region = "elevationM" in location;
+    return <button className={`screening-row simulation-row ${region ? "region-row" : ""}`} key={location.id} onClick={() => choose(location.id)}>
+      <span className="screening-name"><strong>{location.name}</strong><small>{location.latitude.toFixed(4)}° · {location.longitude.toFixed(4)}° E</small></span>
+      {staticResult && custom ? <SnapshotExposure sample={custom.details[location.id].samples[0]}/> :
+        <ExposureBars result={result} duration={duration}/>}
+      {!staticResult && limit !== null && <ScreeningVerdict result={result} limit={limit}/>}
+      <b className="screening-arrow" aria-hidden="true">↗</b>
+    </button>;
+  };
   const utc=(date:Date)=>date.toISOString().replace("T"," · ").slice(0,18)+" UTC";
-  return <main className={`${planning?"planning":"opening"} ${!planning?`intro-${introStage}`:""}`}>
-    <Moon planning={planning} selected={selected} onSelect={choose} autoRotate={!planning&&introStage!=="done"} onReady={()=>setFlightReady(true)} regions={regions} showRegions={showRegions} selectedRegion={selectedRegion} onRegionSelect={chooseRegion}/>
-    <header><div className="brand"><span className="brand-mark">A</span><span>AmTree</span></div>{planning&&<div className="header-actions"><span className="demo-badge real-data">LOLA terrain · SPICE ephemeris</span><button className="text-button" onClick={()=>setMethod(true)}>Data &amp; Method</button><button className="text-button" onClick={reset}>Reset</button></div>}</header>
-    {!planning?<section className="hero"><p className="eyebrow">AMTREE LUNAR NAVIGATOR</p><h1>Lunar Navigator</h1><p>Compare computed lighting and Earth visibility conditions at the lunar south pole.</p><button className="primary" onClick={()=>setPlanning(true)}>Plan a landing <span>→</span></button></section>:<section className="planner">
-      <div className="map-caption"><span>NASA LRO imagery · LOLA 80 m polar relief · Six study locations</span><strong>{selectedSite?.name||activeRegion?.name||"South polar overview"}</strong></div>
-      <div className="region-layer-control"><button className={showRegions?"active":""} onClick={()=>{setShowRegions(value=>!value);if(showRegions)setSelectedRegion(null)}} aria-pressed={showRegions}><i/>{showRegions?"Hide":"Show"} NASA candidate regions <span>{regions.length||9}</span></button><small>9 regions · 2 verified grid extents · 7 approximate markers</small>{showRegions&&<div className="region-roster" aria-label="NASA candidate regions">{regions.map(region=><button key={region.region_id} className={`${region.geometry_status==="verified_against_source_files"?"verified":"approximate"} ${selectedRegion===region.region_id?"selected":""}`} onClick={()=>chooseRegion(region.region_id)}><i/>{region.name}<small>{region.geometry_status==="verified_against_source_files"?"Grid extent":"Approx."}</small></button>)}</div>}</div>
-      {showRegions&&activeRegion&&<section className="region-card"><button aria-label="Close candidate region details" onClick={()=>setSelectedRegion(null)}>×</button><p>NASA CANDIDATE REGION</p><h3>{activeRegion.name}</h3><div><span className={activeRegion.geometry_status==="verified_against_source_files"?"available":"approximate"}><i/>{activeRegion.geometry_status==="verified_against_source_files"?"Boundary available":"Approximate location"}</span><span className={regionResult?"available":"unavailable"}><i/>{regionResult?`${regionSite?.name} computed`:"Analysis unavailable"}</span></div><small>{activeRegion.geometry_status==="verified_against_source_files"?"Verified USGS navigation-grid extent — not an official NASA boundary.":"NASA publishes the region name without boundary coordinates; marker uses a nearby IAU/USGS feature centre."}</small>{regionResult&&<p className="region-result">Sunlight <strong>{fmt(regionResult.sunlightHours)}</strong> · Earth visibility <strong>{fmt(regionResult.earthHours)}</strong></p>}</section>}
-      <aside className={`panel ${selectedSite?"site-detail-panel":"screening-dashboard"}`}>
-        {!selectedSite?<>
-          <div className="ops-head"><div><p className="ops-path">MISSION 01 <span>/</span> SOUTH POLAR SCREENING</p><h2>Landing site<br/>navigator</h2></div><span className="coverage-state valid"><i/>Computed dataset online</span></div>
-          <section className="decision-banner"><div className="decision-score"><strong>{shortlist}</strong><span>/ 06</span></div><div className="decision-copy"><small>CURRENT SHORTLIST</small><h3>{shortlist===1?"One point meets":"Points meeting"} screening limits</h3><p>Longest darkness ≤ {limit} h across the shared {duration} h mission.</p></div><div className="decision-key"><span><i className="sun"/>Sun</span><span><i className="earth"/>Earth</span><span><i className="both"/>Both</span></div></section>
-          <section className="mission-console">
-            <div className="console-head"><div><small>SHARED MISSION WINDOW</small><strong>{utc(missionStart)}</strong></div><span>→</span><div><small>MISSION END</small><strong>{utc(missionEnd)}</strong></div></div>
-            <div className="console-controls real-scenarios"><button className={scenario==="baseline"?"scenario-command active":"scenario-command"} onClick={()=>setScenario("baseline")}><small>BASELINE WINDOW</small><strong>10 Jan 2027 · 12:00 UTC</strong></button><button className={scenario==="delay48"?"scenario-command active":"scenario-command"} onClick={()=>setScenario("delay48")}><small>SHIFTED WINDOW</small><strong>Delay +48 h</strong></button><label><span>Duration</span><strong className="locked-value">72 hours · computed</strong></label><label><span>Darkness limit</span><select value={limit} onChange={e=>setLimit(+e.target.value)}><option value="6">6 hours</option><option value="12">12 hours</option><option value="18">18 hours</option><option value="24">24 hours</option></select></label></div>
+  const stage = planning ? "planning" : `opening ${phase === "approach" ? "approach" : heroReady ? "intro-reveal" : "intro-running"}`;
+  return <main className={stage}>
+    <Moon phase={phase} introComplete={introComplete} flybyPose={flybyPose.current} onReady={handleMoonReady} onArrival={handleArrival} selected={selected} onSelect={choose} solarSample={solarSample} timeline={{ start: solarStart, end: solarEnd, cursor: solarCursor, step: SOLAR_STEP, index: sampleIndex, ticks: custom?.solar.map(sample => solarStart + sample.offsetSeconds * 1000), change: setCursor, playback }}/>
+    {showFlyby&&!planning&&<iframe ref={introFrame} className={`opening-flight${moonAvailable ? " flight-finished" : ""}`} src={import.meta.env.BASE_URL + "intro/earth-to-moon/index.html"} title="Earth-to-Moon flyby" inert={moonAvailable === true} tabIndex={heroReady ? 0 : -1}/>}
+    {SHOW_TRANSITION_LOGO && !planning && <div className={`transition-logo ${moonAvailable ? "fading" : ""}`} aria-hidden="true"><span className="navigator-logo"><img src={import.meta.env.BASE_URL + "assets/amtree-logo.svg"} alt=""/></span></div>}
+    <header className={PERSISTENT_NAVBAR ? "persistent-navbar" : ""}><div className="brand">{planning || PERSISTENT_NAVBAR ? <span className="navigator-logo"><img src={import.meta.env.BASE_URL + "assets/amtree-logo.svg"} alt="AmTree"/></span> : <><span className="brand-mark">A</span><span>AmTree</span></>}</div>{planning&&<div className="header-actions"><span className="demo-badge real-data">LOLA terrain · SPICE ephemeris</span><button className="text-button" onClick={()=>setMethod(true)}>Team</button><button className="text-button" onClick={reset}>Reset</button></div>}</header>
+    <section className="hero" inert={phase !== "opening" || !heroReady}><p className="eyebrow">AMTREE LUNAR NAVIGATOR</p><h1>Lunar Navigator</h1><p>Compare computed lighting and Earth visibility conditions at the lunar south pole.</p><button className="primary" onClick={()=>setPhase(moonAvailable ? "approach" : "planning")}>Plan a landing <span>→</span></button></section>
+    {planning&&<section className="planner">
+      <div className="map-caption"><span className="orbit-caption">NASA LRO imagery · LOLA 80 m polar relief</span><span className="surface-caption">NASA LOLA elevations · 30 m near field</span><strong>{selectedRegion?.name ?? selectedSite?.name ?? "South polar overview"}</strong></div>
+      <aside className={`panel ${selected ? "site-detail-panel" : "screening-dashboard"}`}>
+        {selectedRegion ? <>
+          <div className="detail-nav"><button className="back" onClick={showAllSites}>← All locations</button></div>
+          <div className="detail-hero">
+            <div><p className="eyebrow">REGION CENTROID</p><h2>{selectedRegion.name}</h2>
+              <p>{selectedRegion.latitude.toFixed(4)}° latitude · {selectedRegion.longitude.toFixed(4)}° east</p>
+            </div>
+            {!staticResult && limit !== null && <ScreeningVerdict result={exposureAt(selectedRegion)} limit={limit}/>}
+          </div>
+          <section className="detail-window region-elevation">
+            <span><small>Elevation from supplied table</small><strong>{selectedRegion.elevationM.toFixed(3)} m</strong></span>
+            <span><small>LOLA elevation at centroid</small><strong>{selectedRegion.terrainElevationM} m</strong></span>
           </section>
-          {scenario==="delay48"&&<div className="impact-brief"><div><small>WINDOW CHANGE</small><strong>What changed after +48 h</strong></div><div className="impact-events">{(["Site01","Site23"] as SiteId[]).map(id=>{const site=SITES.find(item=>item.id===id)!;return <p key={id} className={id==="Site01"?"entered":"left"}><b>{id==="Site01"?"+":"−"}</b><span><strong>{site.name}</strong><small>Sun {baseline[id].sunlightHours.toFixed(1)} → {results[id].sunlightHours.toFixed(1)} h · Earth {baseline[id].earthHours.toFixed(1)} → {results[id].earthHours.toFixed(1)} h</small></span></p>})}</div></div>}
-          <div className="screening-head"><div><small>SITE MATRIX</small><h3>Six documented study locations</h3></div><span>Select a row to inspect terrain and visibility →</span></div>
-          <div className="screening-columns"><span>Location</span><span>Mission exposure</span><span>Decision</span></div>
-          <div className="screening-list">{SITES.map(site=><ComparisonRow key={site.id} site={site} result={results[site.id]} duration={duration} limit={limit} onSelect={()=>choose(site.id)}/>)}</div>
-          <div className="screening-rule"><span>SCREENING RULE</span><p>Shortlist means the longest continuous darkness period is at or below {limit} hours. These are study coordinates, not certified landing sites.</p></div>
+          {locationDetails(selectedRegion)}
+          <LocationTimelapses siteId={selectedRegion.id} start={missionStart} end={missionEnd} simulation={custom}/>
+        </> : !selectedSite ? <>
+          <div className="ops-head"><div><p className="ops-path">Lunar south pole</p><h2 ref={plannerHeading} tabIndex={-1}>Lunar Landing Site Navigator</h2></div><a className="region-jump" href="#artemis-regions">Artemis III regions ↓</a></div>
+          <section className="mission-console">
+            <div className="console-head"><div><small>{custom ? "SIMULATION START" : "SAVED BASELINE"}</small><strong>{utc(missionStart)}</strong></div>
+              {!staticResult && <><span>→</span><div><small>END</small><strong>{utc(missionEnd)}</strong></div></>}
+            </div>
+            <form className="simulation-form" onSubmit={applyWindow}>
+              <fieldset className="simulation-modes">
+                <legend>Simulation mode</legend>
+                <label><input type="radio" name="simulation-mode" checked={mode === "static"} onChange={() => setMode("static")}/> <span>Static <small>One instant</small></span></label>
+                <label><input type="radio" name="simulation-mode" checked={mode === "dynamic"} onChange={() => setMode("dynamic")}/> <span>Dynamic <small>Samples over time</small></span></label>
+              </fieldset>
+              <div className="simulation-fields">
+                <label>{mode === "static" ? "Time (UTC)" : "Start time (UTC)"}
+                  <input type="datetime-local" required step="1" value={landingInput}
+                    min={dateInput(KERNEL_START)} max={dateInput(KERNEL_END)} onChange={event => setLandingInput(event.target.value)}/>
+                </label>
+                {mode === "dynamic" && <>
+                  <label>End time (UTC)<input type="datetime-local" required step="1" value={endInput}
+                    min={dateInput(KERNEL_START)} max={dateInput(KERNEL_END)} onChange={event => setEndInput(event.target.value)}/></label>
+                  <div className="sample-interval">
+                    <label>Sample interval<input type="number" required step="any" min="0"
+                      value={interval} onChange={event => setInterval(event.target.value)}/></label>
+                    <label>Unit<select aria-label="Sample interval unit" value={intervalUnit} onChange={event => setIntervalUnit(event.target.value as typeof intervalUnit)}>
+                      <option value="days">Days</option><option value="hours">Hours</option><option value="seconds">Seconds</option>
+                    </select></label>
+                  </div>
+                  <label>Darkness limit (hours, optional)<input type="number" min="0" max="24" step="any"
+                    value={limitInput} placeholder="0–24" onChange={event => {
+                      const value = event.target.value;
+                      setLimitInput(value === "" ? "" : String(Math.min(24, Math.max(0, Number(value)))));
+                    }}/></label>
+                </>}
+              </div>
+              <button className="run-simulation" type="submit" disabled={loadingWindow}>{loadingWindow ? "Simulating…" : "Run simulation"}</button>
+              <p role="status">{windowStatus}</p>
+            </form>
+          </section>
+          <DecisionDashboard simulation={custom} index={sampleIndex} playback={playback} onTime={index => custom && setCursor(solarStart + custom.solar[index].offsetSeconds * 1000)} onSelect={choose}/>
+          <div className="screening-head"><div><h3>Study points</h3></div><span>{staticResult ? "Snapshot visibility" : "Mission exposure"}</span></div>
+          <div className="screening-list">{SITES.map(locationRow)}</div>
+          <div className="screening-head"><div><h3 id="artemis-regions" tabIndex={-1}>Artemis III regions</h3></div><span>{staticResult ? "Snapshot visibility" : "Mission exposure at region centers"}</span></div>
+          <div className="screening-list">{REGIONS.map(locationRow)}</div>
         </>:<>
-          <div className="detail-nav"><button className="back" onClick={showAllSites}>← All sites</button><span>{selectedSite.id}</span></div>
-          <div className="detail-hero"><div><p className="eyebrow">COMPUTED STUDY POINT</p><h2>{selectedSite.name}</h2><p>{selectedSite.latitude}° latitude · {selectedSite.longitude}° east</p></div>{selectedResult&&<span className={`detail-status ${selectedResult.meets?"pass":"fail"}`}><i/>{selectedResult.meets?"Meets darkness limit":`Exceeds ${limit} h darkness limit`}</span>}</div>
-          <section className="detail-window"><span><small>Landing</small><strong>{utc(missionStart)}</strong></span><span><small>Duration</small><strong>{duration} hours</strong></span><span><small>Mission end</small><strong>{utc(missionEnd)}</strong></span></section>
-          <div className="detail-metrics">{selectedResult&&<><span className="sun"><small>Sunlight</small><strong>{fmt(selectedResult.sunlightHours)}</strong><em>{Math.round(selectedResult.sunlightHours/duration*100)}% of mission</em></span><span className="earth"><small>Earth visibility</small><strong>{fmt(selectedResult.earthHours)}</strong><em>{Math.round(selectedResult.earthHours/duration*100)}% of mission</em></span><span className="dark"><small>Longest darkness</small><strong>{fmt(selectedResult.longestDarknessHours)}</strong><em>{selectedResult.meets?"Within limit":"Above limit"}</em></span><span className="both"><small>Sun + Earth</small><strong>{fmt(selectedResult.simultaneousHours)}</strong><em>Simultaneous visibility</em></span></>}</div>
-          {hasDetailedSeries(selectedSite.id,scenario)?<MalapertDetail cursor={cursor} setCursor={setCursor}/>:<section className="detail-section honest-empty"><small>DETAILED SERIES</small><h3>Summary metrics are available for this scenario</h3><p>The supplied scientific package contains the full 240-second Sun/Earth series and local terrain horizon only for Malapert Massif in the baseline window. No synthetic curve is shown.</p>{selectedSite.id==="Site23"&&scenario==="delay48"&&<button onClick={()=>setScenario("baseline")}>Open Malapert baseline series</button>}</section>}
-          <section className="detail-section provenance-grid"><div><small>TERRAIN</small><strong>{SOURCE_SUMMARY.terrain}</strong></div><div><small>EPHEMERIS</small><strong>{SOURCE_SUMMARY.ephemeris}</strong></div><div><small>VISIBILITY</small><strong>{SOURCE_SUMMARY.visibility}</strong></div><div><small>OBSERVER</small><strong>{SOURCE_SUMMARY.observer}</strong></div></section>
+          <div className="detail-nav"><button className="back" onClick={showAllSites}>← All locations</button><span>{selectedSite.id}</span></div>
+          <div className="detail-hero"><div><p className="eyebrow">STUDY POINT</p><h2>{selectedSite.name}</h2>
+            <p>{selectedSite.latitude}° latitude · {selectedSite.longitude}° east</p></div>
+            {!staticResult && limit !== null && <ScreeningVerdict result={exposureAt(selectedSite)} limit={limit}/>}
+          </div>
+          {locationDetails(selectedSite)}
+          <LocationTimelapses siteId={selectedSite.id} start={missionStart} end={missionEnd} simulation={custom}/>
         </>}
       </aside>
     </section>}
-    {method&&<div className="modal" role="dialog" aria-modal="true" aria-label="Data and Method"><button className="modal-close" onClick={()=>setMethod(false)}>Close</button><p className="eyebrow">TRANSPARENT BY DESIGN</p><h2>Data &amp; Method</h2><h3>Official data families</h3><p>Terrain is derived from NASA GSFC PGDA LOLA south-pole DEM products. Sun and Earth geometry is reported as computed with NASA/JPL NAIF SPICE kernels in the lunar MOON_ME frame. USGS LGRS/ACC grids provide regional navigation extents.</p><h3>Visibility model</h3><p>The observer is 2 m above terrain. The horizon includes lunar curvature and terrain to 600 km. A body is visible when at least half of its sampled disc is above the terrain horizon.</p><h3>Scientific limits</h3><p>Near terrain is 80 m/pixel and far terrain 480 m/pixel. Small obstacles, lander-scale slope, power systems, antennas, link budgets, descent hazards and reachability are not modelled. The real-terrain horizon has not been independently validated.</p><h3>Included evidence</h3><p>Both 72-hour comparisons are complete. A full 240-second series is included only for the Malapert baseline scenario; the interface never fabricates missing detail.</p><p className="method-note">Prototype for site screening · not NASA-approved · not validated for flight operations.</p><a className="science-link" href="/science/SCIENCE_AND_LIMITS.md" target="_blank">Open complete science notes ↗</a></div>}
+    {method && <div className="modal" role="dialog" aria-modal="true" aria-label="AmTree team">
+      <button className="modal-close" onClick={() => setMethod(false)}>Close</button>
+      <h2>Team AmTree</h2>
+      <p>AmTree was created for the NASA Space Apps Challenge 2026 hackathon in Milan.</p>
+      <ul><li>Alvise Vivian</li><li>Daniel Matthew Panganiban</li><li>Ahmet Orhun Sivaslı</li><li>Mustapha Bouhka</li><li>Mohamed Nassiri</li></ul>
+      <img className="challenge-logo" src={import.meta.env.BASE_URL + "assets/nasa-space-apps-milano-2026.png"} alt="NASA Space Apps Milano" />
+    </div>}
   </main>;
 }

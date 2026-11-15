@@ -1,3 +1,6 @@
+import regionTerrain from "../data/artemis-region-terrain.json";
+import regionRows from "../data/artemis-regions.json";
+
 export const SITES = [
   { id: "Site01", analysisPointId: "pgda-site01-connecting-ridge", name: "Connecting Ridge", latitude: -89.463163, longitude: -137.489553 },
   { id: "Site04", analysisPointId: "pgda-site04-shackleton-rim", name: "Shackleton Rim", latitude: -89.766811, longitude: -171.869898 },
@@ -8,3 +11,15 @@ export const SITES = [
 ] as const;
 
 export type SiteId = (typeof SITES)[number]["id"];
+
+
+export type RegionId = `region-${string}`;
+export type LocationId = SiteId | RegionId;
+
+export const REGIONS = regionRows.map(row => ({
+  ...row,
+  id: row.id as RegionId,
+  terrainElevationM: regionTerrain[row.id as keyof typeof regionTerrain],
+}));
+
+export const LOCATIONS = [...SITES, ...REGIONS];

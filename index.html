@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050608" />
-    <meta name="description" content="Lunar south-pole landing-site screening prototype." />
-    <link rel="icon" href="/favicon.svg" />
+    <meta name="description" content="Explore lunar south-pole terrain, illumination, and communications." />
+    <link rel="icon" type="image/jpeg" href="%BASE_URL%assets/amtree-logo.jpeg?v=2" />
     <title>AmTree Lunar Navigator</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 1.5rem; background: #0d131c; color: #f1f5fa; font: 16px system-ui">
+        <p>Loading AmTree Lunar Navigator…</p>
+        <details><summary>Preview help</summary>
+          <p>Run <code>npm run dev</code> to open the development site. For VS Code Live Server, run <code>npm run build</code> first and serve <code>dist/index.html</code>.</p>
+        </details>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

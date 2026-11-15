@@ -1,6 +1,27 @@
 # Science notes, verification and limits
 
-Prototype for site screening. It is not validated for flight operations and carries no NASA approval.
+## Custom mission windows
+
+The local Python service queries the supplied DE432s ephemeris through SPICE at
+the sampling interval selected in Dynamic mode, or at the selected instant in Static mode. It uses the DE421 Mean Earth frame with the
+supplied DE421 lunar orientation kernel and
+[NAIF's lunar frame definition](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf).
+Sun and Earth positions are projected to observers 2 metres above LOLA terrain.
+Their disc centres are compared with curved terrain horizons sampled at 1°
+azimuth intervals out to about 100 km. Visibility transitions are interpolated
+between samples. The original presets use their exported 600 km disc-sampling
+analysis.
+
+### Deep Space Network
+
+The model uses the NAIF ITRF93 station ephemeris for DSS-14 (Goldstone),
+DSS-63 (Madrid), and DSS-43 (Canberra). Station coordinates are rotated with
+the SPICE IAU Earth model to approximate their orientation at the
+Earth light-time epoch. A link is visible when it clears the lunar terrain
+horizon and the station's local Earth horizon. The three bars count complexes
+in view. The preferred link maximizes the smaller of its Earth and lunar horizon
+clearances. Changes in the preferred complex show modeled handovers. The calculation is a line-of-sight estimate. Antenna schedules, link
+budget, and electrical power are outside the model.
 
 ## 1. Data actually used (checksums in `data/SOURCES.json`)
 

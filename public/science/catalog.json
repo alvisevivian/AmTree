@@ -4,7 +4,6 @@
  "catalog_date": "2024-10-28",
  "generated_utc": "2026-11-14T12:09:07Z",
  "title": "Artemis III candidate landing regions (NASA, 28 Oct 2024) - prototype catalog",
- "disclaimer": "Student prototype built from public data. Not a NASA product; no approval or operational capability is implied.",
  "sources": {
   "region_list": {
    "title": "NASA Provides Update on Artemis III Moon Landing Regions",
@@ -92,7 +91,7 @@
  "entity_model": {
   "region": "candidate landing region (9)",
   "navigation_cell": "USGS LGRS/ACC grid cell",
-  "analysis_point": "coordinate where visibility is computed; never a certified landing site",
+  "analysis_point": "coordinate where visibility is computed",
   "landing_area": "not available"
  },
  "regions": [

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="An automatic Earth-to-Moon flyby using NASA satellite maps.">
+  <title>Earth to Moon</title>
+  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="preload" href="assets/earth-still.webp?v=soft-haze" as="image">
+</head>
+<body>
+  <main class="stage" aria-label="An animated flight from Earth to the Moon using NASA satellite imagery.">
+    <canvas id="space" tabindex="0" aria-label="Drag the Moon to rotate it, or use the arrow keys."></canvas>
+    <div class="stills" aria-hidden="true">
+      <img id="earth-still" src="assets/earth-still.webp?v=soft-haze" alt="">
+      <img id="moon-still" src="assets/moon-still.webp?v=wac" alt="">
+    </div>
+  </main>
+  <script src="scene.js?v=13" defer></script>
+  <script src="flight.js?v=12" defer></script>
+</body>
+</html>
+
+

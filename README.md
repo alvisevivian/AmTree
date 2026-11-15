@@ -1,28 +1,25 @@
-# AmTree Lunar Navigators
+# AmTree Patch 11
 
-NASA Space Apps Challenge project by the AmTree team. The current `frontend` branch combines the latest mission-screening UI with traceable precomputed lunar south-pole data.
+Extract the ZIP into a separate folder. On Windows with 64-bit Python 3.13,
+double-click `Start AmTree.cmd` and leave its terminal open. It installs the
+included dependencies on first run and opens http://127.0.0.1:4194/.
+The built app and offline dependencies are included.
 
-## Run locally
+## Frontend development
 
-```bash
-npm install
+Open this folder in VS Code and run these commands from its terminal.
+
+```powershell
+npm ci
 npm run dev
 ```
 
-## Verify
+Open the local URL Vite prints. For VS Code Live Server, run `npm run build` first, then start Live Server from the project workspace. Its settings serve `dist/index.html`. Use `npm test` to check the bundled comparison data.
 
-```bash
-npm test
-npm run build
-```
+The planner, baseline data, globe, terrain, and map GIFs are included in the frontend. Static and Dynamic simulations use the updated AmTree backend at `/api/mission-window`. On your computer, run `python -B Backend/mission_server.py` from the integrated project folder. Its default port is 4194. Vite and the workspace’s Live Server settings forward requests there. On a deployed site, route `/api/mission-window` to your backend.
 
-## Scientific scope
+## Illumination and communications maps
 
-- Terrain: NASA GSFC PGDA LOLA south-pole DEM products.
-- Ephemerides: NASA/JPL NAIF SPICE, DE440-based lunar kernels in `MOON_ME`.
-- Regional grids: USGS LGRS/ACC.
-- Two computed 72-hour windows: baseline and arrival delayed by 48 hours.
-- Full 240-second time series and local horizon supplied for Malapert Massif in the baseline window.
+Select an Artemis III region or a study point to see its illumination and DSN GIFs. Both use the same longitude and latitude plots, elevation color scale, and UTC frame timestamps. The study-point boundary encloses a 4.8 km square around the named coordinates. The maps use bundled LOLA-derived elevations and SPICE positions. The model checks the terrain horizon up to 100 km where terrain data are available, with the observer 2 m above the terrain.
 
-The application is a site-screening prototype. Sunlight is a geometric opportunity, not predicted electrical output; Earth visibility is line of sight, not a guaranteed radio link. It is not NASA-approved or validated for flight operations.
- 
+The included GIFs cover the planner's baseline from 10 January 2027 12:00 through 13 January 2027 12:00 UTC, with hourly frames. The updated backend generates GIFs for custom simulation windows. Long runs display up to 121 evenly sampled frames, including the first and last samples. Red shows sunlight, blue shows visibility to a DSN station, and black shows blocked locations. Use Play or Pause beside the mission or ground-view time slider to advance both views together.

@@ -1,8 +1,9 @@
+import regionExposurePayload from "../data/artemis-region-exposure.json";
 import basePayload from "../data/comparison.json";
 import delayedPayload from "../data/comparison-delay48.json";
 import horizonPayload from "../data/horizon.json";
 import seriesPayload from "../data/malapert-timeseries.json";
-import type { SiteId } from "./sites";
+import type { RegionId, SiteId } from "./sites";
 
 export const HOUR = 3_600_000;
 export const SCENARIOS = [
@@ -21,33 +22,31 @@ const idMap: Record<string, SiteId> = {
 };
 
 type RawRow = (typeof basePayload.result.rows)[number];
-export type SiteMetrics = {
-  valid: true;
+export type WindowExposure = {
   sunlightHours: number;
   earthHours: number;
   simultaneousHours: number;
   longestDarknessHours: number;
   unknownHours: number;
-  analysisId: string;
-  rank: number;
-  score: number;
-  meets: boolean;
 };
+export type SiteMetrics = WindowExposure & { meets: boolean };
+
+export const meetsDarknessLimit = (result: Pick<WindowExposure, "longestDarknessHours" | "unknownHours">, limit: number) =>
+  result.longestDarknessHours <= limit && result.unknownHours === 0;
+
+const regionExposure = regionExposurePayload as Record<ScenarioId, Record<RegionId, WindowExposure>>;
+export const regionMetrics = (id: RegionId, scenario: ScenarioId) => regionExposure[scenario][id];
 
 const rowsFor = (scenario: ScenarioId) => SCENARIOS.find((item) => item.id === scenario)!.payload.result.rows as RawRow[];
 export function metrics(id: SiteId, scenario: ScenarioId, limit: number): SiteMetrics {
   const row = rowsFor(scenario).find((item) => idMap[item.analysis_point_id] === id)!;
   return {
-    valid: true,
     sunlightHours: row.sun_visible_hours,
     earthHours: row.earth_visible_hours,
     simultaneousHours: row.sun_and_earth_visible_hours,
     longestDarknessHours: row.longest_darkness_hours,
     unknownHours: row.unknown_hours,
-    analysisId: row.analysis_id,
-    rank: row.rank,
-    score: row.preference_score,
-    meets: row.longest_darkness_hours <= limit && row.unknown_hours === 0,
+    meets: meetsDarknessLimit({ longestDarknessHours: row.longest_darkness_hours, unknownHours: row.unknown_hours }, limit),
   };
 }
 
@@ -61,6 +60,28 @@ export const scenarioInfo = (scenario: ScenarioId) => {
 type Sample = (typeof seriesPayload.samples)[number];
 export const MALAPERT_SAMPLES = seriesPayload.samples as Sample[];
 export const MALAPERT_STEP_SECONDS = seriesPayload.period.step_s;
+export type SolarSample = Pick<Sample, "sun_azimuth_deg" | "sun_elevation_deg" |
+  "sun_angular_radius_deg" | "sun_direction_moon_me" | "sun_disk_fraction_visible" |
+  "horizon_elevation_at_sun_deg" | "earth_direction_moon_me" | "earth_angular_radius_deg">;
+
+export type LiveSolarSample = {
+  offsetSeconds: number;
+  direction: [number, number, number];
+  radiusDeg: number;
+  earthDirection: [number, number, number];
+  earthRadiusDeg: number;
+  earthNorth: [number, number, number];
+  earthPrime: [number, number, number];
+};
+
+export type GroundSolarSample = SolarSample | LiveSolarSample;
+export const KERNEL_START = Date.parse("1950-01-02T00:00:00Z");
+export const KERNEL_END = Date.parse("2049-12-30T00:00:00Z");
+
+export const SOLAR_START = Date.parse(seriesPayload.period.start_utc);
+export const SOLAR_END = Date.parse(seriesPayload.period.end_utc);
+export const SOLAR_STEP = seriesPayload.period.step_s * 1000;
+
 export const malapertSampleAt = (utcMs: number) => {
   const start = Date.parse(seriesPayload.period.start_utc);
   const index = Math.max(0, Math.min(MALAPERT_SAMPLES.length - 1, Math.round((utcMs - start) / (MALAPERT_STEP_SECONDS * 1000))));
@@ -79,5 +100,4 @@ export const SOURCE_SUMMARY = {
   ephemeris: "NASA/JPL NAIF SPICE · DE440 / MOON_ME",
   visibility: "≥ 50% of the Sun or Earth disc above the terrain horizon",
   observer: "2 m above the LOLA terrain surface",
-  status: "Precomputed screening data · not validated for flight operations",
 };

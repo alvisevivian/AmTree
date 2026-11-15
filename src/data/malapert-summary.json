@@ -189,7 +189,6 @@
   }
  },
  "limitations": [
-  "Prototype for site screening; not validated for flight operations and not NASA-approved.",
   "Horizon from LOLA gridded DEMs (80 m/px within ~300 km of the pole, 480 m/px overview beyond): terrain smaller than the pixel scale (boulders, small crater rims, the lander itself) is not modelled.",
   "The observer is a point at the stated height above the DEM surface at the stated coordinates.",
   "Sun visibility is a geometric power *opportunity*; no power-system, thermal or array-pointing model.",

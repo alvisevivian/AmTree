@@ -1,0 +1,65 @@
+[
+  {
+    "id": "region-nobile-rim-2",
+    "name": "Nobile Rim 2",
+    "latitude": -83.9657,
+    "longitude": 57.9499,
+    "elevationM": 436.915
+  },
+  {
+    "id": "region-mons-mouton",
+    "name": "Mons Mouton",
+    "latitude": -85.4006,
+    "longitude": 30.8514,
+    "elevationM": 5365.5
+  },
+  {
+    "id": "region-malapert-massif",
+    "name": "Malapert Massif",
+    "latitude": -85.9106,
+    "longitude": -1.1413,
+    "elevationM": 3528.45
+  },
+  {
+    "id": "region-de-gerlache-rim-2",
+    "name": "de Gerlache Rim 2",
+    "latitude": -88.1165,
+    "longitude": -63.8714,
+    "elevationM": -350.774
+  },
+  {
+    "id": "region-mons-mouton-plateau",
+    "name": "Mons Mouton Plateau",
+    "latitude": -84.1584,
+    "longitude": 27.0871,
+    "elevationM": 2946.73
+  },
+  {
+    "id": "region-slater-plain",
+    "name": "Slater Plain",
+    "latitude": -87.2402,
+    "longitude": 125.1631,
+    "elevationM": -363.663
+  },
+  {
+    "id": "region-peak-near-cabeus-b",
+    "name": "Peak Near Cabeus B",
+    "latitude": -83.5451,
+    "longitude": -68.4333,
+    "elevationM": 2051.92
+  },
+  {
+    "id": "region-nobile-rim-1",
+    "name": "Nobile Rim 1",
+    "latitude": -85.4099,
+    "longitude": 36.2057,
+    "elevationM": 4605.2
+  },
+  {
+    "id": "region-haworth",
+    "name": "Haworth",
+    "latitude": -86.6038,
+    "longitude": -23.5277,
+    "elevationM": 599.694
+  }
+]
