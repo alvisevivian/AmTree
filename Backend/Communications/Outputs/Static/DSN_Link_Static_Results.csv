@@ -1,0 +1,10 @@
+Region,Time_UTC,Max_DSN_Elev_Deg,DSN_Coverage_Pct,Signal_Quality,Active_Nodes
+Nobile Rim 2,2026-11-14T12:00:00,-0.65,0.0,NO SIGNAL,None
+Mons Mouton,2026-11-14T12:00:00,0.225,92.83,Nominal (1 Node),Canberra (DSS-43)
+Malapert Massif,2026-11-14T12:00:00,0.451,100.0,Nominal (1 Node),Canberra (DSS-43)
+de Gerlache Rim 2,2026-11-14T12:00:00,-2.715,0.0,NO SIGNAL,None
+Mons Mouton Plateau,2026-11-14T12:00:00,1.293,100.0,Good (2 Nodes),"Madrid (DSS-63), Canberra (DSS-43)"
+Slater Plain,2026-11-14T12:00:00,-5.312,0.0,NO SIGNAL,None
+Peak Near Cabeus B,2026-11-14T12:00:00,-0.969,0.0,NO SIGNAL,None
+Nobile Rim 1,2026-11-14T12:00:00,-0.051,41.22,NO SIGNAL,None
+Haworth,2026-11-14T12:00:00,-0.501,0.41,NO SIGNAL,None

@@ -30,11 +30,10 @@ except ImportError:
 
 # ==============================================================================
 # ARTEMIS III - SUN VISIBILITY SIMULATOR (ILLUMINATION)
-# Architecture: Static (Instant Snapshot PNG, CSV) & Dynamic (Time-Series CSV, GIF)
-# Note: Bulletproof dynamic paths. Runs perfectly regardless of terminal location.
+# Architecture: Includes Dynamic Eclipse (Earth Shadow) overriding topography.
 # ==============================================================================
 
-# DYNAMIC ABSOLUTE PATHS (Anchored to this script's exact location)
+# DYNAMIC ABSOLUTE PATHS
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
@@ -77,14 +76,12 @@ def get_user_inputs(geojson_data):
     
     prefs = {}
     
-    # 1. SIMULATION MODE
     print("\n[ SIMULATION MODE ]")
     print("  S - Static Mode  (Instant Snapshot PNG & CSV -> Outputs/Static)")
     print("  D - Dynamic Mode (Time-Series CSV & GIF -> Outputs/Dynamic)")
     mode = input("Your Choice [S/D] (Default: D): ").strip().upper()
     prefs['mode'] = 'S' if mode == 'S' else 'D'
     
-    # 2. TERRAIN MASKING (DEM)
     print("\n[ TERRAIN MASKING / TOPOGRAPHY ]")
     if DEM_LIBRARIES_AVAILABLE:
         print("  Y - Yes (Use extracted DEM .tif files for True Surface Altitudes)")
@@ -92,17 +89,14 @@ def get_user_inputs(geojson_data):
         use_dem = input("Enable High-Fidelity Terrain Calculation? [Y/N] (Default: N): ").strip().upper()
         prefs['use_dem'] = True if use_dem == 'Y' else False
     else:
-        print("  [!] rasterio / pyproj not installed. Falling back to Ellipsoid.")
         prefs['use_dem'] = False
         
-    # 3. EXPORT OPTIONS
     prefs['export_stl'] = False
     if prefs['use_dem'] and STL_AVAILABLE:
         print("\n[ 3D PRINT EXPORT ]")
         exp = input("Generate 3D Print (.STL) file for regions? [Y/N] (Default: N): ").strip().upper()
         prefs['export_stl'] = True if exp == 'Y' else False
 
-    # 4. TIME INTERVAL
     print("\n[ TIME INTERVAL ]")
     if prefs['mode'] == 'S':
         target = input("Target UTC (Format: YYYY-MM-DDThh:mm:ss) [Default: 2026-11-14T12:00:00]: ").strip()
@@ -110,10 +104,8 @@ def get_user_inputs(geojson_data):
     else:
         start = input("Start UTC [Default: 2026-11-14T00:00:00]: ").strip()
         prefs['start'] = start if start else "2026-11-14T00:00:00"
-        
         end = input("End UTC [Default: 2026-11-28T00:00:00]: ").strip()
         prefs['end'] = end if end else "2026-11-28T00:00:00"
-        
         step = input("Time step (Minutes) [Default: 60]: ").strip()
         prefs['step'] = int(step) if step.isdigit() else 60
         
@@ -121,7 +113,6 @@ def get_user_inputs(geojson_data):
         gif_exp = input("Generate Animated Heatmap (.GIF) for regions? [Y/N] (Default: N): ").strip().upper()
         prefs['generate_gif'] = True if gif_exp == 'Y' else False
 
-    # 5. REGION SELECTION
     print("\n[ REGION SELECTION ]")
     regions_list = [f['properties']['Region'] for f in geojson_data['features']]
     for i, r in enumerate(regions_list):
@@ -136,10 +127,8 @@ def get_user_inputs(geojson_data):
             indices = [int(x.strip())-1 for x in sel.split(',')]
             prefs['regions'] = [regions_list[i] for i in indices if 0 <= i < len(regions_list)]
         except:
-            print("[!] Invalid input, all regions selected.")
             prefs['regions'] = regions_list
             
-    print("="*65 + "\n")
     return prefs
 
 def get_elevation_from_dem(lon_array, lat_array, dem_path):
@@ -155,11 +144,10 @@ def get_elevation_from_dem(lon_array, lat_array, dem_path):
                 col = max(0, min(src.index(x, y)[1], src.width - 1))
                 altitudes_km.append(src.read(1)[row, col] / 1000.0) 
         return altitudes_km
-    except Exception as e:
-        print(f"      [!] Error reading DEM {dem_path}: {e}")
+    except:
         return [0.0] * len(lon_array)
 
-def build_region_cache(prefs, geojson_data, re, flat):
+def build_region_cache(prefs, geojson_data, re_moon, flat_moon):
     region_cache = {}
     for feature in geojson_data['features']:
         region_name = feature['properties']['Region']
@@ -181,20 +169,18 @@ def build_region_cache(prefs, geojson_data, re, flat):
             dem_filename = f"{region_name.replace(' ', '_')}.tif"
             dem_path = os.path.join(DEM_DIR, dem_filename)
             if os.path.exists(dem_path):
-                print(f"[*] Applying True DEM Topography for: {region_name}...")
                 alts = get_elevation_from_dem(lons, lats, dem_path)
             else:
-                print(f"[*] Warning: DEM not found for {region_name}. Using 0.0 altitude.")
                 alts = [0.0] * len(lons)
                 dem_path = None
         else:
             alts = [0.0] * len(lons)
             
-        pos_list = [spice.georec(np.radians(lon), np.radians(lat), alt, re, flat) for lon, lat, alt in zip(lons, lats, alts)]
+        pos_list = [spice.georec(np.radians(lon), np.radians(lat), alt, re_moon, flat_moon) for lon, lat, alt in zip(lons, lats, alts)]
         
         c_lon, c_lat = np.mean(lons), np.mean(lats)
         c_alt = np.mean(alts) if len(alts) > 0 else 0.0
-        c_pos = spice.georec(np.radians(c_lon), np.radians(c_lat), c_alt, re, flat)
+        c_pos = spice.georec(np.radians(c_lon), np.radians(c_lat), c_alt, re_moon, flat_moon)
         
         region_cache[region_name] = {
             'c_pos': c_pos, 
@@ -212,7 +198,6 @@ def export_3d_stl(r_name, dem_path, safe_name, target_dir):
     if not dem_path or not os.path.exists(dem_path):
         return
     stl_path = os.path.join(target_dir, f"{safe_name}_Topography.stl")
-    print(f"    [*] Generating 3D Print File (STL) for {r_name} -> {target_dir}...")
     
     with rasterio.open(dem_path) as src:
         z_arr = src.read(1).astype(np.float32)
@@ -252,7 +237,31 @@ def export_3d_stl(r_name, dem_path, safe_name, target_dir):
                 surface_mesh.vectors[i][j] = f[j]
                 
         surface_mesh.save(stl_path)
-        print(f"    [+] Saved STL: {stl_path}")
+
+def get_eclipse_status(et):
+    """Calculates if Earth physically blocks the Sun as seen from the Moon (Lunar Eclipse)."""
+    pos_sun, _ = spice.spkpos("SUN", et, "J2000", "LT+S", "MOON")
+    pos_earth, _ = spice.spkpos("EARTH", et, "J2000", "LT+S", "MOON")
+    
+    radii_sun = spice.bodvrd("SUN", "RADII", 3)[1]
+    radii_earth = spice.bodvrd("EARTH", "RADII", 3)[1]
+    r_sun = radii_sun[0]
+    r_earth = radii_earth[0]
+    
+    dist_sun = spice.vnorm(pos_sun)
+    dist_earth = spice.vnorm(pos_earth)
+    
+    ang_rad_sun = np.arcsin(r_sun / dist_sun)
+    ang_rad_earth = np.arcsin(r_earth / dist_earth)
+    
+    ang_sep = spice.vsep(pos_sun, pos_earth)
+    
+    if ang_sep < (ang_rad_earth - ang_rad_sun):
+        return "TOTAL ECLIPSE"
+    elif ang_sep < (ang_rad_earth + ang_rad_sun):
+        return "PARTIAL ECLIPSE"
+    else:
+        return "NO ECLIPSE"
 
 def run_static_snapshot(prefs, geojson_data):
     et = spice.str2et(prefs['target'])
@@ -264,6 +273,8 @@ def run_static_snapshot(prefs, geojson_data):
     region_cache = build_region_cache(prefs, geojson_data, re, flat)
     
     current_utc = spice.et2utc(et, 'ISOC', 0)
+    eclipse = get_eclipse_status(et)
+    
     csv_data = [["Region", "Time_UTC", "Sun_Elevation_Deg", "Sunlit_Area_Pct", "Status"]]
     
     for r_name, cache in region_cache.items():
@@ -276,12 +287,22 @@ def run_static_snapshot(prefs, geojson_data):
             
         elevs = np.array(elevations)
         
-        # Calculate Stats for CSV
         c_angle = spice.vsep(cache['c_zenith'], sun_pos - cache['c_pos'])
         c_elev_deg = 90.0 - np.degrees(c_angle)
+        
         vis_count = sum(1 for el in elevs if el > 0)
-        pct = (vis_count / cache['total_points']) * 100
-        status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
+        
+        # APPLY ECLIPSE OVERRIDE
+        if eclipse == "TOTAL ECLIPSE":
+            elevs = np.full_like(elevs, -1e-5) # Force completely pitch black map
+            pct = 0.0
+            status = "TOTAL ECLIPSE (EARTH SHADOW)"
+        else:
+            pct = (vis_count / cache['total_points']) * 100
+            status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
+            if eclipse == "PARTIAL ECLIPSE" and pct > 0:
+                status += " (PARTIAL ECLIPSE)"
+                
         csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
         
         elevs_clipped = np.clip(elevs, -1e-5, None)
@@ -294,36 +315,34 @@ def run_static_snapshot(prefs, geojson_data):
 
         fig = plt.figure(figsize=(10, 8))
         mode_title = "DEM Calculated" if prefs['use_dem'] else "Ellipsoid Calculated"
-        plt.title(f"Sun Visibility Gradient: {r_name} ({mode_title})\nSnapshot UTC: {current_utc}", fontsize=14, fontweight='bold')
         
+        header_text = f"Sun Visibility Gradient: {r_name} ({mode_title})\nSnapshot UTC: {current_utc}"
+        if eclipse != "NO ECLIPSE":
+            header_text += f" | {eclipse}"
+            
+        plt.title(header_text, fontsize=14, fontweight='bold')
         plt.xlabel("Longitude (deg)", fontsize=12, fontweight='bold')
         plt.ylabel("Latitude (deg)", fontsize=12, fontweight='bold')
         
-        inside_pts = cache['inside_pts']
-        contour = plt.tricontourf(inside_pts[:, 0], inside_pts[:, 1], elevs_clipped, levels=levels, colors=c_list)
-        
+        contour = plt.tricontourf(cache['inside_pts'][:, 0], cache['inside_pts'][:, 1], elevs_clipped, levels=levels, colors=c_list)
         cbar = plt.colorbar(contour)
         cbar.set_label('Solar Elevation Angle (deg)', fontsize=12, fontweight='bold')
         cbar.set_ticks(np.linspace(0.0, max_el, 6))
         
-        boundary = cache['boundary']
-        plt.plot(boundary[:, 0], boundary[:, 1], color='cyan', linewidth=2, label='Region Boundary')
+        plt.plot(cache['boundary'][:, 0], cache['boundary'][:, 1], color='cyan', linewidth=2, label='Region Boundary')
         plt.legend(loc='upper right')
         
         out_path = os.path.join(STATIC_OUT, f"{safe_name}_Snapshot.png")
         plt.savefig(out_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f" -> Saved Static Heatmap PNG: {out_path}")
         
         if prefs.get('export_stl'):
             export_3d_stl(r_name, cache['dem_path'], safe_name, STATIC_OUT)
 
-    # WRITE STATIC CSV
     with open(STATIC_CSV, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerows(csv_data)
     print(f"\n[*] Static CSV Report saved to: {STATIC_CSV}")
-    print(f"[*] Static analysis complete. Files saved in '{STATIC_OUT}'.")
 
 def run_dynamic_timeseries(prefs, geojson_data):
     et_start, et_end = spice.str2et(prefs['start']), spice.str2et(prefs['end'])
@@ -345,32 +364,42 @@ def run_dynamic_timeseries(prefs, geojson_data):
 
         print(f"    -> Calculating time-series for {r_name}...")
         all_frames = [] if prefs.get('generate_gif') else None
+        all_eclipse_flags = [] if prefs.get('generate_gif') else None
         
         for et in et_times:
             current_utc = spice.et2utc(et, 'ISOC', 0)
             sun_pos, _ = spice.spkpos("SUN", et, "IAU_MOON", "LT+S", "MOON")
+            eclipse = get_eclipse_status(et)
             
             c_angle = spice.vsep(cache['c_zenith'], sun_pos - cache['c_pos'])
             c_elev_deg = 90.0 - np.degrees(c_angle)
             
-            sunlit_count = 0
             elevations = []
-            
             for p, z in zip(cache['grid_pos'], cache['grid_zenith']):
                 angle = spice.vsep(z, sun_pos - p)
                 el = 90.0 - np.degrees(angle)
-                if prefs.get('generate_gif'): elevations.append(el)
-                if el > 0: sunlit_count += 1
+                elevations.append(el)
+                
+            elevs = np.array(elevations)
+            vis_count = sum(1 for el in elevs if el > 0)
+            
+            # APPLY ECLIPSE OVERRIDE
+            if eclipse == "TOTAL ECLIPSE":
+                elevs = np.full_like(elevs, -1e-5)
+                pct = 0.0
+                status = "TOTAL ECLIPSE (EARTH SHADOW)"
+            else:
+                pct = (vis_count / cache['total_points']) * 100
+                status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
+                if eclipse == "PARTIAL ECLIPSE" and pct > 0:
+                    status += " (PARTIAL ECLIPSE)"
                     
             if prefs.get('generate_gif'):
-                elevs = np.clip(np.array(elevations), -1e-5, None)
-                all_frames.append(elevs)
+                all_frames.append(np.clip(elevs, -1e-5, None))
+                all_eclipse_flags.append(eclipse)
                     
-            pct = (sunlit_count / cache['total_points']) * 100
-            status = "PARTIAL/SUNLIT" if pct > 0 else "IN SHADOW"
             csv_data.append([r_name, current_utc, round(c_elev_deg, 3), round(pct, 2), status])
 
-        # --- 2D ANIMATED GIF GENERATION (DYNAMIC) ---
         if prefs.get('generate_gif') and all_frames:
             print(f"    [*] Rendering 2D Timelapse GIF for {r_name}...")
             
@@ -387,13 +416,17 @@ def run_dynamic_timeseries(prefs, geojson_data):
                 ax = fig.add_subplot(111)
                 current_utc = spice.et2utc(et_times[i], 'ISOC', 0)
                 mode_title = "DEM Calculated" if prefs['use_dem'] else "Ellipsoid Calculated"
+                ecl_str = all_eclipse_flags[i]
                 
-                ax.set_title(f"Dynamic Timelapse: {r_name} ({mode_title})\nTime: {current_utc} (UTC)", fontsize=14, fontweight='bold')
+                header_text = f"Dynamic Timelapse: {r_name} ({mode_title})\nTime: {current_utc} (UTC)"
+                if ecl_str != "NO ECLIPSE":
+                    header_text += f" | {ecl_str}"
+                    
+                ax.set_title(header_text, fontsize=14, fontweight='bold')
                 ax.set_xlabel("Longitude (deg)", fontsize=12, fontweight='bold')
                 ax.set_ylabel("Latitude (deg)", fontsize=12, fontweight='bold')
                 
                 contour = ax.tricontourf(cache['inside_pts'][:, 0], cache['inside_pts'][:, 1], all_frames[i], levels=levels, colors=c_list)
-                
                 cbar = fig.colorbar(contour, ax=ax)
                 cbar.set_label('Solar Elevation Angle (deg)', fontsize=12, fontweight='bold')
                 cbar.set_ticks(np.linspace(0.0, global_max, 6))
@@ -405,7 +438,6 @@ def run_dynamic_timeseries(prefs, geojson_data):
             gif_path = os.path.join(DYNAMIC_OUT, f"{safe_name}_Timelapse.gif")
             ani.save(gif_path, writer='pillow', fps=10)
             plt.close(fig)
-            print(f"    [+] Saved Dynamic GIF: {gif_path}")
 
     with open(DYNAMIC_CSV, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -423,13 +455,6 @@ def process_and_visualize_data(prefs):
         stats = [{'Region': r, 'Score': df[df['Region'] == r]['Sunlit_Area_Pct'].mean()} for r in regions]
         stats.sort(key=lambda x: x['Score'], reverse=True)
         
-        print("="*65)
-        print(f"{'RANK | REGION':<28} | AVG. SUNLIT AREA (%)")
-        print("="*65)
-        for rank, s in enumerate(stats, 1):
-            print(f"{rank:<2}.  | {s['Region']:<22} | {s['Score']:>8.2f}%")
-        print("="*65 + "\n")
-
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), sharex=True)
         for r in regions:
             r_data = df[df['Region'] == r]
@@ -470,7 +495,6 @@ def run_simulation():
         with open(GEOJSON_FILE, 'r', encoding='utf-8') as f:
             geojson_data = json.load(f)
     except FileNotFoundError:
-        print(f"ERROR: {GEOJSON_FILE} not found. Check absolute path mapping.")
         return None
 
     prefs = get_user_inputs(geojson_data)
