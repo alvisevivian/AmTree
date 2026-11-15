@@ -1,4 +1,12 @@
-# AmTree Patch 11
+# AmTree — browser edition
+
+This version runs simulations and exports entirely in the browser, with the original Python algorithms, bundled Pyodide and CSPICE WebAssembly. No external Python service is required. See [VERIFICA-BROWSER.md](VERIFICA-BROWSER.md) for current setup, Netlify settings, validation results and limitations.
+
+Use Node 24. Run `npm ci`, then `npm run dev`; for production run `npm run build` and publish `dist`. Netlify settings are included in `netlify.toml`. HTTPS or localhost is required. Runtime and scientific data add approximately 43 MiB to the initial simulation download. Modern WebAssembly and service worker support is required.
+
+The instructions below describe the original optional native Python reference runtime. They are not required to publish the browser edition.
+
+## Original Patch 11 instructions
 
 Extract the ZIP into a separate folder. On Windows with 64-bit Python 3.13,
 double-click `Start AmTree.cmd` and leave its terminal open. It installs the

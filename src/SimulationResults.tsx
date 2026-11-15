@@ -204,7 +204,7 @@ function ElevationMap({ url, title, label, color, filename }: {
   const [failed, setFailed] = useState(false);
   return <figure className={`simulation-figure ${color}`}>
     <figcaption><strong>{title}</strong><small>{label} (degrees)</small></figcaption>
-    {failed ? <p className="dsn-note" role="status">Map unavailable. Restart the updated AmTree backend and rerun the simulation.</p> : <>
+    {failed ? <p className="dsn-note" role="status">Map unavailable. Reload AmTree and rerun the simulation.</p> : <>
       <img loading="lazy" width={1000} height={800} src={url} alt={label} onError={() => setFailed(true)}/>
       <a href={url} download={filename}>Download GIF</a>
     </>}

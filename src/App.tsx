@@ -563,7 +563,7 @@ export default function App(){
       const query = new URLSearchParams({ mode, start: start.toISOString(), end: end.toISOString(), interval: String(cadence) }).toString();
       const response = await fetch(`/api/mission-window?${query}`, { signal: controller.signal });
       if (!response.headers.get("content-type")?.includes("application/json")) {
-        throw new Error("Start the AmTree backend to run a simulation.");
+        throw new Error("Unable to load the browser calculation engine. Reload AmTree and try again.");
       }
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Could not calculate this simulation.");

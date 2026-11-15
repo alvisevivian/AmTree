@@ -9,3 +9,6 @@ __pycache__/
 Backend/.deps/
 .env
 .env.*
+.netlify/
+public/runtime/data/
+public/runtime/manifest.json
