@@ -31,7 +31,7 @@ export async function installBrowserRuntime() {
   navigator.serviceWorker.addEventListener('message', event => {
     if (event.data?.type !== 'amtree-compute') return;
     if (!engine) {
-      engine = new Worker(import.meta.env.BASE_URL + 'runtime/worker.js', { type: 'module' });
+      engine = new Worker(import.meta.env.BASE_URL + 'runtime/worker.js?v=2', { type: 'module' });
       engine.onmessage = ({ data }) => {
         const port = pending.get(data.id);
         if (!port) return;

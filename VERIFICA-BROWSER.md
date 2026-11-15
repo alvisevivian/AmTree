@@ -1,5 +1,15 @@
 # AmTree browser — verifica del 15 novembre 2026
 
+## Aggiornamento compatibilità SPICE
+
+Segnalazione: Safari macOS, analisi dinamica 10 gennaio 2029 12:00 UTC – 13 gennaio 2029 12:00 UTC, errore SPKINSUFFDATA con epoca inattesa nel 1941. Le copie online di de432s.bsp e worker.js sono risultate identiche a quelle locali. Lo stesso errore non è stato riprodotto nei test automatici precedenti alla modifica: la causa specifica nella sessione Safari dell'utente resta non dimostrata.
+
+Il collegamento Python/JavaScript ora trasferisce epoche e posizioni in batch tramite JSON, evitando conversioni numeriche implicite fra i due runtime. Le tre chiamate CSPICE usano un adattatore esplicito con buffer Float64 letti dopo la chiamata, anziché il marshaller generico delle firme. Se SPICE segnala SPKINSUFFDATA, i sei kernel vengono ricaricati e la stessa richiesta viene riprovata una sola volta. Un errore persistente continua a bloccare il calcolo: nessun risultato viene inventato o sostituito con un'approssimazione. I percorsi del worker e dell'adattatore Python sono stati versionati per evitare riuso della vecchia versione in cache.
+
+Nuovi confronti eseguiti con Chrome, Firefox 159 e WebKit 27.2: quattro scenari, incluso il periodo segnalato nel 2029, tutte le 15 località e complessivamente 315.810 valori numerici per browser. Scarto massimo osservato inferiore a 2e-10 rispetto a Python nativo. Tutte le dieci esportazioni CSV/PNG/HTML/GIF e i quattro casi di input non valido passano sui tre motori. Aggiunti tre test automatici del collegamento: precisione delle epoche, recupero con ricaricamento kernel e rifiuto dell'errore persistente. npm test: sette test superati.
+
+Il Safari reale installato sul computer non è stato automatizzato perché l'automazione remota è disabilitata nelle sue impostazioni. WebKit è il motore di Safari, ma il suo test automatico non certifica la sessione reale dell'utente o ogni piattaforma. Il nuovo commit deve essere sincronizzato nel fork e pubblicato da Netlify prima della conferma su amtree.earth. I riferimenti sotto a browser non ancora verificati descrivono la prima versione: Chrome, Firefox e WebKit sono ora coperti dai nuovi test; dispositivi mobili fisici restano da verificare.
+
 Il browser esegue gli stessi file mission_server.py e map_timelapses.py con Pyodide 0.27.7, NumPy 2.0.2 e Pillow 10.2.0. Un adattatore implementa le chiamate SPICE tramite NASA CSPICE compilato in WebAssembly, distribuito da SpiceQL 1.9.0. Formule, kernel e dati scientifici originali non sono stati modificati. Un service worker intercetta localmente simulazioni, immagini ed esportazioni; il calcolo avviene in un worker dedicato. Tutte le librerie sono incluse nel sito.
 
 ## Test eseguiti

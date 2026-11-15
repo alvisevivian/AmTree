@@ -6,14 +6,15 @@ def furnsh(path):
     return None
 
 def str2et(value):
-    return spiceBridge.str2et(value)
+    return json.loads(spiceBridge.request(json.dumps({'operation': 'str2et', 'value': value})))
 
 def spkpos(target, times, frame, correction, observer):
     scalar = np.isscalar(times)
-    rows = [json.loads(spiceBridge.position(target, float(t), frame, correction, observer)) for t in ([times] if scalar else times)]
+    epochs = [float(t) for t in ([times] if scalar else times)]
+    rows = json.loads(spiceBridge.request(json.dumps({'operation': 'spkpos', 'target': target, 'epochs': epochs, 'frame': frame, 'correction': correction, 'observer': observer})))
     positions = np.array([row['ptarg'] for row in rows])
     light = np.array([row['lt'] for row in rows])
     return (positions[0], light[0]) if scalar else (positions, light)
 
 def pxfrm2(source, target, before, after):
-    return np.array(json.loads(spiceBridge.rotation(source, target, float(before), float(after))))
+    return np.array(json.loads(spiceBridge.request(json.dumps({'operation': 'pxfrm2', 'source': source, 'target': target, 'before': float(before), 'after': float(after)}))))
